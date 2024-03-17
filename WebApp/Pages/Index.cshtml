@@ -1,0 +1,83 @@
+@page
+@using Domain.Players
+@model WebApp.Pages.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Games</h1>
+
+<p>
+    <a asp-page="Create" class="btn btn-primary">Create a new game</a>
+</p>
+
+<table id="table-of-games" class="table table-sm">
+    <thead>
+    <tr>
+        <th class="th-sm">
+            @Html.DisplayNameFor(model => model.GameStates[0].GameName)
+        </th>
+        <th class="th-sm">
+            @Html.DisplayNameFor(model => model.GameStates[0].CreatedAt)
+        </th>
+        <th class="th-sm">
+            @Html.DisplayNameFor(model => model.GameStates[0].UpdatedAt)
+        </th>
+        <th class="th-sm">
+            @Html.DisplayNameFor(model => model.GameStates[0].Players)
+        </th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model.GameStates)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.GameName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedAt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UpdatedAt)
+            </td>
+            <td>
+                @foreach (var player in item.Players)
+                {
+                    string linkStyle = IndexModel.GetPlayerLinkStyle(item.Id, player);
+
+                    <a class="@linkStyle tooltip-uno tt-right"
+                       tooltip-text="Play game as @player.Name"
+                       asp-page="./Game"
+                       asp-route-Id="@item.Id"
+                       asp-route-Player="@player.Name">
+                        @player.Name (@player.Type)
+                    </a>
+                    <br/>
+                }
+            </td>
+            <td class="actions">
+                <a asp-page="./Delete" asp-route-Id="@item.Id" class="btn btn-danger">Delete</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+
+@section Scripts
+{
+    <script>
+        new DataTable('#table-of-games', {
+            columns: [
+                null,
+                null,
+                null,
+                { orderable: false },
+                { orderable: false }
+            ]
+        });
+    </script>
+}

@@ -1,0 +1,153 @@
+@page
+@using Domain.Players
+@using Domain
+@using Domain.Cards
+@model CreateModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create a new game</h1>
+<hr/>
+<div class="row">
+    <form method="post">
+        <div class="col-md-4">
+            <div class="form-group remove-margin-top">
+                <label asp-for="GameState.GameName" class="control-label"></label>
+                <input asp-for="GameState.GameName" class="form-control" autocomplete="off"/>
+                <span asp-validation-for="GameState.GameName" class="text-danger" style="display: block;"></span>
+            </div>
+            @{
+                var incrementVisibility = Model.PlayerCount < 10 ? "visible" : "hidden";
+                var decrementVisibility = Model.PlayerCount > 2 ? "visible" : "hidden";
+            }
+            <div class="actions">
+                <a style="visibility: @incrementVisibility" asp-route-playerCount="@(Model.PlayerCount + 1)" class="btn btn-primary">
+                    Add Player
+                </a>
+                <a style="visibility: @decrementVisibility" asp-route-playerCount="@(Model.PlayerCount - 1)" class="btn btn-primary">
+                    Remove Player
+                </a>
+            </div>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <h5>Players</h5>
+            @for (int i = 0; i < Model.PlayerCount; i++)
+            {
+                var i1 = i;
+                Model.GameState.Players.Add(new Player());
+
+                <div class="form-group">
+                    <label asp-for="GameState.Players[i1].Name" class="control-label"></label>
+                    <input asp-for="GameState.Players[i1].Name" class="form-control" autocomplete="off"/>
+                    <span asp-validation-for="GameState.Players[i1].Name" class="text-danger" style="display: block;"></span>
+
+                    <select class="player-type-select" asp-for="GameState.Players[i1].Type"
+                            asp-items="@(new SelectList(Enum.GetNames(typeof(EPlayerType))))">
+                    </select>
+                </div>
+            }
+            <span asp-validation-for="GameState" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 disabled-cards">
+            <h5>Cards in the game</h5>
+            <div class="form-group">
+                <table class="table table-bordered disabled-cards-table">
+                    <tr>
+                        <td></td>
+                        @for (int i = 0; i < 13; i++)
+                        {
+                            <td><input type="checkbox" class="form-check-input" id=@($"toggle-column-{i}") checked/></td>
+                        }
+                    </tr>
+
+                    <tr>
+                        @for (int i = 0; i < CardDeck.DefaultCardsDistinct.Count; i++)
+                        {
+                            if (i % 13 == 0)
+                            {
+                                <td>
+                                    @if (i < 52)
+                                    {
+                                        <input type="checkbox" class="form-check-input" id=@($"toggle-row-{i / 13}") checked/>
+                                    }
+                                </td>
+                            }
+
+                            var card = CardDeck.DefaultCardsDistinct.ElementAt(i);
+
+                            <td>
+                                <label for=@($"toggle-{i}") class="image-toggle">
+                                    @{
+                                        var i1 = i;
+                                    }
+
+                                    <input type="checkbox" id=@($"toggle-{i1}") asp-for="CardsInGame[i1]" checked>
+                                    <img src="@Game.CardToFilePath(card)" class="colored-card uno-card-small" alt="@(card.Color + " " + card.Value)">
+                                    <img src="@Game.CardToFilePath(card, greyVariant: true)" class="grey-card uno-card-small" alt="Grey @(card.Color + " " + card.Value)">
+                                </label>
+                            </td>
+
+                            if (i % 13 == 12)
+                            {
+                                @Html.Raw("</tr><tr>")
+                            }
+                        }
+
+                        @for (int i = 0; i < 11; i++)
+                        {
+                            <td></td>
+                        }
+
+                    </tr>
+                </table>
+                <span asp-validation-for="CardsInGame" class="text-danger"></span>
+            </div>
+        </div>
+        <hr/>
+        <div class="form-group">
+            <input type="submit" value="Create" class="btn btn-primary"/>
+            <a asp-page="Index" class="btn btn-secondary">Back to List</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        let checkColumn;
+
+        for (let i = 0; i < 13; i++) {
+            checkColumn = document.getElementById(`toggle-column-${i}`);
+            checkColumn.addEventListener("change", function () {
+                const checked = this.checked;
+                const otherCheckboxes = [];
+
+                for (let j = 0; j < 4; j++) {
+                    otherCheckboxes.push(document.getElementById(`toggle-${j * 13 + i}`));
+                }
+
+                otherCheckboxes.forEach(function(item) {
+                    item.checked = checked;
+                });
+            });
+        }
+
+        for (let i = 0; i < 4; i++) {
+            checkColumn = document.getElementById(`toggle-row-${i}`);
+            checkColumn.addEventListener("change", function() {
+                const checked = this.checked;
+                const otherCheckboxes = [];
+
+                for (let j = 0; j < 13; j++) {
+                    otherCheckboxes.push(document.getElementById(`toggle-${i * 13 + j}`));
+                }
+
+                otherCheckboxes.forEach(function(item) {
+                    item.checked = checked;
+                });
+            });
+        }
+    </script>
+}

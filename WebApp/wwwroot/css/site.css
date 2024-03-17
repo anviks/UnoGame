@@ -1,0 +1,429 @@
+:root {
+    --uno-red: #ff5555;
+    --uno-yellow: #ffaa00;
+    --uno-green: #55aa55;
+    --uno-blue: #5555ff;
+}
+
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+}
+
+a.player-link {
+    text-decoration: none;
+    color: var(--bs-green)
+}
+
+a.player-link:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--bs-green);
+}
+
+a.active-player {
+    color: var(--bs-red)
+}
+
+a.active-player:hover {
+    text-decoration-color: var(--bs-red);
+}
+
+/*.alert {*/
+/*  position: relative;*/
+/*  top: 10px;*/
+/*  left: 0;*/
+/*  width: max-content;*/
+/*  height: auto;*/
+/*  padding: 10px;*/
+/*  margin: 10px;*/
+/*  line-height: 1.8;*/
+/*  border-radius: 5px;*/
+/*  font-family: sans-serif;*/
+/*  font-weight: 400;*/
+/*}*/
+
+/*.alertText {*/
+/*  display: table;*/
+/*  margin: 0 auto;*/
+/*  text-align: center;*/
+/*  font-size: 16px;*/
+/*}*/
+
+.clear {
+    clear: both;
+}
+
+.info {
+    background-color: #EEE;
+    border: 1px solid #DDD;
+    color: #999;
+}
+
+.success {
+    background-color: #EFE;
+    border: 1px solid #DED;
+    color: #9A9;
+}
+
+.notice {
+    background-color: #EFF;
+    border: 1px solid #DEE;
+    color: #9AA;
+}
+
+.warning {
+    background-color: #FDF7DF;
+    border: 1px solid #FEEC6F;
+    color: #C9971C;
+}
+
+.error {
+    background-color: #FEE;
+    border: 1px solid #EDD;
+    color: #A66;
+}
+
+.player-type-select {
+    margin: .6rem 0;
+}
+
+.form-group {
+    margin: 1rem 0;
+}
+
+.s-square, .l-square {
+    font-size: 0;
+    line-height: 0;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.l-square {
+    font-size: 0;
+    line-height: 0;
+    height: 7rem;
+    width: 7rem;
+    border-radius: .8rem;
+}
+
+.s-square {
+    height: 2rem;
+    width: 2rem;
+    border-radius: .3rem;
+}
+
+.uno-red {
+    background-color: var(--uno-red);
+}
+
+.uno-yellow {
+    background-color: var(--uno-yellow);
+}
+
+.uno-green {
+    background-color: var(--uno-green);
+}
+
+.uno-blue {
+    background-color: var(--uno-blue);
+}
+
+.uno-card-hand {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.uno-card, .card-choice {
+    height: 150px;
+    width: 100px;
+    margin: 16px 10px;
+    border-radius: 16px;
+}
+
+.card-choice {
+    transition: transform 0.3s;
+}
+
+.card-choice:hover {
+    transform: scale(1.1) translateZ(10px); /* Enlarge and move towards the viewer */
+    box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.3);
+}
+
+.wild-card-div {
+    display: inline-block;
+    position: relative;
+    margin: 0 0 5px;
+}
+
+.uno-color-choice {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    display: grid;
+}
+
+.wild-card-div > .wild-image {
+    position: absolute;
+    z-index: 2;
+}
+
+.wild-card-div:hover > .wild-image {
+    z-index: 1;
+    display: none;
+}
+
+.wild-card-div > .uno-color-choice {
+    position: relative;
+    z-index: 1;
+    transition: z-index 0s 0.3s, transform 0.3s;
+}
+
+.wild-card-div:hover > .uno-color-choice {
+    z-index: 2;
+    transition: transform 0.3s;
+}
+
+.quarter {
+    font-size: 0;
+    line-height: 0;
+    border: 0;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.3s; /* Add transition for smooth effect */
+    z-index: 1;
+}
+
+.quarter:hover {
+    width: 100%;
+    height: 100%;
+    transform: scale(1.1) translateZ(10px); /* Enlarge and move towards the viewer */
+    box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.3);
+    z-index: 2;
+}
+
+/* Define colors for each quarter */
+.top-left {
+    border-top-left-radius: 17px;
+}
+
+.top-right {
+    border-top-right-radius: 17px;
+}
+
+.bottom-left {
+    border-bottom-left-radius: 17px;
+}
+
+.bottom-right {
+    border-bottom-right-radius: 17px;
+}
+
+.draw-form {
+    display: inline-block;
+}
+
+.modal-header-justify-content {
+    justify-content: center;
+}
+
+.modal-body-align-self {
+    align-self: center;
+}
+
+.modal-footer-justify-content {
+    justify-content: center;
+}
+
+.tooltip-uno {
+    position: relative; /* making the .tooltip span a container for the tooltip text */
+}
+
+.tooltip-uno:before {
+    content: attr(tooltip-text); /* here's the magic */
+    position: absolute;
+
+    /* vertically center */
+    top: 50%;
+    transform: translateY(-50%);
+
+    /* move to right */
+    left: 100%;
+    margin-left: 15px; /* and add a small left margin */
+
+    /* basic styles */
+    width: max-content;
+    padding: 10px;
+    border-radius: 10px;
+    background: #000;
+    color: #fff;
+    text-align: center;
+
+    display: none; /* hide by default */
+}
+
+.tooltip-uno:hover:before {
+    display: block;
+}
+
+.tooltip-uno.tt-right:before {
+    left: 100%;
+    margin: 0 0 0 14px;
+}
+
+.tooltip-uno:after {
+    content: "";
+    position: absolute;
+
+    /* position tooltip correctly */
+    left: 100%;
+    margin-left: -5px;
+
+    /* vertically center */
+    top: 50%;
+    transform: translateY(-50%);
+
+    /* the arrow */
+    border: 10px solid;
+    border-color: transparent black transparent transparent;
+
+    display: none;
+}
+
+.tooltip-uno:hover:before, .tooltip-uno:hover:after {
+    display: block;
+}
+
+td.actions {
+    vertical-align: middle;
+}
+
+.actions {
+    margin-bottom: 1rem;
+}
+
+hr {
+    border: revert;
+    opacity: .5;
+}
+
+.uno-card-small {
+    height: 45px;
+    width: 30px;
+}
+
+.col-md-4 {
+    display: inline-block;
+}
+
+.disabled-cards {
+    display: inline-block;
+    vertical-align: top;
+    margin-left: 4rem;
+}
+
+.image-toggle {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.image-toggle input[type="checkbox"] {
+    display: none;
+}
+
+.image-toggle .colored-card {
+    opacity: 0;
+}
+
+.image-toggle .grey-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.image-toggle input[type="checkbox"]:checked ~ .colored-card {
+    opacity: 1;
+}
+
+.image-toggle input[type="checkbox"]:checked ~ .grey-card {
+    opacity: 0;
+}
+
+.form-check-input:focus {
+    box-shadow: none !important;
+}
+
+.disabled-cards-table td {
+    vertical-align: middle;
+    text-align: center;
+}
+
+.remove-margin-top {
+    margin-top: 0;
+}
+
+.game-container {
+    width: 65%;
+    display: inline-block;
+}
+
+.game-log-container {
+    word-wrap: break-word;
+    margin-left: 3rem;
+    width: 30%;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: .4rem;
+    padding: 10px;
+    height: max-content;
+}
+
+.game-log {
+    height: 30rem;
+    border: 1px solid #ccc;
+    border-radius: .4rem;
+}
+
+main:has(> div.game-container) {
+    display: flex;
+}
+
+.game-log-entry {
+    border: 1px solid #bbb;
+    border-radius: .4rem;
+    padding: .4rem 1rem;
+    margin: .4rem;
+}
+
+.uno-move {
+    vertical-align: middle;
+}
+
+.game-info-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.game-info-card-counts {
+    text-align: right;
+}
