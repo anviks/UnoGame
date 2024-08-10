@@ -18,7 +18,7 @@ builder.Services.AddDbContext<UnoDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddRazorPages();
 
-const string ipString = "192.168.1.136";
+const string ipString = "10.224.25.186";
 builder.WebHost.ConfigureKestrel(options =>
 {
     options.Listen(IPAddress.Parse(ipString), 80);

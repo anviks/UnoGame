@@ -32,7 +32,7 @@
             </div>
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <h5>Players</h5>
-            @for (int i = 0; i < Model.PlayerCount; i++)
+            @for (var i = 0; i < Model.PlayerCount; i++)
             {
                 var i1 = i;
                 Model.GameState.Players.Add(new Player());
@@ -43,7 +43,7 @@
                     <span asp-validation-for="GameState.Players[i1].Name" class="text-danger" style="display: block;"></span>
 
                     <select class="player-type-select" asp-for="GameState.Players[i1].Type"
-                            asp-items="@(new SelectList(Enum.GetNames(typeof(EPlayerType))))">
+                            asp-items="Html.GetEnumSelectList<EPlayerType>()">
                     </select>
                 </div>
             }
@@ -55,14 +55,14 @@
                 <table class="table table-bordered disabled-cards-table">
                     <tr>
                         <td></td>
-                        @for (int i = 0; i < 13; i++)
+                        @for (var i = 0; i < 13; i++)
                         {
                             <td><input type="checkbox" class="form-check-input" id=@($"toggle-column-{i}") checked/></td>
                         }
                     </tr>
 
                     <tr>
-                        @for (int i = 0; i < CardDeck.DefaultCardsDistinct.Count; i++)
+                        @for (var i = 0; i < CardDeck.DefaultCardsDistinct.Count; i++)
                         {
                             if (i % 13 == 0)
                             {

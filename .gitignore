@@ -1,8 +1,8 @@
-**/WebApp/wwwroot/favicon.ico
-**/WebApp/*.txt
+WebApp/*.txt
 commands.md
 **/*.zip
-**/WebApp/wwwroot/images
+WebApp/wwwroot/images
+WebApp/wwwroot/lib
 
 # Common IntelliJ Platform excludes
 
