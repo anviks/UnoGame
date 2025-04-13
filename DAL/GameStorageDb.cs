@@ -1,23 +1,17 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using DAL.Context;
 using Domain;
 using Helpers;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Logging;
-using UnoEngine;
 
 namespace DAL;
 
-public class GameStorageDb: IGameStorage
+public class GameStorageDb : IGameStorage
 {
     private static GameStorageDb? _instance;
     private readonly UnoDbContext _db;
-    public readonly string SavePath = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "UnoGame",
-        "saves.db");
+    public readonly string SavePath = InitializeSavePath();
 
     private GameStorageDb()
     {
@@ -50,6 +44,35 @@ public class GameStorageDb: IGameStorage
     public static GameStorageDb Instance
     {
         get { return _instance ??= new GameStorageDb(); }
+    }
+
+    private static string InitializeSavePath()
+    {
+        var baseFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        string savePath;
+
+        if (baseFolder.Length > 0)
+        {
+            savePath = Path.Combine(
+                baseFolder,
+                "UnoGame",
+                "saves.db");
+        }
+        else
+        {
+            savePath = Path.Combine(
+                AppContext.BaseDirectory,
+                "App_Data",
+                "saves.db"
+            );
+        }
+
+        if (!Directory.Exists(Path.GetDirectoryName(savePath)))
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(savePath)!);
+        }
+
+        return savePath;
     }
 
     public void SaveGame(GameState state)
