@@ -14,12 +14,12 @@ namespace WebApp.Pages
     public class CreateModel : PageModel
     {
         private readonly UnoDbContext _context;
-        private readonly IGameStorage _repository;
+        private readonly IGameRepository _repository;
 
         public CreateModel(UnoDbContext context)
         {
             _context = context;
-            _repository = new GameStorageDb(context);
+            _repository = new GameRepositoryDb(context);
             // _repository = GameStorageJson.Instance;
         }
 

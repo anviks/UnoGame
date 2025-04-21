@@ -40,7 +40,7 @@ var ascDesc = new[] { "Ascending", "Descending" };
 // ###################
 
 
-var storage = GameStorageJson.Instance;
+var storage = GameRepositoryJson.Instance;
 // var storage = GameStorageDb.Instance;
 
 var menu = new Menu(ConsoleColor.Green);
@@ -140,7 +140,7 @@ if (savedGames.Any())
     var currentOrderBy = StringToOrder(orderChoiceItem.GetCurrent());
     var currentAscDesc = orderChoiceItemAscDesc.GetCurrent();
 
-    var idToMenuItem = new Dictionary<Guid, MenuItem>();
+    var idToMenuItem = new Dictionary<int, MenuItem>();
 
     MenuItem GameToContinueMenuItem(GameState state)
     {

@@ -8,7 +8,7 @@ namespace ConsoleApp;
 
 public static class UnoMenuCreator
 {
-    public static MenuLevel CreatePlayerMenuLevel(string gameName, int players, GameConfiguration configuration, IGameStorage storage)
+    public static MenuLevel CreatePlayerMenuLevel(string gameName, int players, GameConfiguration configuration, IGameRepository repository)
     {
         List<MenuItem> menuItems = new();
         var playerNames = new Dictionary<ChoiceMenuItem, TextMenuItem>();
@@ -39,7 +39,7 @@ public static class UnoMenuCreator
             Type = EMenuItemType.Continue,
             ValidationFunc = () => AreNamesUnique(playerNames.Values),
             ValidationErrorMessage = "Player names must be unique.",
-            Action = () => GameLoop.StartNewGame(gameName, CreatePlayers(playerNames), configuration, storage)
+            Action = () => GameLoop.StartNewGame(gameName, CreatePlayers(playerNames), configuration, repository)
         });
 
         return new MenuLevel("Players", menuItems);

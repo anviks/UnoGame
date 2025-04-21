@@ -3,11 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Context;
 
-public class UnoDbContext: DbContext
+public class UnoDbContext(DbContextOptions<UnoDbContext> options) : DbContext(options)
 {
     public DbSet<GameStateEntity> Games { get; set; } = default!;
-
-    public UnoDbContext(DbContextOptions<UnoDbContext> options) : base(options)
-    {
-    }
 }

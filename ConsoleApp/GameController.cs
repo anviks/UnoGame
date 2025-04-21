@@ -8,12 +8,12 @@ namespace ConsoleApp;
 public class GameController
 {
     private readonly Engine _engine;
-    private readonly IGameStorage _storage;
+    private readonly IGameRepository _repository;
 
-    public GameController(Engine engine, IGameStorage storage)
+    public GameController(Engine engine, IGameRepository repository)
     {
         _engine = engine;
-        _storage = storage;
+        _repository = repository;
     }
 
     private static void SlowWriteLine(string text = "")
@@ -25,7 +25,7 @@ public class GameController
     public void Setup()
     {
         var gameState = _engine.State;
-        _storage.SaveGame(gameState);
+        _repository.SaveGame(gameState);
         var cardDeck = gameState.Deck;
 
         cardDeck.Shuffle();
@@ -74,7 +74,7 @@ public class GameController
                 gameState.CurrentValue = null;
                 break;
         }
-        _storage.SaveGame(gameState);
+        _repository.SaveGame(gameState);
     }
 
     public void Run()
@@ -109,7 +109,7 @@ public class GameController
                     SaidUno(currentPlayer, false, cards);
                     break;
                 case 0:
-                    _storage.DeleteGame(gameState.Id);
+                    _repository.DeleteGame(gameState.Id);
                     SlowWriteLine($"{currentPlayer.Name} won the game!");
                     return;
             }
@@ -117,7 +117,7 @@ public class GameController
             Thread.Sleep(3000);
             Console.Clear();
             _engine.NextPlayer();
-            _storage.SaveGame(gameState);
+            _repository.SaveGame(gameState);
             var newPlayer = _engine.GetCurrentPlayer();
 
             if (newPlayer != currentPlayer && newPlayer.Type != EPlayerType.Computer)

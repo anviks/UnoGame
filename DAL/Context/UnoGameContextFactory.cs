@@ -8,7 +8,7 @@ public class UnoGameContextFactory : IDesignTimeDbContextFactory<UnoDbContext>
     public UnoDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<UnoDbContext>();
-        optionsBuilder.UseSqlite($"Data Source={GameStorageDb.Instance.SavePath}");
+        optionsBuilder.UseSqlite($"Data Source={GameRepositoryDb.Instance.SavePath}");
 
         return new UnoDbContext(optionsBuilder.Options);
     }

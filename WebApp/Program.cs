@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                        throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-connectionString = connectionString.Replace("<%DB_PATH%>", GameStorageDb.Instance.SavePath);
+connectionString = connectionString.Replace("<%DB_PATH%>", GameRepositoryDb.Instance.SavePath);
 builder.Services.AddDbContext<UnoDbContext>(options =>
     options.UseSqlite(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -82,18 +82,18 @@ async Task HandleWebSocketConnections(HttpContext context, WebSocket webSocket)
     Console.WriteLine(gameId);
     Console.WriteLine(playerName);
 
-    if (!Guid.TryParse(gameId, out Guid guid)) return;
+    if (!int.TryParse(gameId, out var id)) return;
 
     // Check if the player can connect based on parameters
     bool canConnect;
     lock (Game.ConnectedUsers)
     {
-        if (!Game.ConnectedUsers.ContainsKey(guid))
+        if (!Game.ConnectedUsers.ContainsKey(id))
         {
-            Game.ConnectedUsers[guid] = new Dictionary<string, WebSocket>();
+            Game.ConnectedUsers[id] = new Dictionary<string, WebSocket>();
         }
 
-        canConnect = !Game.ConnectedUsers[guid].ContainsKey(playerName)
+        canConnect = !Game.ConnectedUsers[id].ContainsKey(playerName)
                      || Game.UsersInGracePeriod.ContainsKey(playerName);
     }
 
@@ -104,7 +104,7 @@ async Task HandleWebSocketConnections(HttpContext context, WebSocket webSocket)
     // Add or update the player in the game
     lock (Game.ConnectedUsers)
     {
-        Game.ConnectedUsers[guid][playerName] = webSocket;
+        Game.ConnectedUsers[id][playerName] = webSocket;
     }
 
     bool isNewPlayer;
@@ -120,7 +120,7 @@ async Task HandleWebSocketConnections(HttpContext context, WebSocket webSocket)
         var msg = new { type = "NewPlayerJoined", player = playerName };
         var segment = Game.MessageToSegment(msg);
 
-        foreach (var (player, socket) in Game.ConnectedUsers[guid])
+        foreach (var (player, socket) in Game.ConnectedUsers[id])
         {
             if (player == playerName) continue;
             await socket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
@@ -174,10 +174,10 @@ async Task HandleWebSocketConnections(HttpContext context, WebSocket webSocket)
     {
         lock (Game.ConnectedUsers)
         {
-            Game.ConnectedUsers[guid].Remove(playerName);
-            if (Game.ConnectedUsers[guid].Count == 0)
+            Game.ConnectedUsers[id].Remove(playerName);
+            if (Game.ConnectedUsers[id].Count == 0)
             {
-                Game.ConnectedUsers.Remove(guid); // Remove the game entry if no players are connected
+                Game.ConnectedUsers.Remove(id); // Remove the game entry if no players are connected
             }
         }
     }

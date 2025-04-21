@@ -5,7 +5,7 @@ namespace Domain;
 
 public class GameStateEntity
 {
-    [Key] public Guid Id { get; set; }
+    [Key] public int Id { get; set; }
 
     [DisplayName("Game name")]
     public string GameName { get; set; } = default!;

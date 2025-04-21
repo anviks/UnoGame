@@ -20,15 +20,15 @@ public partial class Game : PageModel
 {
     private readonly UnoDbContext _context;
 
-    private IGameStorage _repository;
+    private IGameRepository _repository;
 
-    public static Dictionary<Guid, Dictionary<string, WebSocket>> ConnectedUsers { get; set; } = new();
+    public static Dictionary<int, Dictionary<string, WebSocket>> ConnectedUsers { get; set; } = new();
     public static Dictionary<string, DateTime> UsersInGracePeriod { get; set; } = new();
 
     public Engine Engine { get; set; } = default!;
     public GameState? GameState { get; set; }
 
-    [BindProperty(SupportsGet = true)] public Guid Id { get; set; }
+    [BindProperty(SupportsGet = true)] public int Id { get; set; }
     [BindProperty(SupportsGet = true)] public string Player { get; set; } = default!;
 
     public string Error { get; set; } = "";
@@ -46,7 +46,7 @@ public partial class Game : PageModel
     public Game(UnoDbContext context)
     {
         _context = context;
-        _repository = new GameStorageDb(context);
+        _repository = new GameRepositoryDb(context);
         // _repository = GameStorageJson.Instance;
     }
 

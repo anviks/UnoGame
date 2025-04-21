@@ -18,12 +18,12 @@ namespace WebApp.Pages
     public class IndexModel : PageModel
     {
         private readonly UnoDbContext _context;
-        private IGameStorage _repository;
+        private IGameRepository _repository;
 
         public IndexModel(UnoDbContext context)
         {
             _context = context;
-            _repository = new GameStorageDb(context);
+            _repository = new GameRepositoryDb(context);
             // _repository = GameStorageJson.Instance;
         }
 
@@ -36,7 +36,7 @@ namespace WebApp.Pages
             return Page();
         }
 
-        public static string GetPlayerLinkStyle(Guid gameId, Player player)
+        public static string GetPlayerLinkStyle(int gameId, Player player)
         {
             if (player.Type != EPlayerType.Human) return "player-link active-player";
 

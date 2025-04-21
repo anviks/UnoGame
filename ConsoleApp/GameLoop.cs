@@ -15,7 +15,7 @@ public static class GameLoop
         Console.CursorVisible = true;
     }
 
-    public static void StartNewGame(string name, List<Player> players, GameConfiguration configuration, IGameStorage storage)
+    public static void StartNewGame(string name, List<Player> players, GameConfiguration configuration, IGameRepository repository)
     {
         Setup();
         var state = new GameState
@@ -30,20 +30,20 @@ public static class GameLoop
         };
 
         engine.ApplyConfiguration(configuration);
-        var controller = new GameController(engine, storage);
+        var controller = new GameController(engine, repository);
         controller.Setup();
         controller.Run();
     }
 
-    public static void ContinueGame(IGameStorage storage, Guid id)
+    public static void ContinueGame(IGameRepository repository, int id)
     {
         Setup();
-        var state = storage.LoadGame(id) ?? throw new ArgumentException($"Couldn't find the game with the id {id}");
+        var state = repository.LoadGame(id) ?? throw new ArgumentException($"Couldn't find the game with the id {id}");
         var engine = new Engine
         {
             State = state
         };
-        var controller = new GameController(engine, storage);
+        var controller = new GameController(engine, repository);
         controller.Run();
     }
 }

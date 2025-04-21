@@ -7,13 +7,13 @@ using Microsoft.Extensions.Logging;
 
 namespace DAL;
 
-public class GameStorageDb : IGameStorage
+public class GameRepositoryDb : IGameRepository
 {
-    private static GameStorageDb? _instance;
+    private static GameRepositoryDb? _instance;
     private readonly UnoDbContext _db;
     public readonly string SavePath = InitializeSavePath();
 
-    private GameStorageDb()
+    private GameRepositoryDb()
     {
         var myLoggerFactory =
             LoggerFactory.Create(builder =>
@@ -36,14 +36,14 @@ public class GameStorageDb : IGameStorage
         _db.Database.Migrate();
     }
 
-    public GameStorageDb(UnoDbContext db)
+    public GameRepositoryDb(UnoDbContext db)
     {
         _db = db;
     }
 
-    public static GameStorageDb Instance
+    public static GameRepositoryDb Instance
     {
-        get { return _instance ??= new GameStorageDb(); }
+        get { return _instance ??= new GameRepositoryDb(); }
     }
 
     private static string InitializeSavePath()
@@ -100,19 +100,19 @@ public class GameStorageDb : IGameStorage
     }
 
 
-    public void DeleteGame(Guid id)
+    public void DeleteGame(int id)
     {
         _db.Games.Remove(GetGameStateEntity(id) ?? throw new ArgumentException($"Error on deleting GameState {id}"));
         _db.SaveChanges();
     }
 
-    public GameState? LoadGame(Guid id)
+    public GameState? LoadGame(int id)
     {
         var gameStateEntity = GetGameStateEntity(id);
         return gameStateEntity is null ? null : EntityToGameState(gameStateEntity);
     }
 
-    private GameStateEntity? GetGameStateEntity(Guid id)
+    private GameStateEntity? GetGameStateEntity(int id)
     {
         return _db.Games.FirstOrDefault(entity => entity.Id == id);
     }

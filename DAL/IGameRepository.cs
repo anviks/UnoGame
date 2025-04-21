@@ -3,10 +3,10 @@ using UnoEngine;
 
 namespace DAL;
 
-public interface IGameStorage
+public interface IGameRepository
 {
     void SaveGame(GameState state);
-    void DeleteGame(Guid id);
-    GameState? LoadGame(Guid id);
+    void DeleteGame(int id);
+    GameState? LoadGame(int id);
     List<GameState> FetchAllGames();
 }

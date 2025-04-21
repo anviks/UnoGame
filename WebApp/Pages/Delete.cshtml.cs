@@ -10,7 +10,7 @@ namespace WebApp.Pages
     public class DeleteModel : PageModel
     {
         private readonly UnoDbContext _context;
-        private readonly IGameStorage _storage;
+        private readonly IGameRepository _repository;
 
         [BindProperty]
         public GameState? GameState { get; set; }
@@ -18,19 +18,19 @@ namespace WebApp.Pages
         public DeleteModel(UnoDbContext context)
         {
             _context = context;
-            _storage = new GameStorageDb(context);
+            _repository = new GameRepositoryDb(context);
             // _storage = GameStorageJson.Instance;
         }
 
-        public IActionResult OnGetAsync(Guid? id)
+        public IActionResult OnGetAsync(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            _storage.FetchAllGames().ForEach(g => Console.WriteLine(g.Id));
-            var gameState = _storage.LoadGame(id.Value);
+            _repository.FetchAllGames().ForEach(g => Console.WriteLine(g.Id));
+            var gameState = _repository.LoadGame(id.Value);
 
             if (gameState == null)
             {
@@ -42,19 +42,19 @@ namespace WebApp.Pages
             return Page();
         }
 
-        public IActionResult OnPostAsync(Guid? id)
+        public IActionResult OnPostAsync(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var gameState = _storage.LoadGame(id.Value);
+            var gameState = _repository.LoadGame(id.Value);
 
             if (gameState != null)
             {
                 GameState = gameState;
-                _storage.DeleteGame(id.Value);
+                _repository.DeleteGame(id.Value);
             }
 
             return RedirectToPage("./Index");

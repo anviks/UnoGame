@@ -7,21 +7,21 @@ using UnoEngine;
 
 namespace DAL;
 
-public class GameStorageJson : IGameStorage
+public class GameRepositoryJson : IGameRepository
 {
     private readonly string _saveDir = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "UnoGame",
         "saves"
     );
-    private static GameStorageJson? _instance;
+    private static GameRepositoryJson? _instance;
 
-    public static GameStorageJson Instance
+    public static GameRepositoryJson Instance
     {
-        get { return _instance ??= new GameStorageJson(); }
+        get { return _instance ??= new GameRepositoryJson(); }
     }
 
-    private GameStorageJson()
+    private GameRepositoryJson()
     {
         if (!Directory.Exists(_saveDir))
         {
@@ -36,12 +36,12 @@ public class GameStorageJson : IGameStorage
         File.WriteAllText(fileName, jsonString);
     }
 
-    public void DeleteGame(Guid id)
+    public void DeleteGame(int id)
     {
         File.Delete(Path.Combine(_saveDir, Path.ChangeExtension(id.ToString(), ".json")));
     }
 
-    public GameState? LoadGame(Guid id)
+    public GameState? LoadGame(int id)
     {
         var savePath = Path.Combine(
             _saveDir, Path.ChangeExtension(id.ToString(), ".json")
