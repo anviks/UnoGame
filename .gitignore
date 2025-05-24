@@ -5,6 +5,7 @@ WebApp/wwwroot/lib
 WebApp0/
 ConsoleApp/
 MenuSystem/
+.env
 
 # Common IntelliJ Platform excludes
 

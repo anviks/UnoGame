@@ -7,9 +7,9 @@ services:
     volumes:
       - db-volume:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=unogame
-      - POSTGRES_USER=foo
-      - POSTGRES_PASSWORD=bar
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     restart: on-failure
     logging:
       options:
