@@ -2,6 +2,9 @@ WebApp/*.txt
 commands.md
 **/*.zip
 WebApp/wwwroot/lib
+WebApp0/
+ConsoleApp/
+MenuSystem/
 
 # Common IntelliJ Platform excludes
 

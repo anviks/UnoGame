@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:16
+    container_name: unogame-db
+    ports:
+      - 5432:5432
+    volumes:
+      - db-volume:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=unogame
+      - POSTGRES_USER=foo
+      - POSTGRES_PASSWORD=bar
+    restart: on-failure
+    logging:
+      options:
+        max-size: 10m
+        max-file: 5
+
+volumes:
+  db-volume:

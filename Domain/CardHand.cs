@@ -1,11 +1,11 @@
 using System.Text;
-using Domain.Cards;
+using DAL.Entities.Cards;
 
 namespace Domain;
 
-public class CardHand
+public class CardHand(List<Card> cards)
 {
-    public List<Card> Cards { get; set; } = new();
+    public List<Card> Cards { get; set; } = cards;
 
     public Card this[int index] => Cards[index];
 

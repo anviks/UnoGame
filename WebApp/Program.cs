@@ -1,31 +1,74 @@
-using System.Net;
-using System.Net.WebSockets;
-using System.Text;
-using DAL;
 using DAL.Context;
+using DAL.Repositories;
+using Domain.Config;
+using Domain.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
-using WebApp.Pages;
+using WebApp.Handlers;
+using WebApp.Hubs;
 
-var builder = WebApplication.CreateBuilder(args);
-
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                        throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-connectionString = connectionString.Replace("<%DB_PATH%>", GameRepositoryDb.Instance.SavePath);
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 builder.Services.AddDbContext<UnoDbContext>(options =>
-    options.UseSqlite(connectionString));
+{
+    options.EnableSensitiveDataLogging();
+    options.UseNpgsql(connectionString);
+});
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddRazorPages();
+builder.Services.AddControllers();
+
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddScoped<GameRepository, GameRepository>();
+builder.Services.AddScoped<UserRepository, UserRepository>();
+builder.Services.AddScoped<PlayerRepository, PlayerRepository>();
+
+builder.Services.AddScoped<GameService, GameService>();
+builder.Services.AddScoped<UserService, UserService>();
+
+builder.Services.Configure<UserLimitsConfig>(builder.Configuration.GetSection("UserLimits"));
+builder.Services.Configure<EmailConfig>(builder.Configuration.GetSection("Email"));
 
 builder.Services.AddSession(options =>
 {
-    // Configure session options here
     // options.Cookie.Name = "YourSessionCookieName";
     options.IdleTimeout = TimeSpan.FromMinutes(20); // Set the session timeout duration
-    // Other session configuration options...
 });
 
+var origins = builder.Configuration
+    .GetSection("AllowedOrigins")
+    .GetChildren()
+    .Select(child => child.Value!)
+    .ToArray();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowCors", policyBuilder =>
+    {
+        policyBuilder
+            .WithOrigins(origins)
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
+    });
+});
+
+builder.Services.AddSignalR();
+
+builder.Services.AddAuthentication("UnoToken")
+    .AddScheme<AuthenticationSchemeOptions, UnoTokenAuthenticationHandler>("UnoToken", null);
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -34,6 +77,8 @@ app.UseSession();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseSwagger();
+    app.UseSwaggerUI();
     app.UseMigrationsEndPoint();
 }
 else
@@ -43,143 +88,20 @@ else
     app.UseHsts();
 }
 
+app.UseCors("AllowCors");
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();
 
-// Middleware to handle WebSocket requests
-app.UseWebSockets(new WebSocketOptions
-{
-    // Configure options for WebSocket handling
-    // For example, you can set the KeepAliveInterval, etc.
-});
+app.MapControllers();
 
-app.Use(async (context, next) =>
-{
-    if (context.Request.Path == "/Game" && context.WebSockets.IsWebSocketRequest)
-    {
-        WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
-        // Handle WebSocket connections here
-        await HandleWebSocketConnections(context, webSocket);
-    }
-    else
-    {
-        await next();
-    }
-});
+app.MapHub<GameHub>("/gamehub");
 
 app.Run();
-return;
-
-async Task HandleWebSocketConnections(HttpContext context, WebSocket webSocket)
-{
-    var gameId = context.Request.Query["Id"].ToString();
-    var playerName = context.Request.Query["Player"].ToString();
-    Console.WriteLine(gameId);
-    Console.WriteLine(playerName);
-
-    if (!int.TryParse(gameId, out var id)) return;
-
-    // Check if the player can connect based on parameters
-    bool canConnect;
-    lock (Game.ConnectedUsers)
-    {
-        if (!Game.ConnectedUsers.ContainsKey(id))
-        {
-            Game.ConnectedUsers[id] = new Dictionary<string, WebSocket>();
-        }
-
-        canConnect = !Game.ConnectedUsers[id].ContainsKey(playerName)
-                     || Game.UsersInGracePeriod.ContainsKey(playerName);
-    }
-
-    Console.WriteLine("canConnect: " + canConnect);
-
-    if (!canConnect) return;
-
-    // Add or update the player in the game
-    lock (Game.ConnectedUsers)
-    {
-        Game.ConnectedUsers[id][playerName] = webSocket;
-    }
-
-    bool isNewPlayer;
-
-    // Check if the player is new or returning
-    lock (Game.UsersInGracePeriod)
-    {
-        isNewPlayer = !Game.UsersInGracePeriod.Remove(playerName);
-    }
-
-    if (isNewPlayer)
-    {
-        var msg = new { type = "NewPlayerJoined", player = playerName };
-        var segment = Game.MessageToSegment(msg);
-
-        foreach (var (player, socket) in Game.ConnectedUsers[id])
-        {
-            if (player == playerName) continue;
-            await socket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
-        }
-    }
-
-    var buffer = new byte[1024 * 4];
-    while (webSocket.State == WebSocketState.Open)
-    {
-        var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-
-        if (result.MessageType == WebSocketMessageType.Text)
-        {
-            var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
-            Console.WriteLine($"Received message: {message}");
-        }
-        else if (result.MessageType == WebSocketMessageType.Close)
-        {
-            break;
-        }
-    }
-
-    lock (Game.UsersInGracePeriod)
-    {
-        Game.UsersInGracePeriod[playerName] = DateTime.Now;
-    }
-
-    var gracePeriod = Task.Delay(5010);
-    await gracePeriod;
-
-    bool playerLeft = false;
-
-    lock (Game.UsersInGracePeriod)
-    {
-        if (Game.UsersInGracePeriod.TryGetValue(playerName, out DateTime t))
-        {
-            Console.Write("More than 5 seconds? ");
-            Console.WriteLine(DateTime.Now - t >= TimeSpan.FromSeconds(5));
-            Console.WriteLine(DateTime.Now - t);
-        }
-
-        if (Game.UsersInGracePeriod.TryGetValue(playerName, out DateTime disconnectedTime)
-            && DateTime.Now - disconnectedTime >= TimeSpan.FromSeconds(5))
-        {
-            playerLeft = true;
-            Game.UsersInGracePeriod.Remove(playerName);
-        }
-    }
-
-    if (playerLeft)
-    {
-        lock (Game.ConnectedUsers)
-        {
-            Game.ConnectedUsers[id].Remove(playerName);
-            if (Game.ConnectedUsers[id].Count == 0)
-            {
-                Game.ConnectedUsers.Remove(id); // Remove the game entry if no players are connected
-            }
-        }
-    }
-}
-

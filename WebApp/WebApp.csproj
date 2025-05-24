@@ -4,20 +4,148 @@
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>e83e7383-169a-49dc-a1f5-4fa778e020e4</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="7.0.10"/>
-        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.10"/>
-        <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.10"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.10"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.10"/>
-        <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.15"/>
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.15"/>
+        <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.15"/>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.4"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.15" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.15">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\DAL\DAL.csproj" />
+      <ProjectReference Include="..\Domain\Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-blue\0.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-blue\1.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-blue\2.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-blue\3.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-blue\4.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-blue\5.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-blue\6.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-blue\7.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-blue\8.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-blue\9.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-blue\draw-two.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-blue\reverse.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-blue\skip.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-green\0.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-green\1.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-green\2.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-green\3.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-green\4.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-green\5.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-green\6.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-green\7.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-green\8.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-green\9.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-green\draw-two.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-green\reverse.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-green\skip.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-red\0.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-red\1.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-red\2.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-red\3.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-red\4.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-red\5.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-red\6.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-red\7.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-red\8.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-red\9.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-red\draw-two.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-red\reverse.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-red\skip.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-wild\wild-draw-four.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-wild\wild.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-yellow\0.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-yellow\1.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-yellow\2.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-yellow\3.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-yellow\4.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-yellow\5.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-yellow\6.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-yellow\7.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-yellow\8.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-yellow\9.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-yellow\draw-two.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-yellow\reverse.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\cards\card-yellow\skip.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-blue\0.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-blue\1.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-blue\2.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-blue\3.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-blue\4.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-blue\5.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-blue\6.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-blue\7.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-blue\8.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-blue\9.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-blue\draw-two.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-blue\reverse.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-blue\skip.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-green\0.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-green\1.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-green\2.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-green\3.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-green\4.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-green\5.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-green\6.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-green\7.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-green\8.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-green\9.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-green\draw-two.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-green\reverse.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-green\skip.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-red\0.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-red\1.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-red\2.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-red\3.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-red\4.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-red\5.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-red\6.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-red\7.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-red\8.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-red\9.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-red\draw-two.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-red\reverse.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-red\skip.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-wild\wild-draw-four.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-wild\wild.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-yellow\0.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-yellow\1.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-yellow\2.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-yellow\3.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-yellow\4.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-yellow\5.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-yellow\6.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-yellow\7.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-yellow\8.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-yellow\9.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-yellow\draw-two.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-yellow\reverse.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\grey-cards\card-yellow\skip.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\guess_1.zip" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\guess_2.zip" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\guess_3.zip" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Templates\MagicLinkEmail.html" />
+      <Content Include="Templates\MagicLinkEmail.html">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
 </Project>

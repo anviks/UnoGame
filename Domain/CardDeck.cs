@@ -1,4 +1,4 @@
-using Domain.Cards;
+using DAL.Entities.Cards;
 
 namespace Domain;
 
@@ -14,29 +14,29 @@ public class CardDeck
     {
         var defaultCards = new List<Card>();
 
-        for (int i = 0; i < (int)ECardColor.Wild; i++)
+        for (int i = 0; i < (int)CardColor.Wild; i++)
         {
-            for (int j = 0; j < (int)ECardValue.Wild; j++)
+            for (int j = 0; j < (int)CardValue.Wild; j++)
             {
-                var color = (ECardColor)i;
-                var value = (ECardValue)j;
+                var color = (CardColor)i;
+                var value = (CardValue)j;
 
-                defaultCards.Add(new Card(color, value));
+                defaultCards.Add(new Card { Color = color, Value = value });
                 if (j > 0)
                 {
-                    defaultCards.Add(new Card(color, value));
+                    defaultCards.Add(new Card { Color = color, Value = value });
                 }
             }
         }
 
         for (var i = 0; i < 4; i++)
         {
-            defaultCards.Add(new Card(ECardColor.Wild, ECardValue.Wild));
+            defaultCards.Add(new Card { Color = CardColor.Wild, Value = CardValue.Wild });
         }
 
         for (var i = 0; i < 4; i++)
         {
-            defaultCards.Add(new Card(ECardColor.Wild, ECardValue.WildDrawFour));
+            defaultCards.Add(new Card { Color = CardColor.Wild, Value = CardValue.WildDrawFour });
         }
 
         DefaultCards = defaultCards.AsReadOnly();
@@ -74,12 +74,10 @@ public class CardDeck
 
     public Card? DrawCard()
     {
-        int lastIndex = Cards.Count - 1;
+        if (Cards.Count == 0) return null;
 
-        if (lastIndex < 0) return null;
-
-        var card = Cards[lastIndex];
-        Cards.RemoveAt(lastIndex);
+        var card = Cards[0];
+        Cards.RemoveAt(0);
         return card;
     }
 

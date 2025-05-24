@@ -1,4 +1,4 @@
-using Domain.Cards;
+using DAL.Entities.Cards;
 
 namespace Domain;
 
