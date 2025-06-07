@@ -1,5 +1,4 @@
-using DAL.Entities.Players;
-using Domain;
+using UnoGame.Core.Entities.Enums;
 
 namespace WebApp.DTO;
 
@@ -13,5 +12,11 @@ public class CreateGameRequest
     {
         public string Name { get; set; } = default!;
         public PlayerType Type { get; set; } = default!;
+    }
+
+    public class Card
+    {
+        public CardColor Color { get; set; }
+        public CardValue Value { get; set; }
     }
 }

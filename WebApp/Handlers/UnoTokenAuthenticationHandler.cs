@@ -1,9 +1,9 @@
 using System.Security.Claims;
 using System.Text.Encodings.Web;
-using DAL.Entities;
-using DAL.Repositories;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
+using UnoGame.Core.Entities;
+using UnoGame.Core.Interfaces;
 
 namespace WebApp.Handlers;
 
@@ -11,7 +11,7 @@ public class UnoTokenAuthenticationHandler(
     IOptionsMonitor<AuthenticationSchemeOptions> options,
     ILoggerFactory logger,
     UrlEncoder encoder,
-    UserRepository userRepository)
+    IUserRepository userRepository)
     : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -22,7 +22,7 @@ public class UnoTokenAuthenticationHandler(
             return AuthenticateResult.Fail("No token");
         }
 
-        UserEntity? user = await userRepository.GetUserByToken(Guid.Parse(token));
+        User? user = await userRepository.GetUserByToken(Guid.Parse(token));
         if (user == null)
         {
             return AuthenticateResult.Fail("Invalid token");

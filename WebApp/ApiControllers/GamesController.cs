@@ -1,14 +1,16 @@
-using Domain;
-using Domain.Services;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using UnoGame.Core.Entities;
+using UnoGame.Core.Entities.Enums;
+using UnoGame.Core.Services;
 using WebApp.DTO;
 
 namespace WebApp.ApiControllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class GamesController(GameService gameService) : ControllerBase
+public class GamesController(GameService gameService, IMapper mapper) : ControllerBase
 {
     // GET: api/<GameController>
     [HttpGet]
@@ -19,20 +21,22 @@ public class GamesController(GameService gameService) : ControllerBase
 
     // GET api/<GameController>/5
     [HttpGet("{id:int}")]
-    public async Task<Game?> Get(int id)
+    public async Task<GameDto?> Get(int id)
     {
-        return await gameService.GetGame(id);
+        Game? game = await gameService.GetGame(id);
+        return game == null ? null : mapper.Map<GameDto>(game);
     }
 
     // POST api/<GameController>
     [HttpPost]
     [Authorize]
-    public async Task<ActionResult<Game>> Post([FromBody] CreateGameRequest gameRequest)
+    public async Task<IActionResult> Post([FromBody] CreateGameRequest gameRequest)
     {
         var game = new Game
         {
-            GameName = gameRequest.GameName,
-            Deck = new CardDeck(gameRequest.Deck),
+            Name = gameRequest.GameName,
+            PileCards = gameRequest.Deck.Select(card => new PileCard
+                { Card = new Card { Color = card.Color, Value = card.Value }, PileType = PileType.DrawPile }).ToList(),
             Players = gameRequest.Players.Select(p => new Player { Name = p.Name, Type = p.Type }).ToList(),
         };
         var result = await gameService.CreateGame(game);
@@ -42,7 +46,7 @@ public class GamesController(GameService gameService) : ControllerBase
             return BadRequest(result.Errors);
         }
 
-        return result.Value;
+        return Created();
     }
 
     // DELETE api/<GameController>/5

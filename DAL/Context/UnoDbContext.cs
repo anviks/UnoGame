@@ -1,15 +1,13 @@
-using DAL.Entities;
-using DAL.Entities.Cards;
-using DAL.Entities.Players;
 using Microsoft.EntityFrameworkCore;
+using UnoGame.Core.Entities;
 
 namespace DAL.Context;
 
 public class UnoDbContext(DbContextOptions<UnoDbContext> options) : DbContext(options)
 {
-    public DbSet<GameEntity> Games { get; set; } = default!;
-    public DbSet<PlayerEntity> Players { get; set; } = default!;
-    public DbSet<CardEntity> Cards { get; set; } = default!;
-    public DbSet<UserEntity> Users { get; set; } = default!;
+    public DbSet<Game> Games { get; set; } = default!;
+    public DbSet<Player> Players { get; set; } = default!;
+    public DbSet<Card> Cards { get; set; } = default!;
+    public DbSet<User> Users { get; set; } = default!;
     public DbSet<MagicToken> MagicTokens { get; set; } = default!;
 }

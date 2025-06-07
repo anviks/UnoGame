@@ -9,7 +9,7 @@ public class UnoGameContextFactory : IDesignTimeDbContextFactory<UnoDbContext>
     public UnoDbContext CreateDbContext(string[] args)
     {
         var configuration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory()) // or use Path.Combine + Directory.GetParent if needed
+            .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json")
             .Build();
 

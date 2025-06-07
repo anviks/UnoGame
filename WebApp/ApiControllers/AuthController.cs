@@ -1,13 +1,11 @@
 using DAL.Context;
-using DAL.Entities;
-using Domain;
-using Domain.Config;
-using Domain.Services;
-using FluentResults;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using UnoGame.Core.Config;
+using UnoGame.Core.Entities;
+using UnoGame.Core.Services;
 using WebApp.DTO;
 
 namespace WebApp.ApiControllers;
@@ -70,7 +68,7 @@ public class AuthController(UnoDbContext db, UserService userService, IOptions<E
 
         magic.Used = true;
 
-        var user = new UserEntity
+        var user = new User
         {
             Email = magic.Email,
             Name = request.Username,

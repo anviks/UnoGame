@@ -1,11 +1,14 @@
+using System.Text.Json.Serialization;
 using DAL.Context;
 using DAL.Repositories;
-using Domain.Config;
-using Domain.Services;
+using UnoGame.Core.Config;
+using UnoGame.Core.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
+using UnoGame.Core.Interfaces;
 using WebApp.Handlers;
 using WebApp.Hubs;
+using WebApp.Mapping;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -25,13 +28,16 @@ builder.Services.AddDbContext<UnoDbContext>(options =>
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddRazorPages();
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
 
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddScoped<GameRepository, GameRepository>();
-builder.Services.AddScoped<UserRepository, UserRepository>();
-builder.Services.AddScoped<PlayerRepository, PlayerRepository>();
+builder.Services.AddScoped<IGameRepository, GameRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddScoped<GameService, GameService>();
 builder.Services.AddScoped<UserService, UserService>();
@@ -69,6 +75,8 @@ builder.Services.AddAuthentication("UnoToken")
     .AddScheme<AuthenticationSchemeOptions, UnoTokenAuthenticationHandler>("UnoToken", null);
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddAutoMapper(typeof(GameMappingProfile));
 
 var app = builder.Build();
 

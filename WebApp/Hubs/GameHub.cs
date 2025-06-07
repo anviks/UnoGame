@@ -1,11 +1,8 @@
 using System.Collections.Concurrent;
-using DAL.Entities;
-using DAL.Repositories;
-using Domain;
-using Domain.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using WebApp.Filters;
+using UnoGame.Core.Entities;
+using UnoGame.Core.Services;
 
 namespace WebApp.Hubs;
 
