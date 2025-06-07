@@ -83,7 +83,7 @@ function stoppedHovering() {
 }
 
 .card-choice {
-  transition: transform 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s;
 
   &:hover {
     transform: scale(1.1) translateZ(10px);
@@ -122,13 +122,9 @@ function stoppedHovering() {
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, 1fr);
   display: grid;
-  box-shadow: none !important;
 }
 
 .quarter {
-  font-size: 0;
-  line-height: 0;
-  border: 0;
   width: 100%;
   height: 100%;
   transform: scale(1);
