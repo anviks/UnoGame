@@ -4,6 +4,7 @@
     :color="color"
     :value="value"
     class="card-choice"
+    @click="$emit('card-chosen')"
   />
   <div
     v-else
@@ -21,10 +22,22 @@
       class="uno-color-choice card-choice"
       ref="colorChoices"
     >
-      <span class="quarter top-left uno-red" />
-      <span class="quarter top-right uno-blue" />
-      <span class="quarter bottom-left uno-yellow" />
-      <span class="quarter bottom-right uno-green" />
+      <span
+        class="quarter top-left uno-red"
+        @click="$emit('card-chosen', cardColor.RED)"
+      />
+      <span
+        class="quarter top-right uno-blue"
+        @click="$emit('card-chosen', cardColor.BLUE)"
+      />
+      <span
+        class="quarter bottom-left uno-yellow"
+        @click="$emit('card-chosen', cardColor.YELLOW)"
+      />
+      <span
+        class="quarter bottom-right uno-green"
+        @click="$emit('card-chosen', cardColor.GREEN)"
+      />
     </div>
   </div>
 </template>
@@ -51,6 +64,10 @@ const props = defineProps({
     default: 100,
   },
 });
+
+const emits = defineEmits<{
+  (e: 'card-chosen', color?: number): void
+}>();
 
 const wildCard = useTemplateRef('wildCard');
 const colorChoices = useTemplateRef('colorChoices');
@@ -88,6 +105,7 @@ function stoppedHovering() {
   &:hover {
     transform: scale(1.1) translateZ(10px);
     box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
   }
 }
 

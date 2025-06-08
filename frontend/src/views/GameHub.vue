@@ -1,9 +1,16 @@
 <template>
   <v-container>
-    <div style="position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%)" class="uno-card-hand d-flex ga-2">
-      <uno-card-choice v-for="card in game?.players?.find(p => p.id = authStore.userId)?.cards" :color="card.color" :value="card.value">
-
-      </uno-card-choice>
+    <div
+      style="position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%)"
+      class="uno-card-hand d-flex ga-2"
+    >
+      <uno-card-choice
+        v-for="(card, index) in game?.players?.find((player: Player) => player.userId === authStore.userId)?.cards"
+        :color="card.color"
+        :value="card.value"
+        :ref="el => cardRefs[index] = el"
+        @card-chosen="(chosenColor) => playCard(index, card, chosenColor)"
+      ></uno-card-choice>
     </div>
   </v-container>
 </template>
@@ -16,9 +23,9 @@ import { onMounted, onUnmounted, ref } from 'vue';
 import { GameApi } from '@/api/GameApi.ts';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { useAuthStore } from '@/stores/authStore.ts';
-import UnoCard from '@/components/UnoCard.vue';
-import { cardColor } from '@/constants.ts';
 import UnoCardChoice from '@/components/UnoCardChoice.vue';
+import type { Card, Player } from '@/types.ts';
+import { useToast } from 'vue-toastification';
 
 const props = defineProps({
   gameId: {
@@ -28,8 +35,9 @@ const props = defineProps({
 });
 
 const authStore = useAuthStore();
+const toast = useToast();
+const cardRefs = ref<any>({});
 
-const move = ref('');
 const connected = ref(false);
 const connection = ref<HubConnection>();
 const messages = ref<any[]>([]);
@@ -40,20 +48,23 @@ const sendMessage = (user: string, message: string) => {
     .catch((err) => console.error(err));
 };
 
-const sendMove = () => {
-  if (!move.value) {
-    alert('Please enter a move.');
-    return;
+const playCard = async (index: number, card: Card, chosenColor?: number) => {
+  try {
+    await connection.value!.invoke('PlayCard', card, chosenColor);
+  } catch (e) {
+    let valueElement = cardRefs.value[index];
+    triggerShake(valueElement.$el);
   }
-  connection.value!
-    .send('MakeMove', authStore.username, move.value)
-    .catch((err) => console.error(err));
-  move.value = '';  // Clear input after sending the move
 };
+
+function triggerShake(refEl: HTMLElement) {
+  refEl.classList.add('shake');
+  setTimeout(() => refEl.classList.remove('shake'), 500);
+}
 
 const connectToGame = async () => {
   connection.value = new HubConnectionBuilder()
-    .withUrl(`${import.meta.env.VITE_BACKEND_URL}/gamehub`)
+    .withUrl(`${import.meta.env.VITE_BACKEND_URL}/gamehub?gameId=${props.gameId}`)
     .build();
 
   connection.value.on('ReceiveMessage', (user: string, message: string) => {
@@ -66,6 +77,10 @@ const connectToGame = async () => {
       text: `Made a move: ${move}`,
       timestamp: new Date(),
     });
+  });
+
+  connection.value.on('Error', (message: string) => {
+    toast.error(message);
   });
 
   connection.value
@@ -89,11 +104,30 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped lang="scss">
+<style
+  scoped
+  lang="scss"
+>
 .uno-card-hand {
   display: flex;
   flex-direction: row;
   align-items: center;
   flex-wrap: wrap;
 }
+
+@keyframes shake {
+  0%   { transform: translateX(0); }
+  15%  { transform: translateX(-6px); }
+  30%  { transform: translateX(6px); }
+  45%  { transform: translateX(-4px); }
+  60%  { transform: translateX(4px); }
+  75%  { transform: translateX(-2px); }
+  90%  { transform: translateX(2px); }
+  100% { transform: translateX(0); }
+}
+
+.shake {
+  animation: shake 0.5s ease;
+}
+
 </style>
