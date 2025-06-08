@@ -38,9 +38,11 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
 
 builder.Services.AddScoped<GameService, GameService>();
 builder.Services.AddScoped<UserService, UserService>();
+builder.Services.AddScoped<PlayerService, PlayerService>();
 
 builder.Services.Configure<UserLimitsConfig>(builder.Configuration.GetSection("UserLimits"));
 builder.Services.Configure<EmailConfig>(builder.Configuration.GetSection("Email"));
