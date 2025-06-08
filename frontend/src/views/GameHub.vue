@@ -1,24 +1,4 @@
 <template>
-<!--  <div>-->
-<!--    <h2>Online Game</h2>-->
-
-<!--    <div v-if="connected">-->
-<!--      <h3>Game Chat</h3>-->
-<!--      <div-->
-<!--        v-for="msg in messages"-->
-<!--        :key="msg.timestamp"-->
-<!--      >-->
-<!--        <strong>{{ msg.user }}:</strong> {{ msg.text }}-->
-<!--      </div>-->
-
-<!--      <input-->
-<!--        v-model="move"-->
-<!--        placeholder="Enter your move"-->
-<!--      />-->
-<!--      <button @click="sendMove">Make Move</button>-->
-<!--    </div>-->
-<!--  </div>-->
-
   <v-container>
     <div style="position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%)" class="uno-card-hand d-flex ga-2">
       <uno-card-choice v-for="card in game?.players?.find(p => p.id = authStore.userId)?.cards" :color="card.color" :value="card.value">
