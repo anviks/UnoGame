@@ -9,7 +9,7 @@ public class GameMappingProfile : Profile
     public GameMappingProfile()
     {
         CreateMap<Game, GameDto>();
-        CreateMap<Card, CardDto>();
+        CreateMap<Card, CardDto>().ReverseMap();
         CreateMap<Player, PlayerDto>()
             .ForMember(dest => dest.Cards,
                 opt => opt.MapFrom(src =>
