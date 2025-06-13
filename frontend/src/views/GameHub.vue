@@ -8,7 +8,8 @@
         v-for="(card, index) in game?.players?.find((player: Player) => player.userId === authStore.userId)?.cards"
         :color="card.color"
         :value="card.value"
-        :ref="el => cardRefs[index] = el"
+        :key="index"
+        :should-shake="failedCardIndex === index"
         @card-chosen="(chosenColor) => playCard(index, card, chosenColor)"
       ></uno-card-choice>
     </div>
@@ -36,7 +37,7 @@ const props = defineProps({
 
 const authStore = useAuthStore();
 const toast = useToast();
-const cardRefs = ref<any>({});
+const failedCardIndex = ref<number | null>(null);
 
 const connected = ref(false);
 const connection = ref<HubConnection>();
@@ -52,15 +53,10 @@ const playCard = async (index: number, card: Card, chosenColor?: number) => {
   try {
     await connection.value!.invoke('PlayCard', card, chosenColor);
   } catch (e) {
-    let valueElement = cardRefs.value[index];
-    triggerShake(valueElement.$el);
+    failedCardIndex.value = index;
+    setTimeout(() => failedCardIndex.value = null, 500);
   }
 };
-
-function triggerShake(refEl: HTMLElement) {
-  refEl.classList.add('shake');
-  setTimeout(() => refEl.classList.remove('shake'), 500);
-}
 
 const connectToGame = async () => {
   connection.value = new HubConnectionBuilder()
@@ -114,20 +110,4 @@ onUnmounted(() => {
   align-items: center;
   flex-wrap: wrap;
 }
-
-@keyframes shake {
-  0%   { transform: translateX(0); }
-  15%  { transform: translateX(-6px); }
-  30%  { transform: translateX(6px); }
-  45%  { transform: translateX(-4px); }
-  60%  { transform: translateX(4px); }
-  75%  { transform: translateX(-2px); }
-  90%  { transform: translateX(2px); }
-  100% { transform: translateX(0); }
-}
-
-.shake {
-  animation: shake 0.5s ease;
-}
-
 </style>

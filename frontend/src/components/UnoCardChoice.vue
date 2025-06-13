@@ -5,12 +5,14 @@
     :value="value"
     class="card-choice"
     @click="$emit('card-chosen')"
+    :class="{ 'shake': shouldShake }"
   />
   <div
     v-else
     class="wild-card-div"
     @mouseenter="startedHovering"
     @mouseleave="stoppedHovering"
+    :class="{ 'shake': shouldShake }"
   >
     <uno-card
       :color="cardColor.WILD"
@@ -62,6 +64,10 @@ const props = defineProps({
   size: {
     type: Number,
     default: 100,
+  },
+  shouldShake: {
+    type: Boolean,
+    default: false,
   },
 });
 
@@ -187,5 +193,20 @@ function stoppedHovering() {
 
 .uno-blue {
   background-color: var(--uno-blue);
+}
+
+@keyframes shake {
+  0%   { transform: translateX(0); }
+  15%  { transform: translateX(-6px); }
+  30%  { transform: translateX(6px); }
+  45%  { transform: translateX(-4px); }
+  60%  { transform: translateX(4px); }
+  75%  { transform: translateX(-2px); }
+  90%  { transform: translateX(2px); }
+  100% { transform: translateX(0); }
+}
+
+.shake {
+  animation: shake 0.5s ease;
 }
 </style>
