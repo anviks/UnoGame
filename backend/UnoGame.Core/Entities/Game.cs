@@ -66,16 +66,22 @@ public class Game
 
         for (int i = 0; i < DrawPile.Count; i++)
         {
-            // DrawPile[i].PileType = PileType.DrawPile;
-            // DrawPile[i].Position = i;
-            PileCards.Add(new PileCard { Card = DrawPile[i], PileType = PileType.DrawPile, Position = i });
+            PileCards.Add(new PileCard
+            {
+                CardId = DrawPile[i].Id,
+                PileType = PileType.DrawPile,
+                Position = i
+            });
         }
 
         for (int i = 0; i < DiscardPile.Count; i++)
         {
-            // DiscardPile[i].PileType = PileType.DiscardPile;
-            // DiscardPile[i].Position = i;
-            PileCards.Add(new PileCard { Card = DiscardPile[i], PileType = PileType.DiscardPile, Position = i });
+            PileCards.Add(new PileCard
+            {
+                CardId = DiscardPile[i].Id,
+                PileType = PileType.DiscardPile,
+                Position = i
+            });
         }
 
         // PileCards = DrawPile.Concat(DiscardPile).ToList();
@@ -172,14 +178,16 @@ public class Game
         }
     }
 
-    public bool HasCard(Player player, Card card)
+    public bool HasCard(Player player, CardColor color, CardValue value)
     {
-        return player.PlayerCards.Any(pc => pc.Card == card);
+        return player.PlayerCards.Any(pc => pc.Card.Color == color && pc.Card.Value == value);
     }
 
-    public bool CanPlayCard(Player player, Card card)
+    public bool CanPlayCard(Player player, CardColor color, CardValue value)
     {
-        if (card.Value == CardValue.WildDrawFour)
+        if (!HasCard(player, color, value)) return false;
+
+        if (value == CardValue.WildDrawFour)
         {
             // Wild draw four can only be played if the player has no other cards of the current color
             return player
@@ -187,9 +195,9 @@ public class Game
                 .All(c => c.Card.Color != CurrentColor);
         }
 
-        return card.Color == CurrentColor
-               || card.Value == CurrentValue
-               || card.Value == CardValue.Wild;
+        return color == CurrentColor
+               || value == CurrentValue
+               || value == CardValue.Wild;
     }
 
     public static CardColor GetColorFromBot(Player player)
@@ -204,7 +212,7 @@ public class Game
 
     public Card? GetCardFromBot(Player player, out bool drewCard)
     {
-        var cardToPlay = player.PlayerCards.FirstOrDefault(pc => CanPlayCard(player, pc.Card))?.Card;
+        var cardToPlay = player.PlayerCards.FirstOrDefault(pc => CanPlayCard(player, pc.Card.Color, pc.Card.Value))?.Card;
 
         if (cardToPlay is null)
         {
@@ -212,7 +220,7 @@ public class Game
             drewCard = true;
             if (cardToPlay == null) return null;
             player.PlayerCards.Add(new PlayerCard { Card = cardToPlay, Player = player });
-            if (!CanPlayCard(player, cardToPlay)) return null;
+            if (!CanPlayCard(player, cardToPlay.Color, cardToPlay.Value)) return null;
         }
         else
         {

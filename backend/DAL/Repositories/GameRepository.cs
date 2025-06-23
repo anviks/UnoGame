@@ -37,6 +37,11 @@ public class GameRepository(UnoDbContext db) : IGameRepository
         return result.Entity;
     }
 
+    public async Task SaveChangesAsync()
+    {
+        await db.SaveChangesAsync();
+    }
+
     public async Task DeleteGame(int id)
     {
         Game? firstOrDefault = await db.Games.FirstOrDefaultAsync(entity => entity.Id == id);

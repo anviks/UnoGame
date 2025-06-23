@@ -3,6 +3,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using UnoGame.Core.Entities;
+using UnoGame.Core.Entities.Enums;
 using UnoGame.Core.Services;
 using WebApp.DTO;
 
@@ -78,11 +79,11 @@ public class GameHub(
         await base.OnDisconnectedAsync(exception);
     }
 
-    public async Task PlayCard(CardDto card, int? chosenColor)
+    public async Task PlayCard(CardDto card, CardColor? chosenColor)
     {
-        var player = Connections[Context.ConnectionId];
-        var game = await gameService.GetGame(player.GameId);
-        if (game?.CanPlayCard(player, mapper.Map<Card>(card)) ?? false)
+        Player player = Connections[Context.ConnectionId];
+
+        if (await gameService.TryPlayCard(player.GameId, player.Id, card.Color, card.Value, chosenColor))
         {
             await Clients.Group(player.GameId.ToString())
                 .SendAsync(

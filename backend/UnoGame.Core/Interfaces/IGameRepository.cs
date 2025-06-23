@@ -8,5 +8,6 @@ public interface IGameRepository
     public Task<Game?> GetGame(int id);
     public Task<Game?> GetGameByName(string name);
     public Task<Game> CreateGame(Game game);
+    public Task SaveChangesAsync();
     public Task DeleteGame(int id);
 }

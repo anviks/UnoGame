@@ -20,4 +20,18 @@ public class Player
     public Game Game { get; set; } = default!;
 
     public ICollection<PlayerCard> PlayerCards { get; set; } = default!;
+
+    public PlayerCard? FindPlayerCard(CardColor color, CardValue value)
+    {
+        return PlayerCards.FirstOrDefault(pc => pc.Card.Color == color && pc.Card.Value == value);
+    }
+
+    public Card? RemoveCard(CardColor color, CardValue value)
+    {
+        PlayerCard? removedCard = FindPlayerCard(color, value);
+        if (removedCard == null) return null;
+        PlayerCards.Remove(removedCard);
+
+        return removedCard.Card;
+    }
 }

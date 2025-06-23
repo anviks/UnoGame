@@ -190,7 +190,7 @@ namespace DAL.Migrations
 
                     b.HasIndex("PlayerId");
 
-                    b.ToTable("PlayerCard");
+                    b.ToTable("PlayerCards");
                 });
 
             modelBuilder.Entity("UnoGame.Core.Entities.User", b =>
