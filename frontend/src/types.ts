@@ -1,15 +1,19 @@
 import { type Moment } from 'moment';
 
 export interface Card {
+  id?: number;
   color: number;
   value: number;
 }
 
 export interface Game {
   id: number;
-  gameName: string;
+  name: string;
+  currentColor: number;
+  currentValue: number | null;
   players: Player[];
-  deck: any;
+  discardPile: Card[];
+  drawPile: Card[];
   createdAt: Moment;
   updatedAt: Moment;
 }
@@ -21,6 +25,7 @@ export interface Player {
   saidUno: boolean;
   position: number;
   userId?: number | null;
+  cards: Card[];
 }
 
 export interface PlayerField {

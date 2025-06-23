@@ -1,11 +1,16 @@
 <template>
   <v-container>
+    <uno-card
+      v-if="game?.discardPile[0]"
+      :color="game?.discardPile[0].color"
+      :value="game?.discardPile[0].value"
+    ></uno-card>
     <div
       style="position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%)"
       class="uno-card-hand d-flex ga-2"
     >
       <uno-card-choice
-        v-for="(card, index) in game?.players?.find((player: Player) => player.userId === authStore.userId)?.cards"
+        v-for="(card, index) in thisPlayer?.cards"
         :color="card.color"
         :value="card.value"
         :key="index"
@@ -20,13 +25,15 @@
   setup
   lang="ts"
 >
-import { onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { GameApi } from '@/api/GameApi.ts';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { useAuthStore } from '@/stores/authStore.ts';
 import UnoCardChoice from '@/components/UnoCardChoice.vue';
-import type { Card, Player } from '@/types.ts';
+import type { Card, Game, Player } from '@/types.ts';
 import { useToast } from 'vue-toastification';
+import UnoCard from '@/components/UnoCard.vue';
+import _ from 'lodash-es';
 
 const props = defineProps({
   gameId: {
@@ -79,6 +86,10 @@ const connectToGame = async () => {
     toast.error(message);
   });
 
+  connection.value.on('CardPlayed', async (player: Player, card: Card, chosenColor: number | null) => {
+    game.value = await GameApi.getGame(props.gameId);
+  });
+
   connection.value
     .start()
     .then(() => {
@@ -88,7 +99,9 @@ const connectToGame = async () => {
     .catch((err) => console.error('Connection failed: ', err));
 };
 
-const game = ref();
+const game = ref<Game>();
+
+const thisPlayer = computed(() => game?.value?.players?.find((player: Player) => player.userId === authStore.userId));
 
 onMounted(async () => {
   await connectToGame();
