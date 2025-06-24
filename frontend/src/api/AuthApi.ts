@@ -25,7 +25,7 @@ export class AuthApi {
 
   static async whoAmI() {
     return ApiClient.get('/auth/whoami', {
-      errorMessage: 'Error fetching user info.',
+      errorMessage: null,
     });
   }
 
