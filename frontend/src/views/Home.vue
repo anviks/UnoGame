@@ -19,7 +19,7 @@
 
       <template #item="{ item }: { item: Game }">
         <tr :class="getRowClass(item)">
-          <td>{{ item.gameName }}</td>
+          <td>{{ item.name }}</td>
           <td>{{ item.createdAt }}</td>
           <td>{{ item.updatedAt }}</td>
           <td>
