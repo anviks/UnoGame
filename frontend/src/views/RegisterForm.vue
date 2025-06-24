@@ -69,6 +69,7 @@
             </v-btn>
             <v-btn
               v-else
+              :loading="sendingMagicLink"
               @click="sendMagicLink"
             >
               Send registration link
@@ -119,11 +120,15 @@ const checkUsername = debounce(async (name: string) => {
   checking.value = false;
 }, 500);
 
+const sendingMagicLink = ref(false);
+
 const sendMagicLink = async () => {
   const validationResult = await form.value?.validate();
   if (!validationResult.valid) return;
 
+  sendingMagicLink.value = true;
   await AuthApi.sendMagicLink(email.value);
+  sendingMagicLink.value = false;
   toast.success('Registration link sent.');
 };
 
