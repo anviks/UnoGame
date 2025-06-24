@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using UnoGame.Core.Interfaces;
 using WebApp.Handlers;
 using WebApp.Hubs;
-using WebApp.Mapping;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -77,8 +76,6 @@ builder.Services.AddAuthentication("UnoToken")
     .AddScheme<AuthenticationSchemeOptions, UnoTokenAuthenticationHandler>("UnoToken", null);
 
 builder.Services.AddAuthorization();
-
-builder.Services.AddAutoMapper(typeof(GameMappingProfile));
 
 var app = builder.Build();
 
