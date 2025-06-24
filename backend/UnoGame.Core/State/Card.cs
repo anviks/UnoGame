@@ -1,22 +1,15 @@
 using UnoGame.Core.Entities.Enums;
 
-namespace UnoGame.Core.Entities;
+namespace UnoGame.Core.State;
 
 public class Card
 {
-    public int Id { get; set; }
     public CardColor Color { get; init; }
     public CardValue Value { get; init; }
-
-    // Navigation properties
-    public ICollection<PlayerCard> PlayerCards { get; set; } = default!;
-
-    public ICollection<PileCard> PileCards { get; set; } = default!;
 
     public override bool Equals(object? obj)
     {
         return obj is Card card
-               && Id == card.Id
                && Color == card.Color
                && Value == card.Value;
     }

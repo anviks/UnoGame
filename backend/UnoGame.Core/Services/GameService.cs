@@ -1,15 +1,17 @@
+using System.Text.Json;
 using FluentResults;
 using UnoGame.Core.Entities;
 using UnoGame.Core.Entities.Enums;
 using UnoGame.Core.Interfaces;
+using UnoGame.Core.State;
 using PlayerType = UnoGame.Core.Entities.Enums.PlayerType;
 
 namespace UnoGame.Core.Services;
 
 public class GameService(
     IGameRepository gameRepository,
-    IUserRepository userRepository,
-    IPlayerRepository playerRepository
+    IGameStore gameStore,
+    IUserRepository userRepository
 )
 {
     public async Task<List<Game>> GetAllGames()
@@ -17,103 +19,124 @@ public class GameService(
         return await gameRepository.GetAllGames();
     }
 
-    public async Task<Game?> GetGame(int id)
+    public async Task<GameState?> GetGameState(int id)
     {
+        GameState? state = gameStore.Get(id);
+        if (state != null) return state;
+
         Game? game = await gameRepository.GetGame(id);
-        game?.SyncPilesFromPileCards();
-        return game;
+        if (game == null) return null;
+
+        state = DeserializeState(game.SerializedState) ?? throw new JsonException("Failed to deserialize game state.");
+        gameStore.Set(id, state);
+
+        return state;
     }
 
-    public async Task<Result<Game>> CreateGame(Game game)
+    public GameState GetGameStateByGame(Game game)
     {
-        var result = new Result<Game>();
+        GameState? state = gameStore.Get(game.Id);
+        if (state != null) return state;
 
-        Game? existingGame = await gameRepository.GetGameByName(game.Name);
+        state = DeserializeState(game.SerializedState) ?? throw new JsonException("Failed to deserialize game state.");
+        gameStore.Set(game.Id, state);
+
+        return state;
+    }
+
+    public async Task<Result<GameState>> CreateGame(string gameName, GameState gameState)
+    {
+        var result = new Result<GameState>();
+
+        Game? existingGame = await gameRepository.GetGameByName(gameName);
+
         if (existingGame != null)
         {
             result.WithError("Game with this name already exists.");
         }
 
-        if (game.Players.Count is < 2 or > 10)
+        if (gameState.Players.Count is < 2 or > 10)
         {
             result.WithError("Player count must be between 2 and 10.");
         }
 
-        if (game.Players.DistinctBy(p => p.Name).ToList().Count < game.Players.Count)
+        if (gameState.Players.DistinctBy(p => p.Name).ToList().Count < gameState.Players.Count)
         {
             result.WithError("Player names must be unique.");
         }
 
         if (result.IsFailed) return result;
 
-        foreach (Player player in game.Players)
+        foreach (Player player in gameState.Players)
         {
-            player.PlayerCards = [];
+            player.Cards = [];
 
             if (player.Type != PlayerType.Human) continue;
             User? user = await userRepository.GetUserByName(player.Name);
             if (user != null) player.UserId = user.Id;
         }
 
+        gameState.ShuffleDrawPile();
+        gameState.DealCards();
+
+        var game = new Game
+        {
+            Name = gameName,
+            SerializedState = SerializeState(gameState),
+        };
+
         game.CreatedAt = game.UpdatedAt = DateTime.UtcNow;
+        await gameRepository.CreateGame(game);
 
-        game.ShuffleDrawPile();
-        game.DealCards();
-
-        Game savedGame = await gameRepository.CreateGame(game);
-
-        return Result.Ok(savedGame);
+        return Result.Ok(gameState);
     }
 
     public async Task<bool> TryPlayCard(
         int gameId,
-        int playerId,
-        CardColor color,
-        CardValue value,
+        Player player,
+        Card card,
         CardColor? chosenColor = null
     )
     {
-        Game game = await gameRepository.GetGame(gameId)
-                    ?? throw new ArgumentException($"Game with ID {gameId} not found.", nameof(gameId));
-        game.EnsurePilesSynced();
-        Player player = await playerRepository.GetPlayer(playerId)
-                        ?? throw new ArgumentException($"Player with ID {playerId} not found.", nameof(playerId));
+        GameState state = await GetGameState(gameId) ??
+                          throw new ArgumentException($"Game with ID {gameId} not found.", nameof(gameId));
 
-        if (!game.CanPlayCard(player, color, value)) return false;
+        if (!state.CanPlayCard(player, card)) return false;
 
-        Card card = await playerRepository.FindCard(player, color, value)
-                    ?? throw new ArgumentException(
-                        $"Card with color {color} and value {value} not found in player's hand.", nameof(value));
-
-        await playerRepository.RemoveCard(player.Id, card.Color, card.Value);
-        game.DiscardPile.Insert(0, card);
+        player.Cards.Remove(card);
+        state.DiscardPile.Insert(0, card);
 
         if (card.Color == CardColor.Wild)
         {
             if (chosenColor == null)
                 throw new ArgumentNullException(nameof(chosenColor), "Color must be specified for Wild cards.");
-            game.CurrentColor = chosenColor.Value;
-            game.CurrentValue = null;
+            state.CurrentColor = chosenColor.Value;
+            state.CurrentValue = null;
         }
         else
         {
-            game.CurrentColor = card.Color;
-            game.CurrentValue = card.Value;
+            state.CurrentColor = card.Color;
+            state.CurrentValue = card.Value;
         }
 
-        await UpdateGame(game);
+        await gameRepository.UpdateGame(gameId, SerializeState(state));
 
         return true;
     }
 
-    private async Task UpdateGame(Game game)
-    {
-        game.EnsurePileCardsSynced();
-        await gameRepository.SaveChangesAsync();
-    }
-
     public async Task DeleteGame(int id)
     {
+        gameStore.Remove(id);
         await gameRepository.DeleteGame(id);
+    }
+
+    private static GameState? DeserializeState(string state)
+    {
+        return JsonSerializer.Deserialize<GameState>(state);
+    }
+
+    private static string SerializeState(GameState state)
+    {
+        return JsonSerializer.Serialize(state);
     }
 }

@@ -9,7 +9,4 @@ public class User
     public Guid Token { get; set; } = Guid.NewGuid();
     [MaxLength(64)] public string Name { get; set; } = default!;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-    // Navigation properties
-    public ICollection<Player> Players { get; set; } = default!;
 }

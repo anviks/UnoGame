@@ -1,23 +1,20 @@
 using System.Collections.Concurrent;
-using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using UnoGame.Core.Entities;
 using UnoGame.Core.Entities.Enums;
 using UnoGame.Core.Services;
-using WebApp.DTO;
+using UnoGame.Core.State;
 
 namespace WebApp.Hubs;
 
 [Authorize]
 public class GameHub(
     UserService userService,
-    GameService gameService,
-    PlayerService playerService,
-    IMapper mapper
+    GameService gameService
 ) : Hub
 {
-    private static readonly ConcurrentDictionary<string, Player> Connections = new();
+    private static readonly ConcurrentDictionary<string, (int GameId, Player Player)> Connections = new();
 
     public override async Task OnConnectedAsync()
     {
@@ -46,16 +43,16 @@ public class GameHub(
             return;
         }
 
-        var game = await gameService.GetGame(gameId);
+        GameState? gameState = await gameService.GetGameState(gameId);
 
-        if (game == null)
+        if (gameState == null)
         {
             await Clients.Caller.SendAsync("Error", "Game not found.");
             Context.Abort();
             return;
         }
 
-        var player = await playerService.GetPlayerByUserAndGame(user.Id, gameId);
+        Player? player = gameState.Players.Find(player => player.UserId == user.Id);
 
         if (player == null)
         {
@@ -64,7 +61,7 @@ public class GameHub(
             return;
         }
 
-        Connections[Context.ConnectionId] = player;
+        Connections[Context.ConnectionId] = (gameId, player);
 
         await Groups.AddToGroupAsync(Context.ConnectionId, gameIdString);
         await Clients.Group(gameIdString).SendAsync("PlayerJoined", user.Name);
@@ -74,22 +71,23 @@ public class GameHub(
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        Connections.TryRemove(Context.ConnectionId, out Player? player);
-        await Clients.Group(player!.GameId.ToString()).SendAsync("PlayerLeft", player.Name, Context.ConnectionId);
+        Connections.TryRemove(Context.ConnectionId, out var connection);
+        await Clients.Group(connection.GameId.ToString())
+            .SendAsync("PlayerLeft", connection.Player.Name, Context.ConnectionId);
         await base.OnDisconnectedAsync(exception);
     }
 
-    public async Task PlayCard(CardDto card, CardColor? chosenColor)
+    public async Task PlayCard(Card card, CardColor? chosenColor)
     {
-        Player player = Connections[Context.ConnectionId];
+        (var gameId, Player player) = Connections[Context.ConnectionId];
 
-        if (await gameService.TryPlayCard(player.GameId, player.Id, card.Color, card.Value, chosenColor))
+        if (await gameService.TryPlayCard(gameId, player, card, chosenColor))
         {
-            await Clients.Group(player.GameId.ToString())
+            await Clients.Group(gameId.ToString())
                 .SendAsync(
                     "CardPlayed",
-                    mapper.Map<PlayerDto>(player),
-                    mapper.Map<CardDto>(card),
+                    player,
+                    card,
                     chosenColor
                 );
         }

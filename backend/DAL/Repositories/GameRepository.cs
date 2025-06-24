@@ -1,7 +1,9 @@
+using System.Text.Json;
 using DAL.Context;
 using Microsoft.EntityFrameworkCore;
 using UnoGame.Core.Entities;
 using UnoGame.Core.Interfaces;
+using UnoGame.Core.State;
 
 namespace DAL.Repositories;
 
@@ -9,20 +11,12 @@ public class GameRepository(UnoDbContext db) : IGameRepository
 {
     public async Task<List<Game>> GetAllGames()
     {
-        return await db.Games
-            .Include(g => g.Players)
-            .ToListAsync();
+        return await db.Games.ToListAsync();
     }
 
     public async Task<Game?> GetGame(int id)
     {
-        return await db.Games
-            .Include(g => g.Players)
-            .ThenInclude(p => p.PlayerCards)
-            .ThenInclude(pc => pc.Card)
-            .Include(g => g.PileCards)
-            .ThenInclude(pc => pc.Card)
-            .FirstOrDefaultAsync(g => g.Id == id);
+        return await db.Games.FindAsync(id);
     }
 
     public async Task<Game?> GetGameByName(string name)
@@ -37,14 +31,19 @@ public class GameRepository(UnoDbContext db) : IGameRepository
         return result.Entity;
     }
 
-    public async Task SaveChangesAsync()
+    public async Task<bool> UpdateGame(int id, string gameState)
     {
+        Game? game = await db.Games.FindAsync(id);
+        if (game == null) return false;
+        game.SerializedState = gameState;
         await db.SaveChangesAsync();
+
+        return true;
     }
 
     public async Task DeleteGame(int id)
     {
-        Game? firstOrDefault = await db.Games.FirstOrDefaultAsync(entity => entity.Id == id);
+        Game? firstOrDefault = await db.Games.FindAsync(id);
         if (firstOrDefault == null) return;
         db.Games.Remove(firstOrDefault);
         await db.SaveChangesAsync();
