@@ -44,7 +44,7 @@ const value = computed(() => {
   if (props.value < 10) {
     return props.value;
   } else {
-    return Object.keys(cardValue)[props.value].toLowerCase().replace('_', '-');
+    return Object.keys(cardValue)[props.value].toLowerCase().replaceAll('_', '-');
   }
 });
 
