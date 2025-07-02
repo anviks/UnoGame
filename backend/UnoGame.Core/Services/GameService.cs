@@ -101,6 +101,7 @@ public class GameService(
         GameState state = await GetGameState(gameId) ??
                           throw new ArgumentException($"Game with ID {gameId} not found.", nameof(gameId));
 
+        if (state.CurrentPlayer != player) return false;
         if (!state.CanPlayCard(player, card)) return false;
 
         player.Cards.Remove(card);
@@ -118,6 +119,8 @@ public class GameService(
             state.CurrentColor = card.Color;
             state.CurrentValue = card.Value;
         }
+
+        state.EndTurn();
 
         await gameRepository.UpdateGame(gameId, SerializeState(state));
 
