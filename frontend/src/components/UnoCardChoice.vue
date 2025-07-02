@@ -1,45 +1,45 @@
 <template>
-  <uno-card
-    v-if="color !== cardColor.WILD"
-    :color="color"
-    :value="value"
-    class="card-choice"
-    @click="$emit('card-chosen')"
-    :class="{ 'shake': shouldShake }"
-  />
-  <div
-    v-else
-    class="wild-card-div"
-    @mouseenter="startedHovering"
-    @mouseleave="stoppedHovering"
-    :class="{ 'shake': shouldShake }"
-  >
+  <div :class="{ 'shake': shouldShake }">
     <uno-card
-      :color="cardColor.WILD"
+      v-if="color !== cardColor.WILD"
+      :color="color"
       :value="value"
-      class="card-choice wild-image"
-      ref="wildCard"
+      class="card-choice"
+      @click="$emit('card-chosen')"
     />
     <div
-      class="uno-color-choice card-choice"
-      ref="colorChoices"
+      v-else
+      class="wild-card-div"
+      @mouseenter="startedHovering"
+      @mouseleave="stoppedHovering"
     >
+      <uno-card
+        :color="cardColor.WILD"
+        :value="value"
+        class="card-choice wild-image"
+        ref="wildCard"
+      />
+      <div
+        class="uno-color-choice card-choice"
+        ref="colorChoices"
+      >
       <span
         class="quarter top-left uno-red"
         @click="$emit('card-chosen', cardColor.RED)"
       />
-      <span
-        class="quarter top-right uno-blue"
-        @click="$emit('card-chosen', cardColor.BLUE)"
-      />
-      <span
-        class="quarter bottom-left uno-yellow"
-        @click="$emit('card-chosen', cardColor.YELLOW)"
-      />
-      <span
-        class="quarter bottom-right uno-green"
-        @click="$emit('card-chosen', cardColor.GREEN)"
-      />
+        <span
+          class="quarter top-right uno-blue"
+          @click="$emit('card-chosen', cardColor.BLUE)"
+        />
+        <span
+          class="quarter bottom-left uno-yellow"
+          @click="$emit('card-chosen', cardColor.YELLOW)"
+        />
+        <span
+          class="quarter bottom-right uno-green"
+          @click="$emit('card-chosen', cardColor.GREEN)"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -50,7 +50,7 @@
 >
 import { cardColor } from '@/constants.ts';
 import UnoCard from '@/components/UnoCard.vue';
-import { useTemplateRef } from 'vue';
+import { ref, useTemplateRef } from 'vue';
 
 const props = defineProps({
   color: {
@@ -65,10 +65,6 @@ const props = defineProps({
     type: Number,
     default: 100,
   },
-  shouldShake: {
-    type: Boolean,
-    default: false,
-  },
 });
 
 const emits = defineEmits<{
@@ -77,22 +73,36 @@ const emits = defineEmits<{
 
 const wildCard = useTemplateRef('wildCard');
 const colorChoices = useTemplateRef('colorChoices');
-let timeoutId: number;
+let hoverTimeoutId: number;
 
 function startedHovering() {
-  clearTimeout(timeoutId);
+  clearTimeout(hoverTimeoutId);
   if (wildCard.value == null || colorChoices.value == null) return;
   wildCard.value.$el.style.display = 'none';
   Array.from(colorChoices.value.children).forEach(child => (child as HTMLSpanElement).style.display = '');
 }
 
 function stoppedHovering() {
-  timeoutId = setTimeout(() => {
+  hoverTimeoutId = setTimeout(() => {
     if (wildCard.value == null || colorChoices.value == null) return;
     wildCard.value.$el.style.display = 'block';
     Array.from(colorChoices.value.children).forEach(child => (child as HTMLSpanElement).style.display = 'none');
   }, 300);
 }
+
+const shouldShake = ref(false);
+let shakeTimeoutId: number;
+
+const triggerShake = () => {
+  shouldShake.value = false;
+  clearTimeout(shakeTimeoutId);
+  setTimeout(() => {
+    shouldShake.value = true;
+    shakeTimeoutId = setTimeout(() => shouldShake.value = false, 500);
+  }, 5);
+};
+
+defineExpose({ triggerShake });
 </script>
 
 <style
@@ -106,10 +116,12 @@ function stoppedHovering() {
 }
 
 .card-choice {
+  --card-scale: 1;
   transition: transform 0.3s, box-shadow 0.3s;
 
   &:hover {
-    transform: scale(1.1) translateZ(10px);
+    --card-scale: 1.1;
+    transform: scale(var(--card-scale)) translateZ(10px);
     box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.3);
     cursor: pointer;
   }
@@ -196,14 +208,30 @@ function stoppedHovering() {
 }
 
 @keyframes shake {
-  0%   { transform: translateX(0); }
-  15%  { transform: translateX(-6px); }
-  30%  { transform: translateX(6px); }
-  45%  { transform: translateX(-4px); }
-  60%  { transform: translateX(4px); }
-  75%  { transform: translateX(-2px); }
-  90%  { transform: translateX(2px); }
-  100% { transform: translateX(0); }
+  0% {
+    transform: scale(var(--card-scale, 1)) translateX(0);
+  }
+  15% {
+    transform: scale(var(--card-scale, 1)) translateX(-6px);
+  }
+  30% {
+    transform: scale(var(--card-scale, 1)) translateX(6px);
+  }
+  45% {
+    transform: scale(var(--card-scale, 1)) translateX(-4px);
+  }
+  60% {
+    transform: scale(var(--card-scale, 1)) translateX(4px);
+  }
+  75% {
+    transform: scale(var(--card-scale, 1)) translateX(-2px);
+  }
+  90% {
+    transform: scale(var(--card-scale, 1)) translateX(2px);
+  }
+  100% {
+    transform: scale(var(--card-scale, 1)) translateX(0);
+  }
 }
 
 .shake {

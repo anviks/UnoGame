@@ -14,7 +14,7 @@
         :color="card.color"
         :value="card.value"
         :key="index"
-        :should-shake="failedCardIndex === index"
+        :ref="el => cardRefs[index] = el"
         @card-chosen="(chosenColor) => playCard(index, card, chosenColor)"
       ></uno-card-choice>
     </div>
@@ -25,7 +25,7 @@
   setup
   lang="ts"
 >
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { type ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from 'vue';
 import { GameApi } from '@/api/GameApi.ts';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { useAuthStore } from '@/stores/authStore.ts';
@@ -44,7 +44,7 @@ const props = defineProps({
 
 const authStore = useAuthStore();
 const toast = useToast();
-const failedCardIndex = ref<number | null>(null);
+const cardRefs = ref<ComponentPublicInstance<any | typeof UnoCardChoice>[]>([]);
 
 const connected = ref(false);
 const connection = ref<HubConnection>();
@@ -60,8 +60,7 @@ const playCard = async (index: number, card: Card, chosenColor?: number) => {
   try {
     await connection.value!.invoke('PlayCard', card, chosenColor);
   } catch (e) {
-    failedCardIndex.value = index;
-    setTimeout(() => failedCardIndex.value = null, 500);
+    cardRefs.value[index].triggerShake();
   }
 };
 
