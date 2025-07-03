@@ -6,6 +6,7 @@ WebApp0/
 ConsoleApp/
 MenuSystem/
 .env
+./ideas.txt
 
 # Common IntelliJ Platform excludes
 
@@ -503,3 +504,4 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+/ideas.txt

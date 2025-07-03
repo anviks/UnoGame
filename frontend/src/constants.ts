@@ -28,3 +28,15 @@ export const cardValue = {
   WILD: 13,
   WILD_DRAW_FOUR: 14,
 };
+
+export const GameErrorCodes = {
+  NOT_YOUR_TURN: 'NOT_YOUR_TURN',
+  INVALID_CARD: 'INVALID_CARD',
+} as const;
+
+export type GameErrorCode = typeof GameErrorCodes[keyof typeof GameErrorCodes];
+
+export const errorMessages: Record<GameErrorCode, string> = {
+  [GameErrorCodes.NOT_YOUR_TURN]: 'It\'s not your turn.',
+  [GameErrorCodes.INVALID_CARD]: 'You cannot play this card at the moment.',
+};

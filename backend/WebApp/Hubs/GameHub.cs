@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using FluentResults;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using UnoGame.Core.Entities;
@@ -77,23 +78,20 @@ public class GameHub(
         await base.OnDisconnectedAsync(exception);
     }
 
-    public async Task PlayCard(Card card, CardColor? chosenColor)
+    public async Task<object> PlayCard(Card card, CardColor? chosenColor)
     {
         (var gameId, Player player) = Connections[Context.ConnectionId];
+        Result tryPlayCard = await gameService.TryPlayCard(gameId, player, card, chosenColor);
 
-        if (await gameService.TryPlayCard(gameId, player, card, chosenColor))
-        {
-            await Clients.Group(gameId.ToString())
-                .SendAsync(
-                    "CardPlayed",
-                    player,
-                    card,
-                    chosenColor
-                );
-        }
-        else
-        {
-            throw new HubException("You cannot play this card at the moment.");
-        }
+        if (!tryPlayCard.IsSuccess) return new { Success = false, Error = tryPlayCard.Errors.First().Message };
+
+        await Clients.Group(gameId.ToString())
+            .SendAsync(
+                "CardPlayed",
+                player,
+                card,
+                chosenColor
+            );
+        return new { Success = true };
     }
 }

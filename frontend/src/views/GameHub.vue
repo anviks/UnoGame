@@ -34,6 +34,7 @@ import type { Card, Game, Player } from '@/types.ts';
 import { useToast } from 'vue-toastification';
 import UnoCard from '@/components/UnoCard.vue';
 import _ from 'lodash-es';
+import { errorMessages, type GameErrorCode, GameErrorCodes } from '@/constants.ts';
 
 const props = defineProps({
   gameId: {
@@ -56,11 +57,27 @@ const sendMessage = (user: string, message: string) => {
     .catch((err) => console.error(err));
 };
 
+interface PlayCardResponse {
+  success: boolean;
+  error?: string;
+}
+
 const playCard = async (index: number, card: Card, chosenColor?: number) => {
-  try {
-    await connection.value!.invoke('PlayCard', card, chosenColor);
-  } catch (e) {
-    cardRefs.value[index].triggerShake();
+  const response: PlayCardResponse = await connection.value!.invoke('PlayCard', card, chosenColor);
+
+  if (!response.success) {
+    const errorCode = response.error as GameErrorCode;
+
+    switch (errorCode) {
+      case GameErrorCodes.INVALID_CARD:
+        cardRefs.value[index].triggerShake();
+        break;
+      case GameErrorCodes.NOT_YOUR_TURN:
+        toast.error(errorMessages[errorCode]);
+        break;
+      default:
+        toast.error(errorCode);
+    }
   }
 };
 

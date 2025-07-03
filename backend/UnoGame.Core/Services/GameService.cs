@@ -91,7 +91,52 @@ public class GameService(
         return Result.Ok(gameState);
     }
 
-    public async Task<bool> TryPlayCard(
+    /**
+     * Makes the player, whose turn it currently is, play the specified card.
+     * This method doesn't perform any validation (whether the player has or can play the specified card),
+     * that's the responsibility of the caller.
+     */
+    private void PlayCurrentPlayerCard(GameState state, Card card)
+    {
+        Player player = state.CurrentPlayer;
+        Player target;
+        player.Cards.Remove(card);
+        state.DiscardPile.Insert(0, card);
+
+        switch (card.Value)
+        {
+            case CardValue.Reverse:
+                if (state.Players.Count > 2)
+                {
+                    state.IsReversed = !state.IsReversed;
+                    state.History.Add($"{player.Name} reversed the game");
+                }
+                else
+                {
+                    state.EndTurn();
+                    state.History.Add($"{state.CurrentPlayer.Name} was skipped");
+                }
+                break;
+            case CardValue.Skip:
+                state.EndTurn();
+                state.History.Add($"{state.CurrentPlayer.Name} was skipped");
+                break;
+            case CardValue.DrawTwo:
+                state.EndTurn();
+                target = state.CurrentPlayer;
+                state.GiveCards(target, 2);
+                state.History.Add($"{target.Name} drew 2 cards");  // TODO: Not true if cards have run out
+                break;
+            case CardValue.WildDrawFour:
+                state.EndTurn();
+                target = state.CurrentPlayer;
+                state.GiveCards(target, 4);
+                state.History.Add($"{target.Name} drew 4 cards");  // TODO: Not true if cards have run out
+                break;
+        }
+    }
+
+    public async Task<Result> TryPlayCard(
         int gameId,
         Player player,
         Card card,
@@ -101,11 +146,10 @@ public class GameService(
         GameState state = await GetGameState(gameId) ??
                           throw new ArgumentException($"Game with ID {gameId} not found.", nameof(gameId));
 
-        if (state.CurrentPlayer != player) return false;
-        if (!state.CanPlayCard(player, card)) return false;
+        if (state.CurrentPlayer != player) return Result.Fail("NOT_YOUR_TURN");
+        if (!state.CanPlayCard(player, card)) return Result.Fail("INVALID_CARD");
 
-        player.Cards.Remove(card);
-        state.DiscardPile.Insert(0, card);
+        PlayCurrentPlayerCard(state, card);
 
         if (card.Color == CardColor.Wild)
         {
@@ -124,7 +168,7 @@ public class GameService(
 
         await gameRepository.UpdateGame(gameId, SerializeState(state));
 
-        return true;
+        return Result.Ok();
     }
 
     public async Task DeleteGame(int id)
