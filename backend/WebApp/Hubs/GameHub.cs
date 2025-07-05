@@ -81,9 +81,9 @@ public class GameHub(
     public async Task<object> PlayCard(Card card, CardColor? chosenColor)
     {
         (var gameId, Player player) = Connections[Context.ConnectionId];
-        Result tryPlayCard = await gameService.TryPlayCard(gameId, player, card, chosenColor);
+        Result playResult = await gameService.TryPlayCard(gameId, player, card, chosenColor);
 
-        if (!tryPlayCard.IsSuccess) return new { Success = false, Error = tryPlayCard.Errors.First().Message };
+        if (!playResult.IsSuccess) return new { Success = false, Error = playResult.Errors.First().Message };
 
         await Clients.Group(gameId.ToString())
             .SendAsync(
@@ -91,6 +91,21 @@ public class GameHub(
                 player,
                 card,
                 chosenColor
+            );
+        return new { Success = true };
+    }
+
+    public async Task<object> DrawCard()
+    {
+        (var gameId, Player player) = Connections[Context.ConnectionId];
+        Result drawResult = await gameService.TryDrawCard(gameId, player);
+
+        if (!drawResult.IsSuccess) return new { Success = false, Error = drawResult.Errors.First().Message };
+
+        await Clients.Group(gameId.ToString())
+            .SendAsync(
+                "CardDrawn",
+                player
             );
         return new { Success = true };
     }

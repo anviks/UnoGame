@@ -124,13 +124,13 @@ public class GameService(
             case CardValue.DrawTwo:
                 state.EndTurn();
                 target = state.CurrentPlayer;
-                state.GiveCards(target, 2);
+                state.DrawCardsForPlayer(target, 2);
                 state.History.Add($"{target.Name} drew 2 cards");  // TODO: Not true if cards have run out
                 break;
             case CardValue.WildDrawFour:
                 state.EndTurn();
                 target = state.CurrentPlayer;
-                state.GiveCards(target, 4);
+                state.DrawCardsForPlayer(target, 4);
                 state.History.Add($"{target.Name} drew 4 cards");  // TODO: Not true if cards have run out
                 break;
         }
@@ -147,7 +147,8 @@ public class GameService(
                           throw new ArgumentException($"Game with ID {gameId} not found.", nameof(gameId));
 
         if (state.CurrentPlayer != player) return Result.Fail("NOT_YOUR_TURN");
-        if (!state.CanPlayCard(player, card)) return Result.Fail("INVALID_CARD");
+        if (player.PendingDrawnCard != null && card != player.PendingDrawnCard) return Result.Fail("INVALID_CARD_TO_PLAY_AFTER_DRAW");
+        if (player.PendingDrawnCard == null && !state.CanPlayerPlayCard(player, card)) return Result.Fail("INVALID_CARD");
 
         PlayCurrentPlayerCard(state, card);
 
@@ -165,6 +166,24 @@ public class GameService(
         }
 
         state.EndTurn();
+
+        await gameRepository.UpdateGame(gameId, SerializeState(state));
+
+        return Result.Ok();
+    }
+
+    public async Task<Result> TryDrawCard(int gameId, Player player)
+    {
+        GameState state = await GetGameState(gameId) ??
+                          throw new ArgumentException($"Game with ID {gameId} not found.", nameof(gameId));
+        if (state.CurrentPlayer != player) return Result.Fail("NOT_YOUR_TURN");
+        if (player.PendingDrawnCard != null) return Result.Fail("NOT_ALLOWED_TO_DRAW_TWICE");
+
+        Card? card = state.DrawCardForPlayer(player);
+        if (card == null) return Result.Fail("NO_CARDS_TO_DRAW");
+
+        if (state.IsCardPlayable(player, card)) player.PendingDrawnCard = card;
+        else state.EndTurn();
 
         await gameRepository.UpdateGame(gameId, SerializeState(state));
 

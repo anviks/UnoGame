@@ -1,4 +1,3 @@
-using UnoGame.Core.Entities;
 using UnoGame.Core.Entities.Enums;
 
 namespace UnoGame.Core.State;
@@ -10,6 +9,7 @@ public class Player
     public bool SaidUno { get; set; }
     public int? UserId { get; set; }
     public List<Card> Cards { get; set; } = [];
+    public Card? PendingDrawnCard { get; set; }
 
     public bool HasCard(Card card)
     {

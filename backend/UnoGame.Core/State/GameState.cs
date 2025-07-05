@@ -21,10 +21,14 @@ public class GameState
 
     public Player CurrentPlayer => Players[CurrentPlayerIndex];
 
-    public void EndTurn() =>
+    public void EndTurn()
+    {
         CurrentPlayerIndex =
             (CurrentPlayerIndex + (IsReversed ? -1 : 1) + Players.Count)
             % Players.Count;
+
+        Players.ForEach(p => p.PendingDrawnCard = null);
+    }
 
     /**
      * Shuffles one of the piles using the Fisher-Yates algorithm.
@@ -40,7 +44,7 @@ public class GameState
         }
     }
 
-    public Card? GiveCard(Player player)
+    public Card? DrawCardForPlayer(Player player)
     {
         if (DrawPile.Count == 0)
         {
@@ -73,13 +77,13 @@ public class GameState
         return pileCard;
     }
 
-    public Card?[] GiveCards(Player player, int count)
+    public Card?[] DrawCardsForPlayer(Player player, int count)
     {
         var cards = new Card?[count];
 
         for (int i = 0; i < count; i++)
         {
-            cards[i] = GiveCard(player);
+            cards[i] = DrawCardForPlayer(player);
         }
 
         return cards;
@@ -91,15 +95,18 @@ public class GameState
         {
             foreach (var player in Players)
             {
-                GiveCards(player, 1);
+                DrawCardForPlayer(player);
             }
         }
     }
 
-    public bool CanPlayCard(Player player, Card card)
+    public bool CanPlayerPlayCard(Player player, Card card)
     {
-        if (!player.HasCard(card)) return false;
+        return player.HasCard(card) && IsCardPlayable(player, card);
+    }
 
+    public bool IsCardPlayable(Player player, Card card)
+    {
         if (card.Value == CardValue.WildDrawFour)
         {
             // Wild draw four can only be played if the player has no other cards of the current color
@@ -125,7 +132,7 @@ public class GameState
 
     public Card? GetCardFromBot(Player player, out bool drewCard)
     {
-        var cardToPlay = player.Cards.FirstOrDefault(card => CanPlayCard(player, card));
+        var cardToPlay = player.Cards.FirstOrDefault(card => CanPlayerPlayCard(player, card));
 
         if (cardToPlay is null)
         {
@@ -133,7 +140,7 @@ public class GameState
             drewCard = true;
             if (cardToPlay == null) return null;
             player.Cards.Add(cardToPlay);
-            if (!CanPlayCard(player, cardToPlay)) return null;
+            if (!CanPlayerPlayCard(player, cardToPlay)) return null;
         }
         else
         {
