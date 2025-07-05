@@ -32,6 +32,9 @@ export const cardValue = {
 export const GameErrorCodes = {
   NOT_YOUR_TURN: 'NOT_YOUR_TURN',
   INVALID_CARD: 'INVALID_CARD',
+  NOT_ALLOWED_TO_DRAW_TWICE: 'NOT_ALLOWED_TO_DRAW_TWICE',
+  INVALID_CARD_TO_PLAY_AFTER_DRAW: 'INVALID_CARD_TO_PLAY_AFTER_DRAW',
+  NO_CARDS_TO_DRAW: 'NO_CARDS_TO_DRAW',
 } as const;
 
 export type GameErrorCode = typeof GameErrorCodes[keyof typeof GameErrorCodes];
@@ -39,4 +42,7 @@ export type GameErrorCode = typeof GameErrorCodes[keyof typeof GameErrorCodes];
 export const errorMessages: Record<GameErrorCode, string> = {
   [GameErrorCodes.NOT_YOUR_TURN]: 'It\'s not your turn.',
   [GameErrorCodes.INVALID_CARD]: 'You cannot play this card at the moment.',
+  [GameErrorCodes.NOT_ALLOWED_TO_DRAW_TWICE]: 'You are not allowed to draw twice in a row.',
+  [GameErrorCodes.INVALID_CARD_TO_PLAY_AFTER_DRAW]: 'You can only play the drawn card.',
+  [GameErrorCodes.NO_CARDS_TO_DRAW]: 'There are no cards left to draw.',
 };

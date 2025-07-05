@@ -5,6 +5,7 @@
       :color="game?.discardPile[0].color"
       :value="game?.discardPile[0].value"
     ></uno-card>
+    <v-btn @click="drawCard">Draw a card</v-btn>
     <div
       style="position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%)"
       class="uno-card-hand d-flex ga-2"
@@ -68,18 +69,22 @@ const playCard = async (index: number, card: Card, chosenColor?: number) => {
   if (!response.success) {
     const errorCode = response.error as GameErrorCode;
 
-    switch (errorCode) {
-      case GameErrorCodes.INVALID_CARD:
-        cardRefs.value[index].triggerShake();
-        break;
-      case GameErrorCodes.NOT_YOUR_TURN:
-        toast.error(errorMessages[errorCode]);
-        break;
-      default:
-        toast.error(errorCode);
+    if (errorCode === GameErrorCodes.INVALID_CARD) {
+      cardRefs.value[index].triggerShake();
+    } else {
+      toast.error(errorMessages[errorCode] ?? errorCode);
     }
   }
 };
+
+const drawCard = async () => {
+  const response = await connection.value!.invoke('DrawCard');
+
+  if (!response.success) {
+    const errorCode = response.error as GameErrorCode;
+    toast.error(errorMessages[errorCode] ?? errorCode);
+  }
+}
 
 const connectToGame = async () => {
   connection.value = new HubConnectionBuilder()
@@ -103,6 +108,10 @@ const connectToGame = async () => {
   });
 
   connection.value.on('CardPlayed', async (player: Player, card: Card, chosenColor: number | null) => {
+    game.value = await GameApi.getGame(props.gameId);
+  });
+
+  connection.value.on('CardDrawn', async (player: Player, card: Card, chosenColor: number | null) => {
     game.value = await GameApi.getGame(props.gameId);
   });
 
