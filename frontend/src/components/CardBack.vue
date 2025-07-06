@@ -15,7 +15,7 @@
   setup
   lang="ts"
 >
-import cardBack from '@/assets/uno-card-back.png';
+import cardBack from '@/assets/images/uno-card-back.png';
 
 const props = defineProps({
   size: {

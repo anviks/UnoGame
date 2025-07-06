@@ -40,4 +40,10 @@ const authStore = useAuthStore();
   --uno-green: #55aa55;
   --uno-blue: #5555ff;
 }
+
+@font-face {
+  font-family: 'Bungee';
+  src: url('@/assets/fonts/Bungee-Regular.ttf') format('truetype');
+  font-display: swap;
+}
 </style>

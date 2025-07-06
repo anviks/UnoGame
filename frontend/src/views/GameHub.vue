@@ -5,10 +5,13 @@
       :color="game.discardPile[0].color"
       :value="game.discardPile[0].value"
     ></card>
-    <draw-pile
-      :amount="drawPileSize"
-      @click="drawCard"
-    />
+    <div class="d-flex ga-3">
+      <draw-pile
+        :amount="game.drawPile.length"
+        @click="drawCard"
+      />
+      <span class="card-count">{{ game.drawPile.length }}</span>
+    </div>
     <div
       style="position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%)"
       class="uno-card-hand d-flex ga-2"
@@ -29,12 +32,12 @@
   setup
   lang="ts"
 >
-import { type ComponentPublicInstance, computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { type ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from 'vue';
 import { GameApi } from '@/api/GameApi.ts';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { useAuthStore } from '@/stores/authStore.ts';
 import CardChoice from '@/components/CardChoice.vue';
-import type { UnoCard, Game, Player } from '@/types.ts';
+import type { Game, Player, UnoCard } from '@/types.ts';
 import { useToast } from 'vue-toastification';
 import Card from '@/components/Card.vue';
 import { errorMessages, type GameErrorCode, GameErrorCodes } from '@/constants.ts';
@@ -128,13 +131,6 @@ const connectToGame = async () => {
 };
 
 const game = ref<Game>();
-const drawPileSize = ref();
-
-watch(game, (value, oldValue, onCleanup) => {
-  if (value) {
-    drawPileSize.value = value.drawPile.length;
-  }
-});
 
 const thisPlayer = computed(() => game?.value?.players?.find((player: Player) => player.userId === authStore.userId));
 
@@ -157,5 +153,21 @@ onUnmounted(() => {
   flex-direction: row;
   align-items: center;
   flex-wrap: wrap;
+}
+
+.card-count {
+  font-family: 'Bungee', sans-serif;
+  font-size: 36px;
+  color: white;
+
+  /* @formatter:off */
+  text-shadow:
+          -1px -1px 2px #000,
+          1px -1px 2px #000,
+          -1px 1px 2px #000,
+          1px 1px 2px #000;
+  /* @formatter:on */
+
+  align-self: center;
 }
 </style>
