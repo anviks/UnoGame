@@ -1,10 +1,10 @@
 <template>
   <v-container v-if="game">
-    <uno-card
+    <card
       v-if="game.discardPile[0]"
       :color="game.discardPile[0].color"
       :value="game.discardPile[0].value"
-    ></uno-card>
+    ></card>
     <draw-pile
       :amount="drawPileSize"
       @click="drawCard"
@@ -13,14 +13,14 @@
       style="position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%)"
       class="uno-card-hand d-flex ga-2"
     >
-      <uno-card-choice
+      <card-choice
         v-for="(card, index) in thisPlayer?.cards"
         :color="card.color"
         :value="card.value"
         :key="index"
         :ref="el => cardRefs[index] = el"
         @card-chosen="(chosenColor) => playCard(index, card, chosenColor)"
-      ></uno-card-choice>
+      ></card-choice>
     </div>
   </v-container>
 </template>
@@ -33,10 +33,10 @@ import { type ComponentPublicInstance, computed, onMounted, onUnmounted, ref, wa
 import { GameApi } from '@/api/GameApi.ts';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { useAuthStore } from '@/stores/authStore.ts';
-import UnoCardChoice from '@/components/UnoCardChoice.vue';
+import CardChoice from '@/components/CardChoice.vue';
 import type { Card, Game, Player } from '@/types.ts';
 import { useToast } from 'vue-toastification';
-import UnoCard from '@/components/UnoCard.vue';
+import Card from '@/components/Card.vue';
 import { errorMessages, type GameErrorCode, GameErrorCodes } from '@/constants.ts';
 import DrawPile from '@/components/DrawPile.vue';
 
@@ -49,7 +49,7 @@ const props = defineProps({
 
 const authStore = useAuthStore();
 const toast = useToast();
-const cardRefs = ref<ComponentPublicInstance<any | typeof UnoCardChoice>[]>([]);
+const cardRefs = ref<ComponentPublicInstance<any | typeof CardChoice>[]>([]);
 
 const connected = ref(false);
 const connection = ref<HubConnection>();

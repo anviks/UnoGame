@@ -89,7 +89,7 @@
                 </td>
 
                 <td>
-                  <UnoCard
+                  <Card
                     v-if="enabledCards[i] && enabledCards[i][j] != null"
                     :value="value"
                     :color="color"
@@ -123,7 +123,7 @@ import { onMounted, onUnmounted, ref } from 'vue';
 import { type Card, type GameForm, type PlayerField, type User } from '@/types.ts';
 import { cardColor, cardValue, playerType } from '@/constants.ts';
 import { getAllColors, getAllValues } from '@/helpers.ts';
-import UnoCard from '@/components/UnoCard.vue';
+import Card from '@/components/Card.vue';
 import { useAuthStore } from '@/stores/authStore.ts';
 import { GameApi } from '@/api/GameApi.ts';
 import { UserApi } from '@/api/UserApi.ts';

@@ -7,7 +7,7 @@
       'cursor': 'pointer'
     }"
   >
-    <uno-card-back
+    <card-back
       v-for="i in amountOfCards"
       :style="{
         'position': 'absolute',
@@ -21,7 +21,7 @@
   setup
   lang="ts"
 >
-import UnoCardBack from '@/components/UnoCardBack.vue';
+import CardBack from '@/components/CardBack.vue';
 import { computed } from 'vue';
 import _ from 'lodash-es';
 

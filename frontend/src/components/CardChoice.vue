@@ -1,6 +1,6 @@
 <template>
   <div :class="{ 'shake': shouldShake }">
-    <uno-card
+    <card
       v-if="color !== cardColor.WILD"
       :color="color"
       :value="value"
@@ -13,7 +13,7 @@
       @mouseenter="startedHovering"
       @mouseleave="stoppedHovering"
     >
-      <uno-card
+      <card
         :color="cardColor.WILD"
         :value="value"
         class="card-choice wild-image"
@@ -49,7 +49,7 @@
   lang="ts"
 >
 import { cardColor } from '@/constants.ts';
-import UnoCard from '@/components/UnoCard.vue';
+import Card from '@/components/Card.vue';
 import { ref, useTemplateRef } from 'vue';
 
 const props = defineProps({
