@@ -34,7 +34,7 @@ import { GameApi } from '@/api/GameApi.ts';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { useAuthStore } from '@/stores/authStore.ts';
 import CardChoice from '@/components/CardChoice.vue';
-import type { Card, Game, Player } from '@/types.ts';
+import type { UnoCard, Game, Player } from '@/types.ts';
 import { useToast } from 'vue-toastification';
 import Card from '@/components/Card.vue';
 import { errorMessages, type GameErrorCode, GameErrorCodes } from '@/constants.ts';
@@ -66,7 +66,7 @@ interface PlayCardResponse {
   error?: string;
 }
 
-const playCard = async (index: number, card: Card, chosenColor?: number) => {
+const playCard = async (index: number, card: UnoCard, chosenColor?: number) => {
   const response: PlayCardResponse = await connection.value!.invoke('PlayCard', card, chosenColor);
 
   if (!response.success) {
@@ -110,11 +110,11 @@ const connectToGame = async () => {
     toast.error(message);
   });
 
-  connection.value.on('CardPlayed', async (player: Player, card: Card, chosenColor: number | null) => {
+  connection.value.on('CardPlayed', async (player: Player, card: UnoCard, chosenColor: number | null) => {
     game.value = await GameApi.getGame(props.gameId);
   });
 
-  connection.value.on('CardDrawn', async (player: Player, card: Card, chosenColor: number | null) => {
+  connection.value.on('CardDrawn', async (player: Player, card: UnoCard, chosenColor: number | null) => {
     game.value = await GameApi.getGame(props.gameId);
   });
 

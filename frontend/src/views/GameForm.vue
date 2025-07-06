@@ -120,7 +120,7 @@
   lang="ts"
 >
 import { onMounted, onUnmounted, ref } from 'vue';
-import { type Card, type GameForm, type PlayerField, type User } from '@/types.ts';
+import { type UnoCard, type GameForm, type PlayerField, type User } from '@/types.ts';
 import { cardColor, cardValue, playerType } from '@/constants.ts';
 import { getAllColors, getAllValues } from '@/helpers.ts';
 import Card from '@/components/Card.vue';
@@ -193,7 +193,7 @@ const createGame = async () => {
   const validationResult = await form.value?.validate();
   if (!validationResult.valid) return;
 
-  const deck: Card[] = [];
+  const deck: UnoCard[] = [];
   for (let i = 0; i < enabledCards.value.length; i++) {
     for (let j = 0; j < enabledCards.value[i].length; j++) {
       if (enabledCards.value[i][j]) {
