@@ -32,7 +32,7 @@ const props = defineProps({
   },
 });
 
-const amountOfCards = computed(() => _.clamp(props.amount, 0, 100));
+const amountOfCards = computed(() => _.clamp(props.amount, 0, 15));
 </script>
 
 <style scoped>
