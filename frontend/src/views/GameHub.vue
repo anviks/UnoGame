@@ -1,11 +1,14 @@
 <template>
-  <v-container>
+  <v-container v-if="game">
     <uno-card
-      v-if="game?.discardPile[0]"
-      :color="game?.discardPile[0].color"
-      :value="game?.discardPile[0].value"
+      v-if="game.discardPile[0]"
+      :color="game.discardPile[0].color"
+      :value="game.discardPile[0].value"
     ></uno-card>
-    <v-btn @click="drawCard">Draw a card</v-btn>
+    <draw-pile
+      :amount="drawPileSize"
+      @click="drawCard"
+    />
     <div
       style="position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%)"
       class="uno-card-hand d-flex ga-2"
@@ -26,7 +29,7 @@
   setup
   lang="ts"
 >
-import { type ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from 'vue';
+import { type ComponentPublicInstance, computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { GameApi } from '@/api/GameApi.ts';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { useAuthStore } from '@/stores/authStore.ts';
@@ -34,8 +37,8 @@ import UnoCardChoice from '@/components/UnoCardChoice.vue';
 import type { Card, Game, Player } from '@/types.ts';
 import { useToast } from 'vue-toastification';
 import UnoCard from '@/components/UnoCard.vue';
-import _ from 'lodash-es';
 import { errorMessages, type GameErrorCode, GameErrorCodes } from '@/constants.ts';
+import DrawPile from '@/components/DrawPile.vue';
 
 const props = defineProps({
   gameId: {
@@ -84,7 +87,7 @@ const drawCard = async () => {
     const errorCode = response.error as GameErrorCode;
     toast.error(errorMessages[errorCode] ?? errorCode);
   }
-}
+};
 
 const connectToGame = async () => {
   connection.value = new HubConnectionBuilder()
@@ -125,6 +128,13 @@ const connectToGame = async () => {
 };
 
 const game = ref<Game>();
+const drawPileSize = ref();
+
+watch(game, (value, oldValue, onCleanup) => {
+  if (value) {
+    drawPileSize.value = value.drawPile.length;
+  }
+});
 
 const thisPlayer = computed(() => game?.value?.players?.find((player: Player) => player.userId === authStore.userId));
 
