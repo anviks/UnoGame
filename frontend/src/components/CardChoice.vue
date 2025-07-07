@@ -50,7 +50,7 @@
 >
 import { cardColor } from '@/constants.ts';
 import { Card } from '@/components';
-import { ref, useTemplateRef } from 'vue';
+import { onMounted, ref, useTemplateRef } from 'vue';
 
 const props = defineProps({
   color: {
@@ -112,6 +112,10 @@ const triggerShake = () => {
 };
 
 defineExpose({ triggerShake });
+
+onMounted(() => {
+  setColorChoiceVisibility('hidden');
+});
 </script>
 
 <style
