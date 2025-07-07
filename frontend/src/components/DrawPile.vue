@@ -21,7 +21,7 @@
   setup
   lang="ts"
 >
-import CardBack from '@/components/CardBack.vue';
+import { CardBack } from '@/components';
 import { computed } from 'vue';
 import _ from 'lodash-es';
 

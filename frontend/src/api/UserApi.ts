@@ -1,7 +1,7 @@
-import { ApiClient } from '@/api/ApiClient.ts';
+import ApiClient from './ApiClient.ts';
 import type { User } from '@/types.ts';
 
-export class UserApi {
+export default class UserApi {
   static async getAllUsers(): Promise<User[]> {
     return ApiClient.get('/users');
   }

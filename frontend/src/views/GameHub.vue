@@ -33,15 +33,13 @@
   lang="ts"
 >
 import { type ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from 'vue';
-import { GameApi } from '@/api/GameApi.ts';
+import { GameApi } from '@/api';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { useAuthStore } from '@/stores/authStore.ts';
-import CardChoice from '@/components/CardChoice.vue';
+import { Card, CardChoice, DrawPile } from '@/components';
 import type { Game, Player, UnoCard } from '@/types.ts';
 import { useToast } from 'vue-toastification';
-import Card from '@/components/Card.vue';
 import { errorMessages, type GameErrorCode, GameErrorCodes } from '@/constants.ts';
-import DrawPile from '@/components/DrawPile.vue';
 
 const props = defineProps({
   gameId: {

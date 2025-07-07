@@ -8,7 +8,7 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
-export class ApiClient {
+export default class ApiClient {
   /**
    * Generic method to handle API requests
    * @param config - Axios request configuration

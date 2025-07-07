@@ -49,7 +49,7 @@
   lang="ts"
 >
 import { cardColor } from '@/constants.ts';
-import Card from '@/components/Card.vue';
+import { Card } from '@/components';
 import { ref, useTemplateRef } from 'vue';
 
 const props = defineProps({

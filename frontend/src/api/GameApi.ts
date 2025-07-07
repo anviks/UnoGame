@@ -1,9 +1,8 @@
-import axios from 'axios';
 import type { Game } from '@/types.ts';
 import moment from 'moment';
-import { ApiClient } from '@/api/ApiClient.ts';
+import ApiClient from './ApiClient.ts';
 
-export class GameApi {
+export default class GameApi {
   static async getAllGames() {
     const games: Game[] = await ApiClient.get('/games', {
       errorMessage: 'Error fetching games.',

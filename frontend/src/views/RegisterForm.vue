@@ -88,7 +88,7 @@
 import { useAuthStore } from '@/stores/authStore.ts';
 import { computed, onMounted, ref, watch } from 'vue';
 import { debounce } from 'lodash-es';
-import { AuthApi } from '@/api/AuthApi.ts';
+import { AuthApi } from '@/api';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
 import { removeQueryParameter } from '@/helpers.ts';

@@ -1,7 +1,6 @@
 import { type UnoCard } from '@/types.ts';
-import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import { cardColor, cardValue } from '@/constants.ts';
-import { type RouteLocationNormalizedLoadedGeneric, type Router, useRoute, useRouter } from 'vue-router';
+import { type RouteLocationNormalizedLoadedGeneric, type Router } from 'vue-router';
 
 export function getAllCards(excludeWilds: boolean = false): UnoCard[] {
   const colors = Object.values(cardColor);

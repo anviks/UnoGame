@@ -123,11 +123,9 @@ import { onMounted, onUnmounted, ref } from 'vue';
 import { type UnoCard, type GameForm, type PlayerField, type User } from '@/types.ts';
 import { cardColor, cardValue, playerType } from '@/constants.ts';
 import { getAllColors, getAllValues } from '@/helpers.ts';
-import Card from '@/components/Card.vue';
+import { Card, GameFormPlayerRow } from '@/components';
 import { useAuthStore } from '@/stores/authStore.ts';
-import { GameApi } from '@/api/GameApi.ts';
-import { UserApi } from '@/api/UserApi.ts';
-import GameFormPlayerRow from '@/components/GameFormPlayerRow.vue';
+import { GameApi, UserApi } from '@/api';
 import { useToast } from 'vue-toastification';
 import { useRouter } from 'vue-router';
 

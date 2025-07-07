@@ -1,6 +1,6 @@
-import { ApiClient } from '@/api/ApiClient.ts';
+import ApiClient from './ApiClient.ts';
 
-export class AuthApi {
+export default class AuthApi {
   static async sendMagicLink(email: string) {
     return ApiClient.post('/auth/request-magic-link', { email });
   }

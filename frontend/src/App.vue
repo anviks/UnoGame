@@ -27,7 +27,6 @@
   lang="ts"
 >
 import { RouterView } from 'vue-router';
-import { VApp, VAppBar, VBtn, VFooter, VSpacer, VToolbarTitle } from 'vuetify/components';
 import { useAuthStore } from '@/stores/authStore.ts';
 
 const authStore = useAuthStore();

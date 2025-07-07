@@ -48,7 +48,7 @@
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import type { Game } from '@/types.ts';
-import { GameApi } from '@/api/GameApi.ts';
+import { GameApi } from '@/api';
 import { useAuthStore } from '@/stores/authStore.ts';
 
 const authStore = useAuthStore();
