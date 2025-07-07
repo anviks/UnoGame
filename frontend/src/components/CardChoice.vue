@@ -75,27 +75,27 @@ const wildCard = useTemplateRef('wildCard');
 const colorChoices = useTemplateRef('colorChoices');
 let hoverTimeoutId: number;
 
-const setColorChoiceVisibility = (display: string) => {
+const setColorChoiceVisibility = (visibility: string) => {
   if (colorChoices.value == null) return;
   Array.from(colorChoices.value.children)
-    .forEach(child => (child as HTMLSpanElement).style.display = display);
+    .forEach(child => (child as HTMLSpanElement).style.visibility = visibility);
 };
 
-const setWildCardDisplay = (display: string) => {
+const setWildCardVisibility = (visibility: string) => {
   if (wildCard.value == null) return;
-  wildCard.value.$el.style.display = display;
+  wildCard.value.$el.style.visibility = visibility;
 };
 
 function startedHovering() {
   clearTimeout(hoverTimeoutId);
-  setWildCardDisplay('none');
+  setWildCardVisibility('hidden');
   setColorChoiceVisibility('');
 }
 
 function stoppedHovering() {
   hoverTimeoutId = setTimeout(() => {
-    setWildCardDisplay('block');
-    setColorChoiceVisibility('none');
+    setWildCardVisibility('');
+    setColorChoiceVisibility('hidden');
   }, 300);
 }
 
