@@ -1,6 +1,6 @@
 import { type Moment } from 'moment';
 
-export interface UnoCard {
+export interface Card {
   id?: number;
   color: number;
   value: number;
@@ -12,8 +12,8 @@ export interface Game {
   currentColor: number;
   currentValue: number | null;
   players: Player[];
-  discardPile: UnoCard[];
-  drawPile: UnoCard[];
+  discardPile: Card[];
+  drawPile: Card[];
   createdAt: Moment;
   updatedAt: Moment;
 }
@@ -25,7 +25,7 @@ export interface Player {
   saidUno: boolean;
   position: number;
   userId?: number | null;
-  cards: UnoCard[];
+  cards: Card[];
 }
 
 export interface PlayerField {

@@ -1,11 +1,11 @@
-import { type UnoCard } from '@/types.ts';
+import { type Card } from '@/types.ts';
 import { cardColor, cardValue } from '@/constants.ts';
 import { type RouteLocationNormalizedLoadedGeneric, type Router } from 'vue-router';
 
-export function getAllCards(excludeWilds: boolean = false): UnoCard[] {
+export function getAllCards(excludeWilds: boolean = false): Card[] {
   const colors = Object.values(cardColor);
   const values = Object.values(cardValue);
-  const cards: UnoCard[] = [];
+  const cards: Card[] = [];
 
   // Create cards for each color and value
   for (const color of colors) {

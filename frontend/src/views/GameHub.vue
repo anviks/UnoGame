@@ -1,10 +1,10 @@
 <template>
   <v-container v-if="game">
-    <card
+    <uno-card
       v-if="game.discardPile[0]"
       :color="game.discardPile[0].color"
       :value="game.discardPile[0].value"
-    ></card>
+    ></uno-card>
     <div class="d-flex ga-3">
       <draw-pile
         :amount="game.drawPile.length"
@@ -36,8 +36,8 @@ import { type ComponentPublicInstance, computed, onMounted, onUnmounted, ref } f
 import { GameApi } from '@/api';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { useAuthStore } from '@/stores/authStore.ts';
-import { Card, CardChoice, DrawPile } from '@/components';
-import type { Game, Player, UnoCard } from '@/types.ts';
+import { UnoCard, CardChoice, DrawPile } from '@/components';
+import type { Game, Player, Card } from '@/types.ts';
 import { useToast } from 'vue-toastification';
 import { errorMessages, type GameErrorCode, GameErrorCodes } from '@/constants.ts';
 
@@ -67,7 +67,7 @@ interface PlayCardResponse {
   error?: string;
 }
 
-const playCard = async (index: number, card: UnoCard, chosenColor?: number) => {
+const playCard = async (index: number, card: Card, chosenColor?: number) => {
   const response: PlayCardResponse = await connection.value!.invoke('PlayCard', card, chosenColor);
 
   if (!response.success) {
@@ -111,11 +111,11 @@ const connectToGame = async () => {
     toast.error(message);
   });
 
-  connection.value.on('CardPlayed', async (player: Player, card: UnoCard, chosenColor: number | null) => {
+  connection.value.on('CardPlayed', async (player: Player, card: Card, chosenColor: number | null) => {
     game.value = await GameApi.getGame(props.gameId);
   });
 
-  connection.value.on('CardDrawn', async (player: Player, card: UnoCard, chosenColor: number | null) => {
+  connection.value.on('CardDrawn', async (player: Player, card: Card, chosenColor: number | null) => {
     game.value = await GameApi.getGame(props.gameId);
   });
 

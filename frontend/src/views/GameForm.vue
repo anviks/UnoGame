@@ -89,7 +89,7 @@
                 </td>
 
                 <td>
-                  <Card
+                  <UnoCard
                     v-if="enabledCards[i] && enabledCards[i][j] != null"
                     :value="value"
                     :color="color"
@@ -120,10 +120,10 @@
   lang="ts"
 >
 import { onMounted, onUnmounted, ref } from 'vue';
-import { type UnoCard, type GameForm, type PlayerField, type User } from '@/types.ts';
+import { type Card, type GameForm, type PlayerField, type User } from '@/types.ts';
 import { cardColor, cardValue, playerType } from '@/constants.ts';
 import { getAllColors, getAllValues } from '@/helpers.ts';
-import { Card, GameFormPlayerRow } from '@/components';
+import { UnoCard, GameFormPlayerRow } from '@/components';
 import { useAuthStore } from '@/stores/authStore.ts';
 import { GameApi, UserApi } from '@/api';
 import { useToast } from 'vue-toastification';
@@ -191,7 +191,7 @@ const createGame = async () => {
   const validationResult = await form.value?.validate();
   if (!validationResult.valid) return;
 
-  const deck: UnoCard[] = [];
+  const deck: Card[] = [];
   for (let i = 0; i < enabledCards.value.length; i++) {
     for (let j = 0; j < enabledCards.value[i].length; j++) {
       if (enabledCards.value[i][j]) {
