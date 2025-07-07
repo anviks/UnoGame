@@ -86,18 +86,18 @@ const setWildCardVisibility = (visibility: string) => {
   wildCard.value.$el.style.visibility = visibility;
 };
 
-function startedHovering() {
+const startedHovering = () => {
   clearTimeout(hoverTimeoutId);
   setWildCardVisibility('hidden');
   setColorChoiceVisibility('');
-}
+};
 
-function stoppedHovering() {
+const stoppedHovering = () => {
   hoverTimeoutId = setTimeout(() => {
     setWildCardVisibility('');
     setColorChoiceVisibility('hidden');
   }, 300);
-}
+};
 
 const shouldShake = ref(false);
 let shakeTimeoutId: number;

@@ -66,20 +66,20 @@ const headers = [
   { title: '', key: 'actions' },
 ];
 
-function highlightRow(id: number) {
+const highlightRow = (id: number) => {
   highlightedRows.value.add(id);
   requestAnimationFrame(() => {
     highlightedRows.value.delete(id);
   });
-}
+};
 
-function getRowClass(game: Game) {
+const getRowClass = (game: Game) => {
   let isHighlighted = highlightedRows.value.has(game.id);
   return {
     'highlighted-game-row': isHighlighted,
     'game-row': !isHighlighted,
   };
-}
+};
 
 onMounted(async () => {
   items.value = await GameApi.getAllGames();
