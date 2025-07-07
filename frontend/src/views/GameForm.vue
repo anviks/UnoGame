@@ -28,7 +28,7 @@
             v-for="(player, index) in game.players"
             :key="index"
           >
-            <GameFormPlayerRow
+            <game-form-player-row
               :player="player"
               :index="index"
               :users="users"
@@ -89,7 +89,7 @@
                 </td>
 
                 <td>
-                  <UnoCard
+                  <uno-card
                     v-if="enabledCards[i] && enabledCards[i][j] != null"
                     :value="value"
                     :color="color"
