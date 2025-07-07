@@ -2,11 +2,7 @@
   <component
     :is="cardComponent"
     :class="{'uno-card': true, 'greyed': disabled}"
-    :style="{
-      width: `${props.size}px`,
-      height: `${props.size * 1.5}px`,
-      borderRadius: `${props.size * 0.16}px`
-    }"
+    :style="cardStyle"
   />
 </template>
 
@@ -34,7 +30,32 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  rotationJitter: {
+    type: Number,
+    default: 0,
+  },
+  horizontalJitter: {
+    type: Number,
+    default: 0,
+  },
+  verticalJitter: {
+    type: Number,
+    default: 0,
+  },
 });
+
+const randomJitter = (range: number) => {
+  return (Math.random() - 0.5) * range;
+};
+
+const cardStyle = computed(() => ({
+  width: `${props.size}px`,
+  height: `${props.size * 1.5}px`,
+  borderRadius: `${props.size * 0.16}px`,
+  rotate: `${randomJitter(props.rotationJitter)}deg`,
+  left: `${randomJitter(props.horizontalJitter)}px`,
+  top: `${randomJitter(props.verticalJitter)}px`,
+}));
 
 const color = computed(() => {
   return Object.keys(cardColor)[props.color].toLowerCase();

@@ -1,10 +1,6 @@
 <template>
   <v-container v-if="game">
-    <uno-card
-      v-if="game.discardPile[0]"
-      :color="game.discardPile[0].color"
-      :value="game.discardPile[0].value"
-    ></uno-card>
+    <discard-pile :cards="game.discardPile" />
     <div class="d-flex ga-3">
       <draw-pile
         :amount="game.drawPile.length"
@@ -36,8 +32,8 @@ import { type ComponentPublicInstance, computed, onMounted, onUnmounted, ref } f
 import { GameApi } from '@/api';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { useAuthStore } from '@/stores/authStore.ts';
-import { UnoCard, CardChoice, DrawPile } from '@/components';
-import type { Game, Player, Card } from '@/types.ts';
+import { CardChoice, DiscardPile, DrawPile } from '@/components';
+import type { Card, Game, Player } from '@/types.ts';
 import { useToast } from 'vue-toastification';
 import { errorMessages, type GameErrorCode, GameErrorCodes } from '@/constants.ts';
 
