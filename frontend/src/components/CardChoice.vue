@@ -23,10 +23,10 @@
         class="uno-color-choice card-choice"
         ref="colorChoices"
       >
-      <span
-        class="quarter top-left uno-red"
-        @click="$emit('card-chosen', cardColor.RED)"
-      />
+        <span
+          class="quarter top-left uno-red"
+          @click="$emit('card-chosen', cardColor.RED)"
+        />
         <span
           class="quarter top-right uno-blue"
           @click="$emit('card-chosen', cardColor.BLUE)"
@@ -75,18 +75,27 @@ const wildCard = useTemplateRef('wildCard');
 const colorChoices = useTemplateRef('colorChoices');
 let hoverTimeoutId: number;
 
+const setColorChoiceVisibility = (display: string) => {
+  if (colorChoices.value == null) return;
+  Array.from(colorChoices.value.children)
+    .forEach(child => (child as HTMLSpanElement).style.display = display);
+};
+
+const setWildCardDisplay = (display: string) => {
+  if (wildCard.value == null) return;
+  wildCard.value.$el.style.display = display;
+};
+
 function startedHovering() {
   clearTimeout(hoverTimeoutId);
-  if (wildCard.value == null || colorChoices.value == null) return;
-  wildCard.value.$el.style.display = 'none';
-  Array.from(colorChoices.value.children).forEach(child => (child as HTMLSpanElement).style.display = '');
+  setWildCardDisplay('none');
+  setColorChoiceVisibility('');
 }
 
 function stoppedHovering() {
   hoverTimeoutId = setTimeout(() => {
-    if (wildCard.value == null || colorChoices.value == null) return;
-    wildCard.value.$el.style.display = 'block';
-    Array.from(colorChoices.value.children).forEach(child => (child as HTMLSpanElement).style.display = 'none');
+    setWildCardDisplay('block');
+    setColorChoiceVisibility('none');
   }, 300);
 }
 
