@@ -3,9 +3,9 @@ using FluentResults;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using UnoGame.Core.Entities;
-using UnoGame.Core.Entities.Enums;
 using UnoGame.Core.Services;
 using UnoGame.Core.State;
+using UnoGame.Core.State.Enums;
 
 namespace WebApp.Hubs;
 

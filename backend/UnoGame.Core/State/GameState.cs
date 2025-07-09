@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using UnoGame.Core.Entities.Enums;
+using UnoGame.Core.State.Enums;
 
 namespace UnoGame.Core.State;
 

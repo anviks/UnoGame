@@ -1,10 +1,10 @@
 using System.Text.Json;
 using FluentResults;
 using UnoGame.Core.Entities;
-using UnoGame.Core.Entities.Enums;
 using UnoGame.Core.Interfaces;
 using UnoGame.Core.State;
-using PlayerType = UnoGame.Core.Entities.Enums.PlayerType;
+using UnoGame.Core.State.Enums;
+using PlayerType = UnoGame.Core.State.Enums.PlayerType;
 
 namespace UnoGame.Core.Services;
 

@@ -1,4 +1,4 @@
-namespace UnoGame.Core.Entities.Enums;
+namespace UnoGame.Core.State.Enums;
 
 public enum PlayerType
 {

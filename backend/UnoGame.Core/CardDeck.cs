@@ -1,5 +1,5 @@
-using UnoGame.Core.Entities.Enums;
 using UnoGame.Core.State;
+using UnoGame.Core.State.Enums;
 
 namespace UnoGame.Core;
 
