@@ -8,4 +8,5 @@ public static class GameErrorCodes
     public const string InvalidCardAfterDraw = "INVALID_CARD_AFTER_DRAW";
     public const string NoCardsToDraw = "NO_CARDS_TO_DRAW";
     public const string GameAlreadyEnded = "GAME_ALREADY_ENDED";
+    public const string NotAllowedToPlayDuringPenalty = "NOT_ALLOWED_TO_PLAY_DURING_PENALTY";
 }

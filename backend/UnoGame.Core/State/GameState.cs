@@ -11,6 +11,7 @@ public class GameState
     public int CurrentPlayerIndex { get; set; }
     public bool IsReversed { get; set; }
     public int? WinnerIndex { get; set; }
+    public PendingPenalty? ActivePenalty { get; set; }
 
     public List<Player> Players { get; set; } = default!;
     public List<Card> DrawPile { get; set; } = [];
@@ -20,7 +21,10 @@ public class GameState
     [NotMapped] public const int InitialHandSize = 7;
     [NotMapped] private static readonly Random Rng = new();
 
+    private int NextPlayerIndex => (CurrentPlayerIndex + (IsReversed ? -1 : 1) + Players.Count) % Players.Count;
+
     public Player CurrentPlayer => Players[CurrentPlayerIndex];
+    public Player NextPlayer => Players[NextPlayerIndex];
 
     public Player? Winner
     {
@@ -34,10 +38,7 @@ public class GameState
 
     public void EndTurn()
     {
-        CurrentPlayerIndex =
-            (CurrentPlayerIndex + (IsReversed ? -1 : 1) + Players.Count)
-            % Players.Count;
-
+        CurrentPlayerIndex = NextPlayerIndex;
         Players.ForEach(p => p.PendingDrawnCard = null);
     }
 

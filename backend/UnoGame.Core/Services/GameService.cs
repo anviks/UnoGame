@@ -99,7 +99,6 @@ public class GameService(
     private void PlayCurrentPlayerCard(GameState state, Card card)
     {
         Player player = state.CurrentPlayer;
-        Player target;
         player.Cards.Remove(card);
         state.DiscardPile.Insert(0, card);
 
@@ -122,16 +121,10 @@ public class GameService(
                 state.History.Add($"{state.CurrentPlayer.Name} was skipped");
                 break;
             case CardValue.DrawTwo:
-                state.EndTurn();
-                target = state.CurrentPlayer;
-                state.DrawCardsForPlayer(target, 2);
-                state.History.Add($"{target.Name} drew 2 cards");  // TODO: Not true if cards have run out
+                state.ActivePenalty = new PendingPenalty { PlayerName = state.NextPlayer.Name, CardCount = 2 };
                 break;
             case CardValue.WildDrawFour:
-                state.EndTurn();
-                target = state.CurrentPlayer;
-                state.DrawCardsForPlayer(target, 4);
-                state.History.Add($"{target.Name} drew 4 cards");  // TODO: Not true if cards have run out
+                state.ActivePenalty = new PendingPenalty { PlayerName = state.NextPlayer.Name, CardCount = 4 };
                 break;
         }
     }
@@ -148,6 +141,7 @@ public class GameService(
 
         if (state.WinnerIndex != null) return Result.Fail(GameErrorCodes.GameAlreadyEnded);
         if (state.CurrentPlayer != player) return Result.Fail(GameErrorCodes.NotYourTurn);
+        if (state.ActivePenalty?.PlayerName == player.Name) return Result.Fail(GameErrorCodes.NotAllowedToPlayDuringPenalty);
         if (player.PendingDrawnCard != null && card != player.PendingDrawnCard) return Result.Fail(GameErrorCodes.InvalidCardAfterDraw);
         if (player.PendingDrawnCard == null && !state.CanPlayerPlayCard(player, card)) return Result.Fail(GameErrorCodes.InvalidCard);
 
@@ -183,6 +177,14 @@ public class GameService(
         if (state.WinnerIndex != null) return Result.Fail(GameErrorCodes.GameAlreadyEnded);
         if (state.CurrentPlayer != player) return Result.Fail(GameErrorCodes.NotYourTurn);
         if (player.PendingDrawnCard != null) return Result.Fail(GameErrorCodes.NotAllowedToDrawTwice);
+
+        if (state.ActivePenalty?.PlayerName == player.Name)
+        {
+            var cards = state.DrawCardsForPlayer(player, state.ActivePenalty.CardCount);
+            state.ActivePenalty = null;
+            state.EndTurn();
+            return cards.All(c => c == null) ? Result.Fail(GameErrorCodes.NoCardsToDraw) : Result.Ok();
+        }
 
         Card? card = state.DrawCardForPlayer(player);
         if (card == null) return Result.Fail(GameErrorCodes.NoCardsToDraw);
