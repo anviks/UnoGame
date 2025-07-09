@@ -10,6 +10,7 @@ public class GameState
     public List<string> History { get; set; } = [];
     public int CurrentPlayerIndex { get; set; }
     public bool IsReversed { get; set; }
+    public int? WinnerIndex { get; set; }
 
     public List<Player> Players { get; set; } = default!;
     public List<Card> DrawPile { get; set; } = [];
@@ -20,6 +21,16 @@ public class GameState
     [NotMapped] private static readonly Random Rng = new();
 
     public Player CurrentPlayer => Players[CurrentPlayerIndex];
+
+    public Player? Winner
+    {
+        get => WinnerIndex == null
+            ? null
+            : Players[WinnerIndex.Value];
+        set => WinnerIndex = value == null
+            ? null
+            : Players.FindIndex(p => p.Name == value.Name);
+    }
 
     public void EndTurn()
     {

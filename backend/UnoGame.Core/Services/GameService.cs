@@ -146,6 +146,7 @@ public class GameService(
         GameState state = await GetGameState(gameId) ??
                           throw new ArgumentException($"Game with ID {gameId} not found.", nameof(gameId));
 
+        if (state.WinnerIndex != null) return Result.Fail("GAME_ALREADY_FINISHED");
         if (state.CurrentPlayer != player) return Result.Fail("NOT_YOUR_TURN");
         if (player.PendingDrawnCard != null && card != player.PendingDrawnCard) return Result.Fail("INVALID_CARD_TO_PLAY_AFTER_DRAW");
         if (player.PendingDrawnCard == null && !state.CanPlayerPlayCard(player, card)) return Result.Fail("INVALID_CARD");
@@ -167,6 +168,8 @@ public class GameService(
 
         state.EndTurn();
 
+        if (player.Cards.Count == 0) state.Winner = player;
+
         await gameRepository.UpdateGame(gameId, SerializeState(state));
 
         return Result.Ok();
@@ -176,6 +179,8 @@ public class GameService(
     {
         GameState state = await GetGameState(gameId) ??
                           throw new ArgumentException($"Game with ID {gameId} not found.", nameof(gameId));
+
+        if (state.WinnerIndex != null) return Result.Fail("GAME_ALREADY_ENDED");
         if (state.CurrentPlayer != player) return Result.Fail("NOT_YOUR_TURN");
         if (player.PendingDrawnCard != null) return Result.Fail("NOT_ALLOWED_TO_DRAW_TWICE");
 
