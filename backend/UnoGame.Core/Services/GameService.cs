@@ -146,10 +146,10 @@ public class GameService(
         GameState state = await GetGameState(gameId) ??
                           throw new ArgumentException($"Game with ID {gameId} not found.", nameof(gameId));
 
-        if (state.WinnerIndex != null) return Result.Fail("GAME_ALREADY_FINISHED");
-        if (state.CurrentPlayer != player) return Result.Fail("NOT_YOUR_TURN");
-        if (player.PendingDrawnCard != null && card != player.PendingDrawnCard) return Result.Fail("INVALID_CARD_TO_PLAY_AFTER_DRAW");
-        if (player.PendingDrawnCard == null && !state.CanPlayerPlayCard(player, card)) return Result.Fail("INVALID_CARD");
+        if (state.WinnerIndex != null) return Result.Fail(GameErrorCodes.GameAlreadyEnded);
+        if (state.CurrentPlayer != player) return Result.Fail(GameErrorCodes.NotYourTurn);
+        if (player.PendingDrawnCard != null && card != player.PendingDrawnCard) return Result.Fail(GameErrorCodes.InvalidCardAfterDraw);
+        if (player.PendingDrawnCard == null && !state.CanPlayerPlayCard(player, card)) return Result.Fail(GameErrorCodes.InvalidCard);
 
         PlayCurrentPlayerCard(state, card);
 
@@ -180,12 +180,12 @@ public class GameService(
         GameState state = await GetGameState(gameId) ??
                           throw new ArgumentException($"Game with ID {gameId} not found.", nameof(gameId));
 
-        if (state.WinnerIndex != null) return Result.Fail("GAME_ALREADY_ENDED");
-        if (state.CurrentPlayer != player) return Result.Fail("NOT_YOUR_TURN");
-        if (player.PendingDrawnCard != null) return Result.Fail("NOT_ALLOWED_TO_DRAW_TWICE");
+        if (state.WinnerIndex != null) return Result.Fail(GameErrorCodes.GameAlreadyEnded);
+        if (state.CurrentPlayer != player) return Result.Fail(GameErrorCodes.NotYourTurn);
+        if (player.PendingDrawnCard != null) return Result.Fail(GameErrorCodes.NotAllowedToDrawTwice);
 
         Card? card = state.DrawCardForPlayer(player);
-        if (card == null) return Result.Fail("NO_CARDS_TO_DRAW");
+        if (card == null) return Result.Fail(GameErrorCodes.NoCardsToDraw);
 
         if (state.IsCardPlayable(player, card)) player.PendingDrawnCard = card;
         else state.EndTurn();
