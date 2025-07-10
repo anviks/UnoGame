@@ -37,7 +37,7 @@ export interface PlayerField {
 export interface GameForm {
   gameName: string;
   players: PlayerField[];
-  deck: any;
+  includedCards: any;
 }
 
 export interface User {

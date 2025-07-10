@@ -45,7 +45,7 @@ public class GameService(
         return state;
     }
 
-    public async Task<Result<GameState>> CreateGame(string gameName, GameState state)
+    public async Task<Result<GameState>> CreateGame(string gameName, List<Player> players, List<Card> includedCards)
     {
         var result = new Result<GameState>();
 
@@ -56,19 +56,19 @@ public class GameService(
             result.WithError("Game with this name already exists.");
         }
 
-        if (state.Players.Count is < 2 or > 10)
+        if (players.Count is < 2 or > 10)
         {
             result.WithError("Player count must be between 2 and 10.");
         }
 
-        if (state.Players.DistinctBy(p => p.Name).ToList().Count < state.Players.Count)
+        if (players.DistinctBy(p => p.Name).ToList().Count < players.Count)
         {
             result.WithError("Player names must be unique.");
         }
 
         if (result.IsFailed) return result;
 
-        foreach (Player player in state.Players)
+        foreach (Player player in players)
         {
             player.Cards = [];
 
@@ -76,6 +76,14 @@ public class GameService(
             User? user = await userRepository.GetUserByName(player.Name);
             if (user != null) player.UserId = user.Id;
         }
+
+        var drawPile = CardHelpers.DefaultCards.Where(includedCards.Contains).ToList();
+
+        var state = new GameState
+        {
+            Players = players,
+            DrawPile = drawPile,
+        };
 
         state.ShuffleDrawPile();
         state.DealCards();

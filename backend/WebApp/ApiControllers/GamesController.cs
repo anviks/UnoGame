@@ -48,13 +48,7 @@ public class GamesController(GameService gameService) : ControllerBase
     [Authorize]
     public async Task<IActionResult> Post([FromBody] CreateGameRequest gameRequest)
     {
-        var gameState = new GameState
-        {
-            DrawPile = gameRequest.Deck,
-            Players = gameRequest.Players,
-        };
-
-        var result = await gameService.CreateGame(gameRequest.GameName, gameState);
+        var result = await gameService.CreateGame(gameRequest.GameName, gameRequest.Players, gameRequest.IncludedCards);
 
         if (result.IsFailed)
         {

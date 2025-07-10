@@ -150,7 +150,7 @@ const game = ref<GameForm>({
     getDefaultPlayer(),
     getDefaultPlayer(),
   ],
-  deck: undefined,
+  includedCards: undefined,
 });
 
 const enabledCards = ref<boolean[][]>(Array(4).fill(null).map(() => Array(13).fill(true)));
@@ -191,11 +191,11 @@ const createGame = async () => {
   const validationResult = await form.value?.validate();
   if (!validationResult.valid) return;
 
-  const deck: Card[] = [];
+  const includedCards: Card[] = [];
   for (let i = 0; i < enabledCards.value.length; i++) {
     for (let j = 0; j < enabledCards.value[i].length; j++) {
       if (enabledCards.value[i][j]) {
-        deck.push({
+        includedCards.push({
           color: getAllColors()[i],
           value: getAllValues()[j],
         });
@@ -204,18 +204,18 @@ const createGame = async () => {
   }
 
   for (let i = 0; i < 2; i++) {
-    deck.push({
+    includedCards.push({
       color: cardColor.WILD,
       value: cardValue.WILD,
     });
 
-    deck.push({
+    includedCards.push({
       color: cardColor.WILD,
       value: cardValue.WILD_DRAW_FOUR,
     });
   }
 
-  game.value.deck = deck;
+  game.value.includedCards = includedCards;
 
   const result = await GameApi.createGame(game.value);
 
