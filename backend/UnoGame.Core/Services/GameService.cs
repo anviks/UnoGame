@@ -141,17 +141,14 @@ public class GameService(
                 if (state.Players.Count > 2)
                 {
                     state.IsReversed = !state.IsReversed;
-                    state.History.Add($"{player.Name} reversed the game");
                 }
                 else
                 {
                     state.EndTurn();
-                    state.History.Add($"{state.CurrentPlayer.Name} was skipped");
                 }
                 break;
             case CardValue.Skip:
                 state.EndTurn();
-                state.History.Add($"{state.CurrentPlayer.Name} was skipped");
                 break;
             case CardValue.DrawTwo:
                 state.PendingPenalty = new PendingPenalty { PlayerName = state.NextPlayer.Name, CardCount = 2 };

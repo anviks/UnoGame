@@ -7,7 +7,6 @@ public class GameState
 {
     public CardColor? CurrentColor { get; set; }
     public CardValue? CurrentValue { get; set; }
-    public List<string> History { get; set; } = [];
     public int CurrentPlayerIndex { get; set; }
     public bool IsReversed { get; set; }
     public int? WinnerIndex { get; set; }
