@@ -1,6 +1,9 @@
 <template>
   <v-container v-if="game">
-    <discard-pile :cards="game.discardPile" />
+    <discard-pile
+      :cards="game.discardPile"
+      :current-color="game.currentColor"
+    />
     <div class="d-flex ga-3">
       <draw-pile
         :amount="game.drawPile.length"

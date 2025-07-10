@@ -59,7 +59,7 @@
         />
         <path
           id="rect6097-5-7"
-          class="cls-4"
+          class="red"
           d="M90.25,140.25h20c5.52,0,8.84,4,7.42,9l-14.84,51.94c-1.43,5-7.06,9-12.58,9h-20c-5.52,0-8.85-4-7.42-9l14.84-51.94C79.09,144.29,84.73,140.25,90.25,140.25Z"
         />
       </g>
@@ -71,7 +71,7 @@
         />
         <path
           id="rect6097-6-3-2"
-          class="cls-5"
+          class="blue"
           d="M130.25,110.25h20c5.52,0,8.84,4,7.42,9l-14.84,51.94c-1.43,5-7.06,9-12.58,9h-20c-5.52,0-8.85-4-7.42-9l14.84-51.94C119.09,114.29,124.73,110.25,130.25,110.25Z"
         />
       </g>
@@ -83,7 +83,7 @@
         />
         <path
           id="rect6097-7-4"
-          class="cls-6"
+          class="yellow"
           d="M120.25,170.25h20c5.52,0,8.84,4,7.42,9l-14.84,51.94c-1.43,5-7.06,9-12.58,9h-20c-5.52,0-8.85-4-7.42-9l14.84-51.94C109.09,174.29,114.73,170.25,120.25,170.25Z"
         />
       </g>
@@ -95,7 +95,7 @@
         />
         <path
           id="rect6097-6-7-1"
-          class="cls-7"
+          class="green"
           d="M160.25,140.25h20c5.52,0,8.84,4,7.42,9l-14.84,51.94c-1.43,5-7.06,9-12.58,9h-20c-5.52,0-8.85-4-7.42-9l14.84-51.94C149.09,144.29,154.73,140.25,160.25,140.25Z"
         />
       </g>
@@ -120,19 +120,43 @@
   stroke-width: 0.51px;
 }
 
-.cls-4 {
+.red {
   fill: #f55;
 }
 
-.cls-5 {
+.blue {
   fill: #55f;
 }
 
-.cls-6 {
+.yellow {
   fill: #fa0;
 }
 
-.cls-7 {
+.green {
   fill: #5a5;
+}
+
+.chosen-red .green,
+.chosen-red .blue,
+.chosen-red .yellow {
+  opacity: 0.2;
+}
+
+.chosen-green .red,
+.chosen-green .blue,
+.chosen-green .yellow {
+  opacity: 0.2;
+}
+
+.chosen-blue .red,
+.chosen-blue .green,
+.chosen-blue .yellow {
+  opacity: 0.2;
+}
+
+.chosen-yellow .red,
+.chosen-yellow .green,
+.chosen-yellow .blue {
+  opacity: 0.2;
 }
 </style>

@@ -1,7 +1,11 @@
 <template>
   <component
     :is="cardComponent"
-    :class="{'uno-card': true, 'greyed': disabled}"
+    :class="[
+      'uno-card',
+      {'greyed': disabled},
+      chosenColor !== -1 ? `chosen-${colorAsString(chosenColor)}` : '',
+    ]"
     :style="cardStyle"
   />
 </template>
@@ -42,6 +46,10 @@ const props = defineProps({
     type: Number,
     default: 0,
   },
+  chosenColor: {
+    type: [Number, null],
+    default: null,
+  },
 });
 
 const randomJitter = (range: number) => {
@@ -57,9 +65,12 @@ const cardStyle = computed(() => ({
   top: `${randomJitter(props.verticalJitter)}px`,
 }));
 
-const color = computed(() => {
-  return Object.keys(cardColor)[props.color].toLowerCase();
-});
+const colorAsString = (color: number | null) => {
+  if (color === null) return '';
+  return Object.keys(cardColor)[color]?.toLowerCase() ?? '';
+};
+
+const color = computed(() => colorAsString(props.color));
 
 const value = computed(() => {
   if (props.value < 10) {

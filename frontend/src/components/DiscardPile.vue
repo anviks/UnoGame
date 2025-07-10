@@ -7,6 +7,7 @@
       :rotation-jitter="80"
       :horizontal-jitter="30"
       :vertical-jitter="30"
+      :chosen-color="currentColor"
       class="position-absolute"
     ></uno-card>
   </div>
@@ -24,6 +25,10 @@ const props = defineProps({
   cards: {
     type: Array as PropType<Card[]>,
     required: true,
+  },
+  currentColor: {
+    type: [Number, null],
+    default: null,
   },
 });
 
