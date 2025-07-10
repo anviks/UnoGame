@@ -57,13 +57,7 @@ public class GameState
 
     public Card? DrawCardForPlayer(Player player)
     {
-        if (DrawPile.Count == 0)
-        {
-            ResetDrawPile();
-        }
-
-        var card = DrawCard();
-
+        Card? card = DrawCard();
         if (card != null) player.Cards.Add(card);
 
         return card;
@@ -80,9 +74,10 @@ public class GameState
 
     public Card? DrawCard()
     {
+        if (DrawPile.Count <= 1) ResetDrawPile();
         if (DrawPile.Count == 0) return null;
 
-        var pileCard = DrawPile[0];
+        Card pileCard = DrawPile[0];
         DrawPile.RemoveAt(0);
 
         return pileCard;
