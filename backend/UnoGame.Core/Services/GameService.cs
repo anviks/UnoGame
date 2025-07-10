@@ -1,6 +1,7 @@
 using System.Text.Json;
 using FluentResults;
 using UnoGame.Core.Entities;
+using UnoGame.Core.Helpers;
 using UnoGame.Core.Interfaces;
 using UnoGame.Core.State;
 using UnoGame.Core.State.Enums;
@@ -44,7 +45,7 @@ public class GameService(
         return state;
     }
 
-    public async Task<Result<GameState>> CreateGame(string gameName, GameState gameState)
+    public async Task<Result<GameState>> CreateGame(string gameName, GameState state)
     {
         var result = new Result<GameState>();
 
@@ -55,19 +56,19 @@ public class GameService(
             result.WithError("Game with this name already exists.");
         }
 
-        if (gameState.Players.Count is < 2 or > 10)
+        if (state.Players.Count is < 2 or > 10)
         {
             result.WithError("Player count must be between 2 and 10.");
         }
 
-        if (gameState.Players.DistinctBy(p => p.Name).ToList().Count < gameState.Players.Count)
+        if (state.Players.DistinctBy(p => p.Name).ToList().Count < state.Players.Count)
         {
             result.WithError("Player names must be unique.");
         }
 
         if (result.IsFailed) return result;
 
-        foreach (Player player in gameState.Players)
+        foreach (Player player in state.Players)
         {
             player.Cards = [];
 
@@ -76,19 +77,51 @@ public class GameService(
             if (user != null) player.UserId = user.Id;
         }
 
-        gameState.ShuffleDrawPile();
-        gameState.DealCards();
+        state.ShuffleDrawPile();
+        state.DealCards();
+        if (state.DrawPile.All(card => card.Value == CardValue.WildDrawFour))
+            throw new InvalidOperationException("No valid cards in the draw pile to start the game.");
+
+        Card firstCard = state.DrawCard()!;
+        while (firstCard.Value == CardValue.WildDrawFour)
+        {
+            state.DrawPile.InsertRandomly(firstCard);
+            firstCard = state.DrawCard()!;
+        }
+
+        state.DiscardPile.Add(firstCard);
+        state.CurrentColor = firstCard.Color;
+        state.CurrentValue = firstCard.Value;
+
+        switch (firstCard.Value)
+        {
+            case CardValue.Reverse:
+                state.IsReversed = true;
+                state.EndTurn();
+                break;
+            case CardValue.DrawTwo:
+                state.PendingPenalty = new PendingPenalty { PlayerName = state.CurrentPlayer.Name, CardCount = 2 };
+                state.EndTurn();
+                break;
+            case CardValue.Skip:
+                state.EndTurn();
+                break;
+            case CardValue.Wild:
+                state.CurrentColor = null;
+                state.CurrentValue = null;
+                break;
+        }
 
         var game = new Game
         {
             Name = gameName,
-            SerializedState = SerializeState(gameState),
+            SerializedState = SerializeState(state),
         };
 
         game.CreatedAt = game.UpdatedAt = DateTime.UtcNow;
         await gameRepository.CreateGame(game);
 
-        return Result.Ok(gameState);
+        return Result.Ok(state);
     }
 
     /**
@@ -121,10 +154,10 @@ public class GameService(
                 state.History.Add($"{state.CurrentPlayer.Name} was skipped");
                 break;
             case CardValue.DrawTwo:
-                state.ActivePenalty = new PendingPenalty { PlayerName = state.NextPlayer.Name, CardCount = 2 };
+                state.PendingPenalty = new PendingPenalty { PlayerName = state.NextPlayer.Name, CardCount = 2 };
                 break;
             case CardValue.WildDrawFour:
-                state.ActivePenalty = new PendingPenalty { PlayerName = state.NextPlayer.Name, CardCount = 4 };
+                state.PendingPenalty = new PendingPenalty { PlayerName = state.NextPlayer.Name, CardCount = 4 };
                 break;
         }
     }
@@ -141,7 +174,7 @@ public class GameService(
 
         if (state.WinnerIndex != null) return Result.Fail(GameErrorCodes.GameAlreadyEnded);
         if (state.CurrentPlayer != player) return Result.Fail(GameErrorCodes.NotYourTurn);
-        if (state.ActivePenalty?.PlayerName == player.Name) return Result.Fail(GameErrorCodes.NotAllowedToPlayDuringPenalty);
+        if (state.PendingPenalty?.PlayerName == player.Name) return Result.Fail(GameErrorCodes.NotAllowedToPlayDuringPenalty);
         if (player.PendingDrawnCard != null && card != player.PendingDrawnCard) return Result.Fail(GameErrorCodes.InvalidCardAfterDraw);
         if (player.PendingDrawnCard == null && !state.CanPlayerPlayCard(player, card)) return Result.Fail(GameErrorCodes.InvalidCard);
 
@@ -178,10 +211,10 @@ public class GameService(
         if (state.CurrentPlayer != player) return Result.Fail(GameErrorCodes.NotYourTurn);
         if (player.PendingDrawnCard != null) return Result.Fail(GameErrorCodes.NotAllowedToDrawTwice);
 
-        if (state.ActivePenalty?.PlayerName == player.Name)
+        if (state.PendingPenalty?.PlayerName == player.Name)
         {
-            var cards = state.DrawCardsForPlayer(player, state.ActivePenalty.CardCount);
-            state.ActivePenalty = null;
+            var cards = state.DrawCardsForPlayer(player, state.PendingPenalty.CardCount);
+            state.PendingPenalty = null;
             state.EndTurn();
             return cards.All(c => c == null) ? Result.Fail(GameErrorCodes.NoCardsToDraw) : Result.Ok();
         }

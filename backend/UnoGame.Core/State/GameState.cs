@@ -5,13 +5,13 @@ namespace UnoGame.Core.State;
 
 public class GameState
 {
-    public CardColor CurrentColor { get; set; }
+    public CardColor? CurrentColor { get; set; }
     public CardValue? CurrentValue { get; set; }
     public List<string> History { get; set; } = [];
     public int CurrentPlayerIndex { get; set; }
     public bool IsReversed { get; set; }
     public int? WinnerIndex { get; set; }
-    public PendingPenalty? ActivePenalty { get; set; }
+    public PendingPenalty? PendingPenalty { get; set; }
 
     public List<Player> Players { get; set; } = default!;
     public List<Card> DrawPile { get; set; } = [];
@@ -119,6 +119,11 @@ public class GameState
 
     public bool IsCardPlayable(Player player, Card card)
     {
+        if (CurrentColor == null)
+        {
+            return card.Value != CardValue.WildDrawFour || player.Cards.All(c => c.Color == CardColor.Wild);
+        }
+
         if (card.Value == CardValue.WildDrawFour)
         {
             // Wild draw four can only be played if the player has no other cards of the current color

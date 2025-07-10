@@ -7,6 +7,8 @@ ConsoleApp/
 MenuSystem/
 .env
 ./ideas.txt
+UnoGame.Core/CardDeck.cs
+UnoGame.Core/EntityMapper.cs
 
 # Common IntelliJ Platform excludes
 
