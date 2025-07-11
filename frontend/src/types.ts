@@ -1,7 +1,6 @@
 import { type Moment } from 'moment';
 
 export interface Card {
-  id?: number;
   color: number;
   value: number;
 }
@@ -9,27 +8,39 @@ export interface Card {
 export interface Game {
   id: number;
   name: string;
-  currentColor: number;
-  currentValue: number | null;
-  players: Player[];
-  discardPile: Card[];
-  drawPile: Card[];
   createdAt: Moment;
   updatedAt: Moment;
+  playerNames: string[];
+}
+
+export interface GameState {
+  currentColor: number;
+  currentValue: number | null;
+  currentPlayerIndex: number;
+  isReversed: boolean;
+  winnerIndex: number | null;
+  pendingPenalty: PendingPenalty | null;
+  players: Player[];
+  drawPileSize: number;
+  discardPile: Card[];
+}
+
+export interface PendingPenalty {
+  playerName: string;
+  cardCount: number;
 }
 
 export interface Player {
-  id?: number;
   name: string;
   type: number;
   saidUno: boolean;
-  position: number;
   userId?: number | null;
-  cards: Card[];
+  cards: Card[] | null;
+  handSize: number;
+  pendingDrawnCard: Card | null;
 }
 
 export interface PlayerField {
-  id?: number;
   name: string;
   type: number;
 }
@@ -37,11 +48,13 @@ export interface PlayerField {
 export interface GameForm {
   gameName: string;
   players: PlayerField[];
-  includedCards: any;
+  includedCards: Card[];
 }
 
 export interface User {
   id: number;
-  fingerprint: string;
   name: string;
+  email?: string;
+  createdAt?: Moment;
+  token?: string;
 }
