@@ -1,15 +1,15 @@
 <template>
-  <v-container v-if="game">
+  <v-container v-if="state">
     <discard-pile
-      :cards="game.discardPile"
-      :current-color="game.currentColor"
+      :cards="state.discardPile"
+      :current-color="state.currentColor"
     />
     <div class="d-flex ga-3">
       <draw-pile
-        :amount="game.drawPile.length"
+        :amount="state.drawPileSize"
         @click="drawCard"
       />
-      <span class="card-count">{{ game.drawPile.length }}</span>
+      <span class="card-count">{{ state.drawPileSize }}</span>
     </div>
     <v-btn @click="endTurn">End turn</v-btn>
     <div
@@ -37,7 +37,7 @@ import { GameApi } from '@/api';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { useAuthStore } from '@/stores/authStore.ts';
 import { CardChoice, DiscardPile, DrawPile } from '@/components';
-import type { Card, Game, Player } from '@/types.ts';
+import type { Card, GameState, Player } from '@/types.ts';
 import { useToast } from 'vue-toastification';
 import { errorMessages, type GameErrorCode, GameErrorCodes } from '@/constants.ts';
 
@@ -121,20 +121,20 @@ const connectToGame = async () => {
   });
 
   connection.value.on('CardPlayed', async (player: Player, card: Card, chosenColor: number | null) => {
-    game.value?.discardPile.splice(0, 0, card);
+    state.value?.discardPile.splice(0, 0, card);
     if (player.name === thisPlayer.value?.name) {
-      const playedCardIndex = thisPlayer.value.cards.findIndex(c => c.color === card.color && c.value === card.value);
-      thisPlayer.value.cards.splice(playedCardIndex, 1);
+      const playedCardIndex = thisPlayer.value.cards!.findIndex(c => c.color === card.color && c.value === card.value);
+      thisPlayer.value.cards!.splice(playedCardIndex, 1);
     }
   });
 
   connection.value.on('CardDrawn', async (player: Player) => {
-    game.value?.drawPile.splice(0, 1);
+    state.value!.drawPileSize--;
     // TODO: Add possibility to check if draw pile has reset due to the drawing
   });
 
   connection.value.on('CardDrawnSelf', async (card: Card) => {
-    thisPlayer.value?.cards.push(card);
+    thisPlayer.value!.cards!.push(card);
   });
 
   connection.value
@@ -146,13 +146,13 @@ const connectToGame = async () => {
     .catch((err) => console.error('Connection failed: ', err));
 };
 
-const game = ref<Game>();
+const state = ref<GameState>();
 
-const thisPlayer = computed(() => game?.value?.players?.find((player: Player) => player.userId === authStore.userId));
+const thisPlayer = computed(() => state?.value?.players?.find((player: Player) => player.userId === authStore.userId));
 
 onMounted(async () => {
   await connectToGame();
-  game.value = await GameApi.getGame(props.gameId);
+  state.value = await GameApi.getGame(props.gameId);
 });
 
 onUnmounted(() => {

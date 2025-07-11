@@ -23,13 +23,13 @@
           <td>{{ item.createdAt }}</td>
           <td>{{ item.updatedAt }}</td>
           <td>
-            <div v-for="player in item.players" :key="player.id">
-              {{ player.name }}
+            <div v-for="name in item.playerNames">
+              {{ name }}
             </div>
           </td>
           <td>
             <v-btn
-              v-if="item.players?.map(player => player.name)?.includes(authStore.username ?? '')"
+              v-if="item.playerNames?.includes(authStore.username ?? '')"
               :to="{name: 'game', params: {gameId: item.id}}"
             >
               Join Game
