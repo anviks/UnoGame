@@ -1,5 +1,6 @@
 using System.Text.Json;
 using FluentResults;
+using UnoGame.Core.DTO;
 using UnoGame.Core.Entities;
 using UnoGame.Core.Helpers;
 using UnoGame.Core.Interfaces;
@@ -18,6 +19,30 @@ public class GameService(
     public async Task<List<Game>> GetAllGames()
     {
         return await gameRepository.GetAllGames();
+    }
+
+    private GameStateDto GameStateToDto(GameState state, int requestingUserId)
+    {
+        return new GameStateDto
+        {
+            CurrentColor = state.CurrentColor,
+            CurrentValue = state.CurrentValue,
+            CurrentPlayerIndex = state.CurrentPlayerIndex,
+            IsReversed = state.IsReversed,
+            WinnerIndex = state.WinnerIndex,
+            PendingPenalty = state.PendingPenalty,
+            Players = state.Players
+                .Select(p => PlayerDto.FromPlayer(p, p.UserId == requestingUserId))
+                .ToList(),
+            DrawPileSize = state.DrawPile.Count,
+            DiscardPile = state.DiscardPile,
+        };
+    }
+
+    public async Task<GameStateDto?> GetGameState(int id, int requestingUserId)
+    {
+        GameState? state = await GetGameState(id);
+        return state == null ? null : GameStateToDto(state, requestingUserId);
     }
 
     public async Task<GameState?> GetGameState(int id)

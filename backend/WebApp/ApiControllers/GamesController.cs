@@ -1,15 +1,15 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using UnoGame.Core.DTO;
 using UnoGame.Core.Entities;
 using UnoGame.Core.Services;
-using UnoGame.Core.State;
 using WebApp.DTO;
 
 namespace WebApp.ApiControllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class GamesController(GameService gameService) : ControllerBase
+public class GamesController(GameService gameService, UserService userService) : ControllerBase
 {
     // GET: api/<GameController>
     [HttpGet]
@@ -36,9 +36,11 @@ public class GamesController(GameService gameService) : ControllerBase
 
     // GET api/<GameController>/5
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<GameState?>> Get(int id)
+    [Authorize]
+    public async Task<ActionResult<GameStateDto?>> Get(int id)
     {
-        GameState? state = await gameService.GetGameState(id);
+        User? user = await userService.GetCurrentUser();
+        GameStateDto? state = await gameService.GetGameState(id, user!.Id);
         if (state == null) return NotFound();
         return state;
     }
