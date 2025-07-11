@@ -98,7 +98,7 @@ public class GameHub(
     public async Task<object> DrawCard()
     {
         (var gameId, Player player) = Connections[Context.ConnectionId];
-        Result drawResult = await gameService.TryDrawCard(gameId, player);
+        var drawResult = await gameService.TryDrawCard(gameId, player);
 
         if (!drawResult.IsSuccess) return new { Success = false, Error = drawResult.Errors.First().Message };
 
@@ -107,6 +107,13 @@ public class GameHub(
                 "CardDrawn",
                 player
             );
+
+        await Clients.Caller
+            .SendAsync(
+                "CardDrawnSelf",
+                drawResult.Value
+            );
+
         return new { Success = true };
     }
 

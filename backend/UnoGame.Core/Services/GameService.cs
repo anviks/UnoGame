@@ -207,7 +207,7 @@ public class GameService(
         return Result.Ok();
     }
 
-    public async Task<Result> TryDrawCard(int gameId, Player player)
+    public async Task<Result<Card>> TryDrawCard(int gameId, Player player)
     {
         GameState state = await GetGameState(gameId) ??
                           throw new ArgumentException($"Game with ID {gameId} not found.", nameof(gameId));
@@ -233,7 +233,7 @@ public class GameService(
 
         await gameRepository.UpdateGame(gameId, SerializeState(state));
 
-        return Result.Ok();
+        return Result.Ok(card);
     }
 
     public async Task<Result> TryEndTurn(int gameId, Player player)

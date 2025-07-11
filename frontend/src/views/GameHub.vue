@@ -121,11 +121,20 @@ const connectToGame = async () => {
   });
 
   connection.value.on('CardPlayed', async (player: Player, card: Card, chosenColor: number | null) => {
-    game.value = await GameApi.getGame(props.gameId);
+    game.value?.discardPile.splice(0, 0, card);
+    if (player.name === thisPlayer.value?.name) {
+      const playedCardIndex = thisPlayer.value.cards.findIndex(c => c.color === card.color && c.value === card.value);
+      thisPlayer.value.cards.splice(playedCardIndex, 1);
+    }
   });
 
-  connection.value.on('CardDrawn', async (player: Player, card: Card, chosenColor: number | null) => {
-    game.value = await GameApi.getGame(props.gameId);
+  connection.value.on('CardDrawn', async (player: Player) => {
+    game.value?.drawPile.splice(0, 1);
+    // TODO: Add possibility to check if draw pile has reset due to the drawing
+  });
+
+  connection.value.on('CardDrawnSelf', async (card: Card) => {
+    thisPlayer.value?.cards.push(card);
   });
 
   connection.value
