@@ -11,6 +11,7 @@
       />
       <span class="card-count">{{ game.drawPile.length }}</span>
     </div>
+    <v-btn @click="endTurn">End turn</v-btn>
     <div
       style="position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%)"
       class="uno-card-hand d-flex ga-2"
@@ -88,6 +89,15 @@ const drawCard = async () => {
     toast.error(errorMessages[errorCode] ?? errorCode);
   }
 };
+
+const endTurn = async () => {
+  const response = await connection.value!.invoke('EndTurn');
+
+  if (!response.success) {
+    const errorCode = response.error as GameErrorCode;
+    toast.error(errorMessages[errorCode] ?? errorCode);
+  }
+}
 
 const connectToGame = async () => {
   connection.value = new HubConnectionBuilder()

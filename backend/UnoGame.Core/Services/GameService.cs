@@ -227,8 +227,26 @@ public class GameService(
         Card? card = state.DrawCardForPlayer(player);
         if (card == null) return Result.Fail(GameErrorCodes.NoCardsToDraw);
 
+        // TODO: Don't automatically end turn if card isn't playable, otherwise other players will know if it's playable or not
         if (state.IsCardPlayable(player, card)) player.PendingDrawnCard = card;
         else state.EndTurn();
+
+        await gameRepository.UpdateGame(gameId, SerializeState(state));
+
+        return Result.Ok();
+    }
+
+    public async Task<Result> TryEndTurn(int gameId, Player player)
+    {
+        GameState state = await GetGameState(gameId) ??
+                          throw new ArgumentException($"Game with ID {gameId} not found.", nameof(gameId));
+
+        if (state.WinnerIndex != null) return Result.Fail(GameErrorCodes.GameAlreadyEnded);
+        if (state.CurrentPlayer != player) return Result.Fail(GameErrorCodes.NotYourTurn);
+        if (player.PendingDrawnCard == null) return Result.Fail(GameErrorCodes.MustPlayOrDrawCard);
+
+        player.PendingDrawnCard = null;
+        state.EndTurn();
 
         await gameRepository.UpdateGame(gameId, SerializeState(state));
 

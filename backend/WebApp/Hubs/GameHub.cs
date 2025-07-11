@@ -109,4 +109,19 @@ public class GameHub(
             );
         return new { Success = true };
     }
+
+    public async Task<object> EndTurn()
+    {
+        (var gameId, Player player) = Connections[Context.ConnectionId];
+        Result endTurnResult = await gameService.TryEndTurn(gameId, player);
+
+        if (!endTurnResult.IsSuccess) return new { Success = false, Error = endTurnResult.Errors.First().Message };
+
+        await Clients.Group(gameId.ToString())
+            .SendAsync(
+                "TurnEnded",
+                player
+            );
+        return new { Success = true };
+    }
 }

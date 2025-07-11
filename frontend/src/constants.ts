@@ -36,6 +36,7 @@ export const GameErrorCodes = {
   INVALID_CARD_AFTER_DRAW: 'INVALID_CARD_AFTER_DRAW',
   NO_CARDS_TO_DRAW: 'NO_CARDS_TO_DRAW',
   GAME_ALREADY_ENDED: 'GAME_ALREADY_ENDED',
+  MUST_PLAY_OR_DRAW_CARD: 'MUST_PLAY_OR_DRAW_CARD',
 } as const;
 
 export type GameErrorCode = typeof GameErrorCodes[keyof typeof GameErrorCodes];
@@ -47,4 +48,5 @@ export const errorMessages: Record<GameErrorCode, string> = {
   [GameErrorCodes.INVALID_CARD_AFTER_DRAW]: 'You can only play the drawn card.',
   [GameErrorCodes.NO_CARDS_TO_DRAW]: 'There are no cards left to draw.',
   [GameErrorCodes.GAME_ALREADY_ENDED]: 'The game has already ended.',
+  [GameErrorCodes.MUST_PLAY_OR_DRAW_CARD]: 'You must either play a card or draw a card.',
 };
