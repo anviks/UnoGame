@@ -7,7 +7,7 @@
       :rotation-jitter="80"
       :horizontal-jitter="30"
       :vertical-jitter="30"
-      :chosen-color="currentColor"
+      :chosen-color="i === reversedCards.length - 1 ? currentColor : null"
       class="position-absolute"
     ></uno-card>
   </div>
@@ -32,6 +32,12 @@ const props = defineProps({
   },
 });
 
+/*
+ The random offsets and rotations are cached by the card's index.
+ Since new cards get inserted to the index 0, if the array isn't reversed here,
+ the new card inserted to index 0 takes the previous index-0 card's position and so on throughout the array.
+ The new offset and rotation would be generated for the bottom card.
+*/
 const reversedCards = computed(() => {
   return [...props.cards].reverse();
 });
