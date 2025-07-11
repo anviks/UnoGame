@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using UnoGame.Core.DTO;
 using UnoGame.Core.Entities;
 using UnoGame.Core.Services;
+using UnoGame.Core.State;
 using WebApp.DTO;
 
 namespace WebApp.ApiControllers;
@@ -20,14 +21,14 @@ public class GamesController(GameService gameService, UserService userService) :
 
         foreach (Game game in allGames)
         {
-            var state = gameService.GetGameStateByGame(game);
+            GameState state = gameService.GetGameStateByGame(game);
             allGameDtos.Add(new GameDto
             {
                 Id = game.Id,
                 Name = game.Name,
                 CreatedAt = game.CreatedAt,
                 UpdatedAt = game.UpdatedAt,
-                Players = state.Players,
+                PlayerNames = state.Players.Select(p => p.Name).ToList(),
             });
         }
 

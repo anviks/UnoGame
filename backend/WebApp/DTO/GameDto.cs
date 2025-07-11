@@ -1,5 +1,3 @@
-using UnoGame.Core.State;
-
 namespace WebApp.DTO;
 
 public class GameDto
@@ -8,5 +6,5 @@ public class GameDto
     public string Name { get; set; } = default!;
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
-    public List<Player> Players { get; set; } = default!;
+    public List<string> PlayerNames { get; set; } = default!;
 }

@@ -70,7 +70,7 @@ public class GameService(
         return state;
     }
 
-    public async Task<Result<GameState>> CreateGame(string gameName, List<Player> players, List<Card> includedCards)
+    public async Task<Result<GameState>> CreateGame(string gameName, List<CreateGamePlayer> createPlayers, List<Card> includedCards)
     {
         var result = new Result<GameState>();
 
@@ -81,24 +81,27 @@ public class GameService(
             result.WithError("Game with this name already exists.");
         }
 
-        if (players.Count is < 2 or > 10)
+        if (createPlayers.Count is < 2 or > 10)
         {
             result.WithError("Player count must be between 2 and 10.");
         }
 
-        if (players.DistinctBy(p => p.Name).ToList().Count < players.Count)
+        if (createPlayers.DistinctBy(p => p.Name).ToList().Count < createPlayers.Count)
         {
             result.WithError("Player names must be unique.");
         }
 
         if (result.IsFailed) return result;
 
-        foreach (Player player in players)
-        {
-            player.Cards = [];
+        List<Player> players = [];
 
-            if (player.Type != PlayerType.Human) continue;
-            User? user = await userRepository.GetUserByName(player.Name);
+        foreach (CreateGamePlayer createPlayer in createPlayers)
+        {
+            var player = new Player { Cards = [] };
+            players.Add(player);
+
+            if (createPlayer.Type != PlayerType.Human) continue;
+            User? user = await userRepository.GetUserByName(createPlayer.Name);
             if (user != null) player.UserId = user.Id;
         }
 
