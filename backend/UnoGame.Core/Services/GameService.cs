@@ -97,7 +97,7 @@ public class GameService(
 
         foreach (CreateGamePlayer createPlayer in createPlayers)
         {
-            var player = new Player { Cards = [] };
+            var player = new Player { Name = createPlayer.Name, Cards = [] };
             players.Add(player);
 
             if (createPlayer.Type != PlayerType.Human) continue;
