@@ -13,7 +13,9 @@
       <span class="card-count">{{ state.drawPileSize }}</span>
     </div>
     <v-btn @click="endTurn">End turn</v-btn>
-    <div
+    <transition-group
+      name="hand-change"
+      tag="div"
       style="position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%)"
       class="uno-card-hand d-flex ga-2"
     >
@@ -21,11 +23,11 @@
         v-for="(card, index) in thisPlayer?.cards"
         :color="card.color"
         :value="card.value"
-        :key="index"
+        :key="card.color + '-' + card.value"
         :ref="el => cardRefs[index] = el"
         @card-chosen="(chosenColor) => playCard(index, card, chosenColor)"
       ></card-choice>
-    </div>
+    </transition-group>
 
     <transition name="fly-card">
       <uno-card
@@ -239,5 +241,15 @@ onUnmounted(() => {
   /* @formatter:on */
 
   align-self: center;
+}
+
+.hand-change-move {
+  transition: all 0.5s ease;
+}
+
+/* ensure leaving items are taken out of layout flow so that moving
+   animations can be calculated correctly. */
+.hand-change-leave-active {
+  position: absolute;
 }
 </style>
