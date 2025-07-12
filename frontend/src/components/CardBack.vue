@@ -2,11 +2,11 @@
   <img
     :src="cardBack"
     alt="UNO Card Back"
-    :class="{'uno-card': true, 'greyed': disabled}"
+    :class="{'uno-card-shadow': true, 'greyed': disabled}"
     :style="{
-      width: `${props.size}px`,
-      height: `${props.size * 1.5}px`,
-      borderRadius: `${props.size * 0.16}px`
+      width: `${size}px`,
+      height: `${size * 1.5}px`,
+      borderRadius: `${size * 0.16}px`
     }"
   />
 </template>
@@ -30,7 +30,7 @@ const props = defineProps({
 </script>
 
 <style scoped>
-.uno-card {
+.uno-card-shadow {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 

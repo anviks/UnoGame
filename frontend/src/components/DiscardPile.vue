@@ -9,6 +9,7 @@
       :vertical-jitter="30"
       :chosen-color="i === reversedCards.length - 1 ? currentColor : null"
       class="position-absolute"
+      shadowed
     ></uno-card>
   </div>
 </template>

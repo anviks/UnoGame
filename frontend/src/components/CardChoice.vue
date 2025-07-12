@@ -6,6 +6,7 @@
       :value="value"
       class="card-choice"
       @click="$emit('card-chosen')"
+      shadowed
     />
     <div
       v-else
@@ -18,6 +19,7 @@
         :value="value"
         class="card-choice wild-image"
         ref="wildCard"
+        shadowed
       />
       <div
         class="uno-color-choice card-choice"
@@ -122,7 +124,7 @@ onMounted(() => {
   scoped
   lang="scss"
 >
-.uno-card, .card-choice {
+.uno-card-shadow, .card-choice {
   height: 150px;
   width: 100px;
   border-radius: 17px;

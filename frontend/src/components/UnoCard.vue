@@ -2,7 +2,7 @@
   <component
     :is="cardComponent"
     :class="[
-      'uno-card',
+      {'uno-card-shadow': shadowed},
       {'greyed': disabled},
       chosenColor !== -1 ? `chosen-${colorAsString(chosenColor)}` : '',
     ]"
@@ -31,6 +31,10 @@ const props = defineProps({
     default: 100,
   },
   disabled: {
+    type: Boolean,
+    default: false,
+  },
+  shadowed: {
     type: Boolean,
     default: false,
   },
@@ -94,7 +98,7 @@ const cardComponent = computed(() => {
 </script>
 
 <style scoped>
-.uno-card {
+.uno-card-shadow {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 

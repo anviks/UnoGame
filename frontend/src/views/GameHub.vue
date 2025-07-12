@@ -6,6 +6,7 @@
     />
     <div class="d-flex ga-3">
       <draw-pile
+        ref="drawPileRef"
         :amount="state.drawPileSize"
         @click="drawCard"
       />
@@ -25,6 +26,17 @@
         @card-chosen="(chosenColor) => playCard(index, card, chosenColor)"
       ></card-choice>
     </div>
+
+    <transition name="fly-card">
+      <uno-card
+        v-if="transitioningCard"
+        class="flying-card"
+        :color="transitioningCard.color"
+        :value="transitioningCard.value"
+        :style="flyCardStyle"
+        shadowed
+      />
+    </transition>
   </v-container>
 </template>
 
@@ -32,11 +44,11 @@
   setup
   lang="ts"
 >
-import { type ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from 'vue';
+import { type ComponentPublicInstance, computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import { GameApi } from '@/api';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { useAuthStore } from '@/stores/authStore.ts';
-import { CardChoice, DiscardPile, DrawPile } from '@/components';
+import { CardChoice, DiscardPile, DrawPile, UnoCard } from '@/components';
 import type { Card, GameState, Player } from '@/types.ts';
 import { useToast } from 'vue-toastification';
 import { errorMessages, type GameErrorCode, GameErrorCodes } from '@/constants.ts';
@@ -81,6 +93,43 @@ const playCard = async (index: number, card: Card, chosenColor?: number) => {
   }
 };
 
+const drawPileRef = useTemplateRef('drawPileRef');
+
+const transitioningCard = ref<Card | null>(null);
+const flyCardStyle = ref<Record<string, string>>({});
+
+const animateCardToHand = (card: Card) => {
+  transitioningCard.value = card;
+
+  nextTick(() => {
+    const from = drawPileRef.value?.$el.getBoundingClientRect();
+    const to = lastCardRef.value?.$el.getBoundingClientRect();
+
+    if (from && to) {
+      const dx = to.left - from.left;
+      const dy = to.top - from.top;
+
+      flyCardStyle.value = {
+        position: 'absolute',
+        left: `${from.left}px`,
+        top: `${from.top}px`,
+        transform: `translate(${dx}px, ${dy}px)`,
+        transition: 'transform 0.6s ease',
+        zIndex: '999',
+      };
+
+      setTimeout(() => {
+        flyCardStyle.value.visibility = 'hidden';
+        nextTick(() => {
+          transitioningCard.value = null;
+          flyCardStyle.value = {};
+          lastCardRef.value.$el.style.visibility = '';
+        });
+      }, 600);
+    }
+  });
+};
+
 const drawCard = async () => {
   const response = await connection.value!.invoke('DrawCard');
 
@@ -97,7 +146,7 @@ const endTurn = async () => {
     const errorCode = response.error as GameErrorCode;
     toast.error(errorMessages[errorCode] ?? errorCode);
   }
-}
+};
 
 const connectToGame = async () => {
   connection.value = new HubConnectionBuilder()
@@ -135,6 +184,10 @@ const connectToGame = async () => {
 
   connection.value.on('CardDrawnSelf', async (card: Card) => {
     thisPlayer.value!.cards!.push(card);
+    await nextTick(() => {
+      lastCardRef.value.$el.style.visibility = 'hidden';
+    });
+    animateCardToHand(card);
   });
 
   connection.value
@@ -149,6 +202,7 @@ const connectToGame = async () => {
 const state = ref<GameState>();
 
 const thisPlayer = computed(() => state?.value?.players?.find((player: Player) => player.userId === authStore.userId));
+const lastCardRef = computed(() => cardRefs.value[thisPlayer.value!.cards!.length - 1]);
 
 onMounted(async () => {
   await connectToGame();
