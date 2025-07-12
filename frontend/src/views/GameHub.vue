@@ -30,7 +30,7 @@
       ></card-choice>
     </transition-group>
 
-    <transition name="fly-card">
+    <transition>
       <uno-card
         v-if="cthTransitioningCard"
         class="flying-card"
@@ -41,7 +41,7 @@
       />
     </transition>
 
-    <transition name="fly-card-2">
+    <transition>
       <uno-card
         v-if="ctdTransitioningCard"
         class="flying-card"
@@ -80,7 +80,6 @@ const cardRefs = ref<ComponentPublicInstance<any | typeof CardChoice>[]>([]);
 
 const connected = ref(false);
 const connection = ref<HubConnection>();
-const messages = ref<any[]>([]);
 
 const sendMessage = (user: string, message: string) => {
   connection.value!
@@ -141,7 +140,7 @@ const animateCardToHand = (card: Card) => {
         nextTick(() => {
           cthTransitioningCard.value = null;
           cthFlyCardStyle.value = {};
-          lastCardRef.value.$el.style.visibility = '';
+          lastCardRef.value.$el.style.removeProperty('visibility');
         });
       }, 600);
     }
@@ -182,7 +181,7 @@ const animateCardToDiscardPile = (card: Card, from: DOMRect) => {
         nextTick(() => {
           ctdTransitioningCard.value = null;
           ctdFlyCardStyle.value = {};
-          topCardElement.style.visibility = '';
+          topCardElement.style.removeProperty('visibility');
         });
       }, 600);
     }
@@ -212,24 +211,12 @@ const connectToGame = async () => {
     .withUrl(`${import.meta.env.VITE_BACKEND_URL}/gamehub?gameId=${props.gameId}`)
     .build();
 
-  connection.value.on('ReceiveMessage', (user: string, message: string) => {
-    messages.value.push({ user, text: message, timestamp: new Date() });
-  });
-
-  connection.value.on('ReceiveMove', (player, move) => {
-    messages.value.push({
-      user: player,
-      text: `Made a move: ${move}`,
-      timestamp: new Date(),
-    });
-  });
-
   connection.value.on('Error', (message: string) => {
     toast.error(message);
   });
 
   connection.value.on('CardPlayed', async (player: Player, card: Card, chosenColor: number | null) => {
-    state.value?.discardPile.splice(0, 0, card);
+    state.value?.discardPile.unshift(card);
     if (player.name === thisPlayer.value?.name) {
       const playedCardIndex = thisPlayer.value.cards!.findIndex(c => c.color === card.color && c.value === card.value);
       const from = cardRefs.value[playedCardIndex].$el.getBoundingClientRect();
