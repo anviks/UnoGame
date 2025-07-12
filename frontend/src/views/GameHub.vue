@@ -1,6 +1,7 @@
 <template>
   <v-container v-if="state">
     <discard-pile
+      ref="discardPileRef"
       :cards="state.discardPile"
       :current-color="state.currentColor"
     />
@@ -31,11 +32,22 @@
 
     <transition name="fly-card">
       <uno-card
-        v-if="transitioningCard"
+        v-if="cthTransitioningCard"
         class="flying-card"
-        :color="transitioningCard.color"
-        :value="transitioningCard.value"
-        :style="flyCardStyle"
+        :color="cthTransitioningCard.color"
+        :value="cthTransitioningCard.value"
+        :style="cthFlyCardStyle"
+        shadowed
+      />
+    </transition>
+
+    <transition name="fly-card-2">
+      <uno-card
+        v-if="ctdTransitioningCard"
+        class="flying-card"
+        :color="ctdTransitioningCard.color"
+        :value="ctdTransitioningCard.value"
+        :style="ctdFlyCardStyle"
         shadowed
       />
     </transition>
@@ -96,12 +108,16 @@ const playCard = async (index: number, card: Card, chosenColor?: number) => {
 };
 
 const drawPileRef = useTemplateRef('drawPileRef');
+const discardPileRef = useTemplateRef('discardPileRef');
 
-const transitioningCard = ref<Card | null>(null);
-const flyCardStyle = ref<Record<string, string>>({});
+const cthTransitioningCard = ref<Card | null>(null);
+const ctdTransitioningCard = ref<Card | null>(null);
+
+const cthFlyCardStyle = ref<Record<string, string>>({});
+const ctdFlyCardStyle = ref<Record<string, string>>({});
 
 const animateCardToHand = (card: Card) => {
-  transitioningCard.value = card;
+  cthTransitioningCard.value = card;
 
   nextTick(() => {
     const from = drawPileRef.value?.topCardRef.$el.getBoundingClientRect();
@@ -111,7 +127,7 @@ const animateCardToHand = (card: Card) => {
       const dx = to.left - from.left;
       const dy = to.top - from.top;
 
-      flyCardStyle.value = {
+      cthFlyCardStyle.value = {
         position: 'absolute',
         left: `${from.left}px`,
         top: `${from.top}px`,
@@ -121,11 +137,52 @@ const animateCardToHand = (card: Card) => {
       };
 
       setTimeout(() => {
-        flyCardStyle.value.visibility = 'hidden';
+        cthFlyCardStyle.value.visibility = 'hidden';
         nextTick(() => {
-          transitioningCard.value = null;
-          flyCardStyle.value = {};
+          cthTransitioningCard.value = null;
+          cthFlyCardStyle.value = {};
           lastCardRef.value.$el.style.visibility = '';
+        });
+      }, 600);
+    }
+  });
+};
+
+const animateCardToDiscardPile = (card: Card, from: DOMRect) => {
+  ctdTransitioningCard.value = card;
+
+  nextTick(() => {
+    const topCardElement = discardPileRef.value!.topCardRef!.$el;
+    const to = topCardElement.getBoundingClientRect();
+
+    if (from && to) {
+      const fromCenterX = from.left + from.width / 2;
+      const fromCenterY = from.top + from.height / 2;
+
+      const toCenterX = to.left + to.width / 2;
+      const toCenterY = to.top + to.height / 2;
+
+      const dx = toCenterX - fromCenterX;
+      const dy = toCenterY - fromCenterY;
+
+      const rotation = topCardElement.style.rotate;
+
+      ctdFlyCardStyle.value = {
+        position: 'absolute',
+        left: `${from.left}px`,
+        top: `${from.top}px`,
+        transform: `translate(${dx}px, ${dy}px) rotate(${rotation})`,
+        transition: 'transform 0.6s ease',
+        'transform-origin': 'center center',
+        zIndex: '999',
+      };
+
+      setTimeout(() => {
+        ctdFlyCardStyle.value.visibility = 'hidden';
+        nextTick(() => {
+          ctdTransitioningCard.value = null;
+          ctdFlyCardStyle.value = {};
+          topCardElement.style.visibility = '';
         });
       }, 600);
     }
@@ -175,7 +232,12 @@ const connectToGame = async () => {
     state.value?.discardPile.splice(0, 0, card);
     if (player.name === thisPlayer.value?.name) {
       const playedCardIndex = thisPlayer.value.cards!.findIndex(c => c.color === card.color && c.value === card.value);
-      thisPlayer.value.cards!.splice(playedCardIndex, 1);
+      const from = cardRefs.value[playedCardIndex].$el.getBoundingClientRect();
+      thisPlayer.value!.cards!.splice(playedCardIndex, 1);
+      await nextTick(() => {
+        discardPileRef.value!.topCardRef!.$el.style.visibility = 'hidden';
+      });
+      animateCardToDiscardPile(card, from);
     }
   });
 
@@ -247,9 +309,7 @@ onUnmounted(() => {
   transition: all 0.5s ease;
 }
 
-/* ensure leaving items are taken out of layout flow so that moving
-   animations can be calculated correctly. */
 .hand-change-leave-active {
-  position: absolute;
+  display: none;
 }
 </style>

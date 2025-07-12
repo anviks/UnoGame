@@ -10,6 +10,7 @@
       :chosen-color="i === reversedCards.length - 1 ? currentColor : null"
       class="position-absolute"
       shadowed
+      :ref="(el) => { if (i === reversedCards.length - 1) topCardRef = el }"
     ></uno-card>
   </div>
 </template>
@@ -18,7 +19,7 @@
   setup
   lang="ts"
 >
-import { computed, type PropType } from 'vue';
+import { computed, type PropType, ref } from 'vue';
 import type { Card } from '@/types.ts';
 import { UnoCard } from '@/components';
 
@@ -42,6 +43,9 @@ const props = defineProps({
 const reversedCards = computed(() => {
   return [...props.cards].reverse();
 });
+
+const topCardRef = ref();
+defineExpose({ topCardRef });
 </script>
 
 <style scoped>
