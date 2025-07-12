@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using UnoGame.Core.DTO;
 using UnoGame.Core.Entities;
 using UnoGame.Core.Interfaces;
 
@@ -32,9 +33,10 @@ public class UserService(IHttpContextAccessor httpContextAccessor, IUserReposito
         return await userRepository.GetUserByName(name);
     }
 
-    public async Task<List<User>> GetAllUsers()
+    public async Task<List<UserDto>> GetAllUserDtos()
     {
-        return await userRepository.GetAllUsers();
+        var allUsers = await userRepository.GetAllUsers();
+        return allUsers.Select(u => new UserDto { Id = u.Id, Name = u.Name }).ToList();
     }
 
     public async Task<int> CountUsersRegisteredToday()

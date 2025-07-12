@@ -10,6 +10,6 @@ public class UsersController(UserService userService): ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllUsers()
     {
-        return Ok(await userService.GetAllUsers());
+        return Ok(await userService.GetAllUserDtos());
     }
 }
