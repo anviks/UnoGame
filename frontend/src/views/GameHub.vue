@@ -102,7 +102,7 @@ const animateCardToHand = (card: Card) => {
   transitioningCard.value = card;
 
   nextTick(() => {
-    const from = drawPileRef.value?.$el.getBoundingClientRect();
+    const from = drawPileRef.value?.topCardRef.$el.getBoundingClientRect();
     const to = lastCardRef.value?.$el.getBoundingClientRect();
 
     if (from && to) {

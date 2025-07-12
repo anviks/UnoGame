@@ -13,6 +13,7 @@
         'position': 'absolute',
         'left': i * 5 + 'px',
       }"
+      :ref="(el) => { if (i === amountOfCards) topCardRef = el }"
     />
   </div>
 </template>
@@ -22,7 +23,7 @@
   lang="ts"
 >
 import { CardBack } from '@/components';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import _ from 'lodash-es';
 
 const props = defineProps({
@@ -31,6 +32,9 @@ const props = defineProps({
     required: true,
   },
 });
+
+const topCardRef = ref();
+defineExpose({ topCardRef });
 
 const amountOfCards = computed(() => _.clamp(props.amount, 0, 15));
 </script>
