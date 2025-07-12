@@ -17,7 +17,7 @@
       label="Player type"
       style="flex-basis: 40%"
       hide-details
-      :disabled="!player.id"
+      :disabled="!userExists"
     />
     <v-icon
       v-if="canDelete"
@@ -33,7 +33,7 @@
   setup
   lang="ts"
 >
-import type { PropType } from 'vue';
+import { type PropType, ref } from 'vue';
 import type { PlayerField, User } from '@/types.ts';
 import { playerType } from '@/constants.ts';
 import { capitalize } from 'lodash-es';
@@ -60,14 +60,15 @@ const props = defineProps({
 });
 
 const playerTypeSelection = Object.entries(playerType).map(([title, value]) => ({ title: capitalize(title), value }));
+const userExists = ref(false);
 
 const updatePlayer = (newValue: string | PlayerField) => {
-  if (typeof newValue === 'string') {
-    props.player.id = undefined;
+  if (newValue == null || typeof newValue === 'string') {
+    userExists.value = false;
     props.player.name = newValue;
     props.player.type = playerType.COMPUTER;
   } else {
-    props.player.id = newValue.id;
+    userExists.value = true;
     props.player.name = newValue.name;
     props.player.type = playerType.HUMAN;
   }
