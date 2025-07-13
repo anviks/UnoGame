@@ -117,6 +117,7 @@ const cthFlyCardStyle = ref<Record<string, string>>({});
 const ctdFlyCardStyle = ref<Record<string, string>>({});
 
 const animateCardToHand = async () => {
+  await nextTick();
   const from = drawPileRef.value?.topCardRef.$el;
   let to = lastCardRef.value.$el;
   await animateCardMove(
@@ -127,6 +128,7 @@ const animateCardToHand = async () => {
 };
 
 const animateCardToDiscardPile = async (fromRect: DOMRect) => {
+  await nextTick();
   const to = discardPileRef.value!.topCardRef!.$el;
   await animateCardMove(
     fromRect,
