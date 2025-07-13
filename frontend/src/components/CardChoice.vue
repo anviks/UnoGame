@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ 'shake': shouldShake }">
+  <div :class="{ 'shake': shouldShake }" style="line-height: 0">
     <uno-card
       v-if="color !== cardColor.WILD"
       :color="color"
@@ -145,7 +145,6 @@ onMounted(() => {
 .wild-card-div {
   display: inline-block;
   position: relative;
-  margin: 0 0 5px;
 
   & > .wild-image {
     position: absolute;
