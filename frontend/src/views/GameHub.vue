@@ -66,6 +66,7 @@ import { CardChoice, DiscardPile, DrawPile, UnoCard } from '@/components';
 import type { Card, GameState, Player } from '@/types.ts';
 import { useToast } from 'vue-toastification';
 import { errorMessages, type GameErrorCode, GameErrorCodes } from '@/constants.ts';
+import { animateCardMove } from '@/helpers.ts';
 
 const props = defineProps({
   gameId: {
@@ -115,77 +116,23 @@ const ctdTransitioningCard = ref<Card | null>(null);
 const cthFlyCardStyle = ref<Record<string, string>>({});
 const ctdFlyCardStyle = ref<Record<string, string>>({});
 
-const animateCardToHand = (card: Card) => {
-  cthTransitioningCard.value = card;
-
-  nextTick(() => {
-    const from = drawPileRef.value?.topCardRef.$el.getBoundingClientRect();
-    const to = lastCardRef.value?.$el.getBoundingClientRect();
-
-    if (from && to) {
-      const dx = to.left - from.left;
-      const dy = to.top - from.top;
-
-      cthFlyCardStyle.value = {
-        position: 'absolute',
-        left: `${from.left}px`,
-        top: `${from.top}px`,
-        transform: `translate(${dx}px, ${dy}px)`,
-        transition: 'transform 0.6s ease',
-        zIndex: '999',
-      };
-
-      setTimeout(() => {
-        cthFlyCardStyle.value.visibility = 'hidden';
-        nextTick(() => {
-          cthTransitioningCard.value = null;
-          cthFlyCardStyle.value = {};
-          lastCardRef.value.$el.style.removeProperty('visibility');
-        });
-      }, 600);
-    }
-  });
+const animateCardToHand = async () => {
+  const from = drawPileRef.value?.topCardRef.$el;
+  let to = lastCardRef.value.$el;
+  await animateCardMove(
+    from.getBoundingClientRect(),
+    to,
+    cthFlyCardStyle,
+  );
 };
 
-const animateCardToDiscardPile = (card: Card, from: DOMRect) => {
-  ctdTransitioningCard.value = card;
-
-  nextTick(() => {
-    const topCardElement = discardPileRef.value!.topCardRef!.$el;
-    const to = topCardElement.getBoundingClientRect();
-
-    if (from && to) {
-      const fromCenterX = from.left + from.width / 2;
-      const fromCenterY = from.top + from.height / 2;
-
-      const toCenterX = to.left + to.width / 2;
-      const toCenterY = to.top + to.height / 2;
-
-      const dx = toCenterX - fromCenterX;
-      const dy = toCenterY - fromCenterY;
-
-      const rotation = topCardElement.style.rotate;
-
-      ctdFlyCardStyle.value = {
-        position: 'absolute',
-        left: `${from.left}px`,
-        top: `${from.top}px`,
-        transform: `translate(${dx}px, ${dy}px) rotate(${rotation})`,
-        transition: 'transform 0.6s ease',
-        'transform-origin': 'center center',
-        zIndex: '999',
-      };
-
-      setTimeout(() => {
-        ctdFlyCardStyle.value.visibility = 'hidden';
-        nextTick(() => {
-          ctdTransitioningCard.value = null;
-          ctdFlyCardStyle.value = {};
-          topCardElement.style.removeProperty('visibility');
-        });
-      }, 600);
-    }
-  });
+const animateCardToDiscardPile = async (fromRect: DOMRect) => {
+  const to = discardPileRef.value!.topCardRef!.$el;
+  await animateCardMove(
+    fromRect,
+    to,
+    ctdFlyCardStyle,
+  );
 };
 
 const drawCard = async () => {
@@ -219,12 +166,14 @@ const connectToGame = async () => {
     state.value?.discardPile.unshift(card);
     if (player.name === thisPlayer.value?.name) {
       const playedCardIndex = thisPlayer.value.cards!.findIndex(c => c.color === card.color && c.value === card.value);
-      const from = cardRefs.value[playedCardIndex].$el.getBoundingClientRect();
+      const fromRect = cardRefs.value[playedCardIndex].$el.getBoundingClientRect();
       thisPlayer.value!.cards!.splice(playedCardIndex, 1);
       await nextTick(() => {
         discardPileRef.value!.topCardRef!.$el.style.visibility = 'hidden';
       });
-      animateCardToDiscardPile(card, from);
+      ctdTransitioningCard.value = card;
+      await animateCardToDiscardPile(fromRect);
+      ctdTransitioningCard.value = null;
     }
   });
 
@@ -238,7 +187,9 @@ const connectToGame = async () => {
     await nextTick(() => {
       lastCardRef.value.$el.style.visibility = 'hidden';
     });
-    animateCardToHand(card);
+    cthTransitioningCard.value = card;
+    await animateCardToHand();
+    cthTransitioningCard.value = null;
   });
 
   connection.value

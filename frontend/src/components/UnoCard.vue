@@ -4,7 +4,7 @@
     :class="[
       {'uno-card-shadow': shadowed},
       {'greyed': disabled},
-      chosenColor !== -1 ? `chosen-${colorAsString(chosenColor)}` : '',
+      chosenColor != null ? `chosen-${colorAsString(chosenColor)}` : '',
     ]"
     :style="cardStyle"
   />
