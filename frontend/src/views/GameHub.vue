@@ -170,9 +170,8 @@ const connectToGame = async () => {
       const playedCardIndex = thisPlayer.value.cards!.findIndex(c => c.color === card.color && c.value === card.value);
       const fromRect = cardRefs.value[playedCardIndex].$el.getBoundingClientRect();
       thisPlayer.value!.cards!.splice(playedCardIndex, 1);
-      await nextTick(() => {
-        discardPileRef.value!.topCardRef!.$el.style.visibility = 'hidden';
-      });
+      await nextTick();
+      discardPileRef.value!.topCardRef!.$el.style.visibility = 'hidden';
       ctdTransitioningCard.value = card;
       await animateCardToDiscardPile(fromRect);
       ctdTransitioningCard.value = null;
@@ -186,9 +185,8 @@ const connectToGame = async () => {
 
   connection.value.on('CardDrawnSelf', async (card: Card) => {
     thisPlayer.value!.cards!.push(card);
-    await nextTick(() => {
-      lastCardRef.value.$el.style.visibility = 'hidden';
-    });
+    await nextTick();
+    lastCardRef.value.$el.style.visibility = 'hidden';
     cthTransitioningCard.value = card;
     await animateCardToHand();
     cthTransitioningCard.value = null;
