@@ -165,7 +165,10 @@ const connectToGame = async () => {
   });
 
   connection.value.on('CardPlayed', async (player: Player, card: Card, chosenColor: number | null) => {
-    state.value?.discardPile.unshift(card);
+    state.value!.discardPile.unshift(card);
+    state.value!.currentColor = chosenColor ?? card.color;
+    state.value!.currentValue = chosenColor === null ? card.value : null;
+
     if (player.name === thisPlayer.value?.name) {
       const playedCardIndex = thisPlayer.value.cards!.findIndex(c => c.color === card.color && c.value === card.value);
       const fromRect = cardRefs.value[playedCardIndex].$el.getBoundingClientRect();
