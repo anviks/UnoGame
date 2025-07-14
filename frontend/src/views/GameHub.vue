@@ -116,27 +116,6 @@ const ctdTransitioningCard = ref<Card | null>(null);
 const cthFlyCardStyle = ref<Record<string, string>>({});
 const ctdFlyCardStyle = ref<Record<string, string>>({});
 
-const animateCardToHand = async () => {
-  await nextTick();
-  const from = drawPileRef.value?.topCardRef.$el;
-  let to = lastCardRef.value.$el;
-  await animateCardMove(
-    from.getBoundingClientRect(),
-    to,
-    cthFlyCardStyle,
-  );
-};
-
-const animateCardToDiscardPile = async (fromRect: DOMRect) => {
-  await nextTick();
-  const to = discardPileRef.value!.topCardRef!.$el;
-  await animateCardMove(
-    fromRect,
-    to,
-    ctdFlyCardStyle,
-  );
-};
-
 const drawCard = async () => {
   const response = await connection.value!.invoke('DrawCard');
 
@@ -174,11 +153,13 @@ const connectToGame = async () => {
       const fromRect = cardRefs.value[playedCardIndex].$el.getBoundingClientRect();
       thisPlayer.value!.cards!.splice(playedCardIndex, 1);
       await nextTick();
-      discardPileRef.value!.topCardRef!.$el.style.visibility = 'hidden';
-      ctdTransitioningCard.value = card;
-      await animateCardToDiscardPile(fromRect);
-      ctdTransitioningCard.value = null;
-      ctdFlyCardStyle.value = {};
+      await animateCardMove({
+        card: card,
+        cardRef: ctdTransitioningCard,
+        fromRect: fromRect,
+        toElement: discardPileRef.value!.topCardRef!.$el,
+        styleRef: ctdFlyCardStyle,
+      });
     }
   });
 
@@ -190,11 +171,13 @@ const connectToGame = async () => {
   connection.value.on('CardDrawnSelf', async (card: Card) => {
     thisPlayer.value!.cards!.push(card);
     await nextTick();
-    lastCardRef.value.$el.style.visibility = 'hidden';
-    cthTransitioningCard.value = card;
-    await animateCardToHand();
-    cthTransitioningCard.value = null;
-    cthFlyCardStyle.value = {};
+    await animateCardMove({
+      card: card,
+      cardRef: cthTransitioningCard,
+      fromRect: drawPileRef.value?.topCardRef.$el.getBoundingClientRect(),
+      toElement: lastCardRef.value.$el,
+      styleRef: cthFlyCardStyle,
+    });
   });
 
   connection.value

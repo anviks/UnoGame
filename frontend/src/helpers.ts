@@ -41,20 +41,38 @@ export function capitalizeFirstLetter(string: string) {
 export async function removeQueryParameter(
   route: RouteLocationNormalizedLoadedGeneric,
   router: Router,
-  paramName: string
+  paramName: string,
 ) {
   const query = Object.assign({}, route.query);
   delete query[paramName];
   await router.replace({ query });
 }
 
+interface AnimateCardOptions {
+  card: Card;
+  cardRef: Ref<Card | null>;
+  fromRect: DOMRect;
+  toElement: HTMLElement;
+  styleRef: Ref<Record<string, string>>;
+  duration?: number;
+}
+
 export const animateCardMove = async (
-  fromRect: DOMRect,
-  to: HTMLElement,
-  style: Ref<Record<string, string>>,
+  {
+    card,
+    cardRef,
+    fromRect,
+    toElement,
+    styleRef,
+    duration = 600,
+  }: AnimateCardOptions,
 ): Promise<void> => {
   return new Promise(async (resolve, reject) => {
-    const toRect = to.getBoundingClientRect();
+    toElement.style.visibility = 'hidden';
+    cardRef.value = card;
+    await nextTick();
+
+    const toRect = toElement.getBoundingClientRect();
 
     const fromCenterX = fromRect.left + fromRect.width / 2;
     const fromCenterY = fromRect.top + fromRect.height / 2;
@@ -65,14 +83,14 @@ export const animateCardMove = async (
     const dx = toCenterX - fromCenterX;
     const dy = toCenterY - fromCenterY;
 
-    const rotation = to.style.rotate || '0deg';
+    const rotation = toElement.style.rotate || '0deg';
 
-    style.value = {
+    styleRef.value = {
       position: 'absolute',
       left: `${fromRect.left}px`,
       top: `${fromRect.top}px`,
       transform: `translate(${dx}px, ${dy}px) rotate(${rotation})`,
-      transition: 'transform 0.6s ease',
+      transition: `transform ${duration}ms ease`,
       zIndex: '999',
     };
 
@@ -82,10 +100,12 @@ export const animateCardMove = async (
      Without it, the transitioning card sticks around for an additional second or two.
     */
     setTimeout(async () => {
-      style.value.visibility = 'hidden';
+      styleRef.value.visibility = 'hidden';
       await nextTick();
-      to.style.removeProperty('visibility');
+      toElement.style.removeProperty('visibility');
+      cardRef.value = null;
+      styleRef.value = {};
       resolve();
-    }, 600);
+    }, duration);
   });
-}
+};
