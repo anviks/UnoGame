@@ -178,6 +178,7 @@ const connectToGame = async () => {
       ctdTransitioningCard.value = card;
       await animateCardToDiscardPile(fromRect);
       ctdTransitioningCard.value = null;
+      ctdFlyCardStyle.value = {};
     }
   });
 
@@ -193,6 +194,7 @@ const connectToGame = async () => {
     cthTransitioningCard.value = card;
     await animateCardToHand();
     cthTransitioningCard.value = null;
+    cthFlyCardStyle.value = {};
   });
 
   connection.value

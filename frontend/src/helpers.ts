@@ -84,7 +84,6 @@ export const animateCardMove = async (
     setTimeout(async () => {
       style.value.visibility = 'hidden';
       await nextTick();
-      style.value = {};
       to.style.removeProperty('visibility');
       resolve();
     }, 600);
