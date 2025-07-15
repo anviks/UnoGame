@@ -1,4 +1,5 @@
 using System.Text.Json;
+using AutoMapper;
 using FluentResults;
 using UnoGame.Core.DTO;
 using UnoGame.Core.Entities;
@@ -11,6 +12,7 @@ using PlayerType = UnoGame.Core.State.Enums.PlayerType;
 namespace UnoGame.Core.Services;
 
 public class GameService(
+    IMapper mapper,
     IGameRepository gameRepository,
     IGameStore gameStore,
     IUserRepository userRepository
@@ -19,46 +21,15 @@ public class GameService(
     public async Task<List<GameDto>> GetAllGameDtos()
     {
         var allGames = await gameRepository.GetAllGames();
-        List<GameDto> allGameDtos = [];
-
-        foreach (Game game in allGames)
-        {
-            GameState state = GetGameStateByGame(game);
-            allGameDtos.Add(new GameDto
-            {
-                Id = game.Id,
-                Name = game.Name,
-                CreatedAt = game.CreatedAt,
-                UpdatedAt = game.UpdatedAt,
-                PlayerNames = state.Players.Select(p => p.Name).ToList(),
-            });
-        }
-
-        return allGameDtos;
-    }
-
-    private GameStateDto GameStateToDto(GameState state, int requestingUserId)
-    {
-        return new GameStateDto
-        {
-            CurrentColor = state.CurrentColor,
-            CurrentValue = state.CurrentValue,
-            CurrentPlayerIndex = state.CurrentPlayerIndex,
-            IsReversed = state.IsReversed,
-            WinnerIndex = state.WinnerIndex,
-            PendingPenalty = state.PendingPenalty,
-            Players = state.Players
-                .Select(p => PlayerDto.FromPlayer(p, p.UserId == requestingUserId))
-                .ToList(),
-            DrawPileSize = state.DrawPile.Count,
-            DiscardPile = state.DiscardPile,
-        };
+        return mapper.Map<List<GameDto>>(allGames);
     }
 
     public async Task<GameStateDto?> GetGameStateDto(int id, int requestingUserId)
     {
         GameState? state = await GetGameState(id);
-        return state == null ? null : GameStateToDto(state, requestingUserId);
+        return state == null
+            ? null
+            : mapper.Map<GameStateDto>(state, opts => opts.Items["requestingUserId"] = requestingUserId);
     }
 
     public async Task<GameState?> GetGameState(int id)

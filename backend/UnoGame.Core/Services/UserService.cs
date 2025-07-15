@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using UnoGame.Core.DTO;
 using UnoGame.Core.Entities;
@@ -6,7 +7,7 @@ using UnoGame.Core.Interfaces;
 
 namespace UnoGame.Core.Services;
 
-public class UserService(IHttpContextAccessor httpContextAccessor, IUserRepository userRepository)
+public class UserService(IMapper mapper, IHttpContextAccessor httpContextAccessor, IUserRepository userRepository)
 {
     public async Task CreateUser(User user)
     {
@@ -36,7 +37,7 @@ public class UserService(IHttpContextAccessor httpContextAccessor, IUserReposito
     public async Task<List<UserDto>> GetAllUserDtos()
     {
         var allUsers = await userRepository.GetAllUsers();
-        return allUsers.Select(u => new UserDto { Id = u.Id, Name = u.Name }).ToList();
+        return mapper.Map<List<UserDto>>(allUsers);
     }
 
     public async Task<int> CountUsersRegisteredToday()
