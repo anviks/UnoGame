@@ -30,13 +30,13 @@
       ></card-choice>
     </transition-group>
 
-    <transition>
+    <transition v-for="(transitioningCard, i) in cthTransitioningCards">
       <uno-card
-        v-if="cthTransitioningCard"
+        v-if="transitioningCard.value"
         class="flying-card"
-        :color="cthTransitioningCard.color"
-        :value="cthTransitioningCard.value"
-        :style="cthFlyCardStyle"
+        :color="transitioningCard.value.color"
+        :value="transitioningCard.value.value"
+        :style="cthFlyCardStyles[i].value"
         shadowed
       />
     </transition>
@@ -58,7 +58,16 @@
   setup
   lang="ts"
 >
-import { type ComponentPublicInstance, computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+import {
+  type ComponentPublicInstance,
+  computed,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  type Ref,
+  ref,
+  useTemplateRef,
+} from 'vue';
 import { GameApi } from '@/api';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { useAuthStore } from '@/stores/authStore.ts';
@@ -111,10 +120,10 @@ const playCard = async (index: number, card: Card, chosenColor?: number) => {
 const drawPileRef = useTemplateRef('drawPileRef');
 const discardPileRef = useTemplateRef('discardPileRef');
 
-const cthTransitioningCard = ref<Card | null>(null);
+const cthTransitioningCards = ref<Ref<Card>[]>([]);
 const ctdTransitioningCard = ref<Card | null>(null);
 
-const cthFlyCardStyle = ref<Record<string, string>>({});
+const cthFlyCardStyles = ref<Ref<Record<string, string>>[]>([]);
 const ctdFlyCardStyle = ref<Record<string, string>>({});
 
 const drawCard = async () => {
@@ -164,21 +173,37 @@ const connectToGame = async () => {
     }
   });
 
-  connection.value.on('CardDrawn', async (player: Player) => {
-    state.value!.drawPileSize--;
+  connection.value.on('CardDrawnOpponent', async (player: Player, cardCount: number) => {
+    state.value!.drawPileSize -= cardCount;
     // TODO: Add possibility to check if draw pile has reset due to the drawing
   });
 
-  connection.value.on('CardDrawnSelf', async (card: Card) => {
-    thisPlayer.value!.cards!.push(card);
-    await nextTick();
-    await animateCardMove({
-      card: card,
-      cardRef: cthTransitioningCard,
-      fromRect: drawPileRef.value?.topCardRef.$el.getBoundingClientRect(),
-      toElement: lastCardRef.value.$el,
-      styleRef: cthFlyCardStyle,
-    });
+  connection.value.on('CardDrawnSelf', async (cards: Card[]) => {
+    for (const card of cards) {
+      state.value!.drawPileSize--;
+
+      thisPlayer.value!.cards!.push(card);
+      await nextTick();
+
+      let cardRef = ref();
+      cthTransitioningCards.value.push(cardRef);
+
+      let styleRef = ref();
+      cthFlyCardStyles.value.push(styleRef);
+
+      animateCardMove({
+        card: card,
+        cardRef: cardRef,
+        fromRect: drawPileRef.value?.topCardRef.$el.getBoundingClientRect(),
+        toElement: lastCardRef.value.$el,
+        styleRef: styleRef,
+      }).then(() => {
+        cthTransitioningCards.value.pop();
+        cthFlyCardStyles.value.pop();
+      });
+
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
   });
 
   connection.value
