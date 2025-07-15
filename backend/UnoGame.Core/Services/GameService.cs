@@ -16,9 +16,25 @@ public class GameService(
     IUserRepository userRepository
 )
 {
-    public async Task<List<Game>> GetAllGames()
+    public async Task<List<GameDto>> GetAllGameDtos()
     {
-        return await gameRepository.GetAllGames();
+        var allGames = await gameRepository.GetAllGames();
+        List<GameDto> allGameDtos = [];
+
+        foreach (Game game in allGames)
+        {
+            GameState state = GetGameStateByGame(game);
+            allGameDtos.Add(new GameDto
+            {
+                Id = game.Id,
+                Name = game.Name,
+                CreatedAt = game.CreatedAt,
+                UpdatedAt = game.UpdatedAt,
+                PlayerNames = state.Players.Select(p => p.Name).ToList(),
+            });
+        }
+
+        return allGameDtos;
     }
 
     private GameStateDto GameStateToDto(GameState state, int requestingUserId)
@@ -39,7 +55,7 @@ public class GameService(
         };
     }
 
-    public async Task<GameStateDto?> GetGameState(int id, int requestingUserId)
+    public async Task<GameStateDto?> GetGameStateDto(int id, int requestingUserId)
     {
         GameState? state = await GetGameState(id);
         return state == null ? null : GameStateToDto(state, requestingUserId);

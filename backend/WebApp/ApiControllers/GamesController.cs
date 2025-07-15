@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using UnoGame.Core.DTO;
 using UnoGame.Core.Entities;
 using UnoGame.Core.Services;
-using UnoGame.Core.State;
-using WebApp.DTO;
 
 namespace WebApp.ApiControllers;
 
@@ -16,23 +14,7 @@ public class GamesController(GameService gameService, UserService userService) :
     [HttpGet]
     public async Task<List<GameDto>> Get()
     {
-        var allGames = await gameService.GetAllGames();
-        List<GameDto> allGameDtos = [];
-
-        foreach (Game game in allGames)
-        {
-            GameState state = gameService.GetGameStateByGame(game);
-            allGameDtos.Add(new GameDto
-            {
-                Id = game.Id,
-                Name = game.Name,
-                CreatedAt = game.CreatedAt,
-                UpdatedAt = game.UpdatedAt,
-                PlayerNames = state.Players.Select(p => p.Name).ToList(),
-            });
-        }
-
-        return allGameDtos;
+        return await gameService.GetAllGameDtos();
     }
 
     // GET api/<GameController>/5
@@ -41,7 +23,7 @@ public class GamesController(GameService gameService, UserService userService) :
     public async Task<ActionResult<GameStateDto?>> Get(int id)
     {
         User? user = await userService.GetCurrentUser();
-        GameStateDto? state = await gameService.GetGameState(id, user!.Id);
+        GameStateDto? state = await gameService.GetGameStateDto(id, user!.Id);
         if (state == null) return NotFound();
         return state;
     }

@@ -1,4 +1,4 @@
-namespace WebApp.DTO;
+namespace UnoGame.Core.DTO;
 
 public class GameDto
 {
