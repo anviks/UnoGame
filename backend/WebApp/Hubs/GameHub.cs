@@ -100,12 +100,13 @@ public class GameHub(
         (var gameId, Player player) = Connections[Context.ConnectionId];
         var drawResult = await gameService.TryDrawCard(gameId, player);
 
-        if (!drawResult.IsSuccess) return new { Success = false, Error = drawResult.Errors.First().Message };
+        if (drawResult.IsFailed) return new { Success = false, Error = drawResult.Errors.First().Message };
 
-        await Clients.Group(gameId.ToString())
+        await Clients.OthersInGroup(gameId.ToString())
             .SendAsync(
-                "CardDrawn",
-                player
+                "CardDrawnOpponent",
+                player,
+                drawResult.Value.Count
             );
 
         await Clients.Caller

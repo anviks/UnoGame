@@ -83,13 +83,14 @@ public class GameState
         return pileCard;
     }
 
-    public Card?[] DrawCardsForPlayer(Player player, int count)
+    public List<Card> DrawCardsForPlayer(Player player, int count)
     {
-        var cards = new Card?[count];
+        List<Card> cards = [];
 
-        for (int i = 0; i < count; i++)
+        for (var i = 0; i < count; i++)
         {
-            cards[i] = DrawCardForPlayer(player);
+            Card? card = DrawCardForPlayer(player);
+            if (card != null) cards.Add(card);
         }
 
         return cards;

@@ -224,7 +224,7 @@ public class GameService(
         return Result.Ok();
     }
 
-    public async Task<Result<Card>> TryDrawCard(int gameId, Player player)
+    public async Task<Result<List<Card>>> TryDrawCard(int gameId, Player player)
     {
         GameState state = await GetGameState(gameId) ??
                           throw new ArgumentException($"Game with ID {gameId} not found.", nameof(gameId));
@@ -238,7 +238,7 @@ public class GameService(
             var cards = state.DrawCardsForPlayer(player, state.PendingPenalty.CardCount);
             state.PendingPenalty = null;
             state.EndTurn();
-            return cards.All(c => c == null) ? Result.Fail(GameErrorCodes.NoCardsToDraw) : Result.Ok();
+            return cards.Count == 0 ? Result.Fail(GameErrorCodes.NoCardsToDraw) : Result.Ok(cards);
         }
 
         Card? card = state.DrawCardForPlayer(player);
@@ -250,7 +250,7 @@ public class GameService(
 
         await gameRepository.UpdateGame(gameId, SerializeState(state));
 
-        return Result.Ok(card);
+        return Result.Ok(new List<Card> {card});
     }
 
     public async Task<Result> TryEndTurn(int gameId, Player player)
