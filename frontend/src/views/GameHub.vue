@@ -198,8 +198,9 @@ const connectToGame = async () => {
         toElement: lastCardRef.value.$el,
         styleRef: styleRef,
       }).then(() => {
-        cthTransitioningCards.value.pop();
-        cthFlyCardStyles.value.pop();
+        const index = cthTransitioningCards.value.findIndex(cr => cr.value.id === card.id);
+        cthTransitioningCards.value.splice(index, 1);
+        cthFlyCardStyles.value.splice(index, 1);
       });
 
       await new Promise(resolve => setTimeout(resolve, 100));
