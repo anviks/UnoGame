@@ -49,8 +49,6 @@ export async function removeQueryParameter(
 }
 
 interface AnimateCardOptions {
-  card: Card;
-  cardRef: Ref<Card | null>;
   fromRect: DOMRect;
   toElement: HTMLElement;
   styleRef: Ref<Record<string, string>>;
@@ -59,8 +57,6 @@ interface AnimateCardOptions {
 
 export const animateCardMove = async (
   {
-    card,
-    cardRef,
     fromRect,
     toElement,
     styleRef,
@@ -69,7 +65,6 @@ export const animateCardMove = async (
 ): Promise<void> => {
   return new Promise(async (resolve, reject) => {
     toElement.style.visibility = 'hidden';
-    cardRef.value = card;
     await nextTick();
 
     const toRect = toElement.getBoundingClientRect();
@@ -103,7 +98,6 @@ export const animateCardMove = async (
       styleRef.value.visibility = 'hidden';
       await nextTick();
       toElement.style.removeProperty('visibility');
-      cardRef.value = null;
       styleRef.value = {};
       resolve();
     }, duration);

@@ -144,6 +144,37 @@ const endTurn = async () => {
   }
 };
 
+const animateDrawnCards = async (cards: Card[], sequential = false) => {
+  for (const card of cards) {
+    state.value!.drawPileSize--;
+
+    thisPlayer.value!.cards!.push(card);
+    await nextTick();
+
+    let cardRef = ref<Card>(card);
+    cthTransitioningCards.value.push(cardRef);
+
+    let styleRef = ref();
+    cthFlyCardStyles.value.push(styleRef);
+
+    const animation = animateCardMove({
+      fromRect: drawPileRef.value?.topCardRef.$el.getBoundingClientRect(),
+      toElement: lastCardRef.value.$el,
+      styleRef: styleRef,
+    }).then(() => {
+      const index = cthTransitioningCards.value.findIndex(cr => cr.value.id === card.id);
+      cthTransitioningCards.value.splice(index, 1);
+      cthFlyCardStyles.value.splice(index, 1);
+    });
+
+    if (sequential) {
+      await animation;
+    } else {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+  }
+};
+
 const connectToGame = async () => {
   connection.value = new HubConnectionBuilder()
     .withUrl(`${import.meta.env.VITE_BACKEND_URL}/gamehub?gameId=${props.gameId}`)
@@ -163,13 +194,13 @@ const connectToGame = async () => {
       const fromRect = cardRefs.value[playedCardIndex].$el.getBoundingClientRect();
       thisPlayer.value!.cards!.splice(playedCardIndex, 1);
       await nextTick();
+      ctdTransitioningCard.value = card;
       await animateCardMove({
-        card: card,
-        cardRef: ctdTransitioningCard,
         fromRect: fromRect,
         toElement: discardPileRef.value!.topCardRef!.$el,
         styleRef: ctdFlyCardStyle,
       });
+      ctdTransitioningCard.value = null;
     }
   });
 
@@ -179,32 +210,7 @@ const connectToGame = async () => {
   });
 
   connection.value.on('CardDrawnSelf', async (cards: Card[]) => {
-    for (const card of cards) {
-      state.value!.drawPileSize--;
-
-      thisPlayer.value!.cards!.push(card);
-      await nextTick();
-
-      let cardRef = ref();
-      cthTransitioningCards.value.push(cardRef);
-
-      let styleRef = ref();
-      cthFlyCardStyles.value.push(styleRef);
-
-      animateCardMove({
-        card: card,
-        cardRef: cardRef,
-        fromRect: drawPileRef.value?.topCardRef.$el.getBoundingClientRect(),
-        toElement: lastCardRef.value.$el,
-        styleRef: styleRef,
-      }).then(() => {
-        const index = cthTransitioningCards.value.findIndex(cr => cr.value.id === card.id);
-        cthTransitioningCards.value.splice(index, 1);
-        cthFlyCardStyles.value.splice(index, 1);
-      });
-
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
+    await animateDrawnCards(cards, true);
   });
 
   connection.value
