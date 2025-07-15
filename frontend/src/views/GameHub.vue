@@ -24,7 +24,7 @@
         v-for="(card, index) in thisPlayer?.cards"
         :color="card.color"
         :value="card.value"
-        :key="card.color + '-' + card.value"
+        :key="card.id"
         :ref="el => cardRefs[index] = el"
         @card-chosen="(chosenColor) => playCard(index, card, chosenColor)"
       ></card-choice>
@@ -67,6 +67,7 @@ import type { Card, GameState, Player } from '@/types.ts';
 import { useToast } from 'vue-toastification';
 import { errorMessages, type GameErrorCode, GameErrorCodes } from '@/constants.ts';
 import { animateCardMove } from '@/helpers.ts';
+import _ from 'lodash-es';
 
 const props = defineProps({
   gameId: {
@@ -149,7 +150,7 @@ const connectToGame = async () => {
     state.value!.currentValue = chosenColor === null ? card.value : null;
 
     if (player.name === thisPlayer.value?.name) {
-      const playedCardIndex = thisPlayer.value.cards!.findIndex(c => c.color === card.color && c.value === card.value);
+      const playedCardIndex = thisPlayer.value.cards!.findIndex(c => _.isEqual(c, card));
       const fromRect = cardRefs.value[playedCardIndex].$el.getBoundingClientRect();
       thisPlayer.value!.cards!.splice(playedCardIndex, 1);
       await nextTick();

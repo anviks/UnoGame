@@ -1,6 +1,7 @@
 import { type Moment } from 'moment';
 
 export interface Card {
+  id: number;
   color: number;
   value: number;
 }

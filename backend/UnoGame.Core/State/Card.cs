@@ -4,15 +4,19 @@ namespace UnoGame.Core.State;
 
 public class Card
 {
+    public int Id { get; init; }
     public CardColor Color { get; init; }
     public CardValue Value { get; init; }
 
-    public override bool Equals(object? obj)
-    {
-        return obj is Card card
-               && Color == card.Color
-               && Value == card.Value;
-    }
+    public override bool Equals(object? obj) =>
+        obj is Card card
+        && Id == card.Id
+        && Color == card.Color
+        && Value == card.Value;
+
+    public bool IsSimilar(Card other) =>
+        Color == other.Color
+        && Value == other.Value;
 
     public static bool operator ==(Card? a, Card? b)
     {
@@ -30,10 +34,7 @@ public class Card
         return !(a == b);
     }
 
-    public override int GetHashCode()
-    {
-        return HashCode.Combine((int)Color, (int)Value);
-    }
+    public override int GetHashCode() => Id.GetHashCode();
 
     public override string ToString()
     {

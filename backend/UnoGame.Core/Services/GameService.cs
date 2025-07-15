@@ -92,7 +92,9 @@ public class GameService(
             if (user != null) player.UserId = user.Id;
         }
 
-        var drawPile = CardHelpers.DefaultCards.Where(includedCards.Contains).ToList();
+        var drawPile = CardHelpers.DefaultCards
+            .Where(includedCards.ContainsSimilar)
+            .ToList();
 
         var state = new GameState
         {
