@@ -1,16 +1,18 @@
 <template>
   <div style="position: relative; height: 150px">
     <uno-card
-      v-for="(card, i) in reversedCards"
+      v-for="(card, i) in cards"
+      :key="card.id"
       :color="card.color"
       :value="card.value"
       :rotation-jitter="80"
       :horizontal-jitter="30"
       :vertical-jitter="30"
-      :chosen-color="i === reversedCards.length - 1 ? currentColor : null"
+      :chosen-color="i === 0 ? currentColor : null"
       class="position-absolute"
       shadowed
-      :ref="(el) => { if (i === reversedCards.length - 1) topCardRef = el }"
+      :style="{zIndex: cards.length - i}"
+      :ref="(el) => { if (i === 0) topCardRef = el }"
     ></uno-card>
   </div>
 </template>
@@ -19,7 +21,7 @@
   setup
   lang="ts"
 >
-import { computed, type PropType, ref } from 'vue';
+import { type PropType, ref } from 'vue';
 import type { Card } from '@/types.ts';
 import { UnoCard } from '@/components';
 
@@ -32,16 +34,6 @@ const props = defineProps({
     type: [Number, null],
     default: null,
   },
-});
-
-/*
- The random offsets and rotations are cached by the card's index.
- Since new cards get inserted to the index 0, if the array isn't reversed here,
- the new card inserted to index 0 takes the previous index-0 card's position and so on throughout the array.
- The new offset and rotation would be generated for the bottom card.
-*/
-const reversedCards = computed(() => {
-  return [...props.cards].reverse();
 });
 
 const topCardRef = ref();
