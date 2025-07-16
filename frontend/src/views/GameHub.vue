@@ -30,9 +30,11 @@
       ></card-choice>
     </transition-group>
 
-    <transition v-for="(transitioningCard, i) in cthTransitioningCards">
+    <transition
+      v-for="(transitioningCard, i) in cthTransitioningCards"
+      :key="transitioningCard.value.id"
+    >
       <uno-card
-        v-if="transitioningCard.value"
         class="flying-card"
         :color="transitioningCard.value.color"
         :value="transitioningCard.value.value"
@@ -41,13 +43,15 @@
       />
     </transition>
 
-    <transition>
+    <transition
+      v-for="(transitioningCard, i) in ctdTransitioningCards"
+      :key="transitioningCard.value.id"
+    >
       <uno-card
-        v-if="ctdTransitioningCard"
         class="flying-card"
-        :color="ctdTransitioningCard.color"
-        :value="ctdTransitioningCard.value"
-        :style="ctdFlyCardStyle"
+        :color="transitioningCard.value.color"
+        :value="transitioningCard.value.value"
+        :style="ctdFlyCardStyles[i].value"
         shadowed
       />
     </transition>
@@ -121,10 +125,10 @@ const drawPileRef = useTemplateRef('drawPileRef');
 const discardPileRef = useTemplateRef('discardPileRef');
 
 const cthTransitioningCards = ref<Ref<Card>[]>([]);
-const ctdTransitioningCard = ref<Card | null>(null);
+const ctdTransitioningCards = ref<Ref<Card>[]>([]);
 
 const cthFlyCardStyles = ref<Ref<Record<string, string>>[]>([]);
-const ctdFlyCardStyle = ref<Record<string, string>>({});
+const ctdFlyCardStyles = ref<Ref<Record<string, string>>[]>([]);
 
 const drawCard = async () => {
   const response = await connection.value!.invoke('DrawCard');
@@ -194,13 +198,22 @@ const connectToGame = async () => {
       const fromRect = cardRefs.value[playedCardIndex].$el.getBoundingClientRect();
       thisPlayer.value!.cards!.splice(playedCardIndex, 1);
       await nextTick();
-      ctdTransitioningCard.value = card;
+
+      let cardRef = ref<Card>(card);
+      ctdTransitioningCards.value.push(cardRef);
+
+      let styleRef = ref();
+      ctdFlyCardStyles.value.push(styleRef);
+
       await animateCardMove({
         fromRect: fromRect,
         toElement: discardPileRef.value!.topCardRef!.$el,
-        styleRef: ctdFlyCardStyle,
+        styleRef: styleRef,
       });
-      ctdTransitioningCard.value = null;
+
+      const index = ctdTransitioningCards.value.findIndex(cr => cr.value.id === card.id);
+      ctdTransitioningCards.value.splice(index, 1);
+      ctdFlyCardStyles.value.splice(index, 1);
     }
   });
 

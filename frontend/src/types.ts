@@ -1,7 +1,7 @@
 import { type Moment } from 'moment';
 
 export interface Card {
-  id: number;
+  id?: number;
   color: number;
   value: number;
 }
