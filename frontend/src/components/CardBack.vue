@@ -8,6 +8,7 @@
       height: `${size * 1.5}px`,
       borderRadius: `${size * 0.16}px`
     }"
+    draggable="false"
   />
 </template>
 

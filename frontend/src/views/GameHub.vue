@@ -5,7 +5,7 @@
       :cards="state.discardPile"
       :current-color="state.currentColor"
     />
-    <div class="d-flex ga-3">
+    <div class="d-flex ga-3" style="user-select: none">
       <draw-pile
         ref="drawPileRef"
         :amount="state.drawPileSize"
