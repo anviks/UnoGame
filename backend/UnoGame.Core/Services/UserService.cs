@@ -50,7 +50,7 @@ public class UserService(IMapper mapper, IHttpContextAccessor httpContextAccesso
     public async Task<User?> GetCurrentUser()
     {
         ClaimsPrincipal? user = httpContextAccessor.HttpContext?.User;
-        var id = user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var id = user?.FindFirst("UserId")?.Value;
 
         if (int.TryParse(id, out var userId))
         {
