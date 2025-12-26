@@ -127,7 +127,7 @@ import { UnoCard, GameFormPlayerRow } from '@/components';
 import { useAuthStore } from '@/stores/authStore.ts';
 import { GameApi, UserApi } from '@/api';
 import { useToast } from 'vue-toastification';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const rules = {
   gameName: [
@@ -143,6 +143,7 @@ const getDefaultPlayer = (): PlayerField => ({
 const form = ref();
 const toast = useToast();
 const router = useRouter();
+const route = useRoute();
 
 const game = ref<GameForm>({
   gameName: '',
@@ -229,15 +230,11 @@ const authStore = useAuthStore();
 
 onMounted(async () => {
   users.value = await UserApi.getAllUsers();
+
   if (!authStore.username) {
-    // authStore.isRegisterDialogOpen = true;
+    await router.push({ name: 'register', query: { return: route.path } })
   }
 });
-
-onUnmounted(() => {
-  // authStore.isRegisterDialogOpen = false;
-});
-
 </script>
 
 <style

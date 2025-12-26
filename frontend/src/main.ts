@@ -3,6 +3,7 @@
 import 'font-awesome/css/font-awesome.min.css';
 import '@mdi/font/css/materialdesignicons.css';
 import 'vuetify/styles';
+import 'tailwindcss';
 
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';

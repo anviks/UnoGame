@@ -2,6 +2,7 @@
 import Vue from '@vitejs/plugin-vue';
 import VueDevTools from 'vite-plugin-vue-devtools';
 import SvgLoader from 'vite-svg-loader';
+import tailwindcss from '@tailwindcss/vite';
 
 // Utilities
 import { defineConfig } from 'vite';
@@ -14,6 +15,7 @@ export default defineConfig({
     Vue(),
     VueDevTools(),
     SvgLoader(),
+    tailwindcss(),
   ],
   optimizeDeps: {
     exclude: [
