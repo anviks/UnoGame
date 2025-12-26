@@ -37,7 +37,7 @@ public class GamesController(GameService gameService, UserService userService) :
 
         if (result.IsFailed)
         {
-            return BadRequest(result.Errors);
+            return BadRequest(result.Errors.First());
         }
 
         return Created();

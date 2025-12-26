@@ -47,7 +47,7 @@ export interface Player {
 }
 
 export interface PlayerField {
-  name: string;
+  username: string;
   type: number;
 }
 
@@ -61,4 +61,10 @@ export interface User {
   id: number;
   username: string;
   createdAt?: Moment;
+}
+
+export interface ApiError {
+  message: string;
+  reasons: string[];
+  metadata: Record<string, any>;
 }

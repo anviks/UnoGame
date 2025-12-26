@@ -1,3 +1,4 @@
+import type { ApiError } from '@/types';
 import axios, { AxiosError, type AxiosRequestConfig } from 'axios';
 import { useToast } from 'vue-toastification';
 
@@ -15,7 +16,7 @@ export type ApiResponse<T> =
     }
   | {
       data: null;
-      error: AxiosError;
+      error: AxiosError<ApiError>;
       success: false;
     };
 
@@ -55,10 +56,12 @@ export async function apiRequest<T>(
       success: true,
     };
   } catch (err) {
-    const error = err as AxiosError;
+    const error = err as AxiosError<ApiError>;
 
     if (showErrorToast) {
-      const baseMessage = error.message;
+      console.log(error.response?.data);
+      
+      const baseMessage = error.response?.data?.message ?? error.message;
 
       toast.error(
         errorMessage

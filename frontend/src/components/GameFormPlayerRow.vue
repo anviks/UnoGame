@@ -1,13 +1,13 @@
 <template>
   <div class="d-flex ga-4 align-center pb-3">
     <v-combobox
-      :modelValue="player.name"
+      :modelValue="player"
       @update:modelValue="updatePlayer"
       :label="'Player ' + (index + 1)"
       style="flex-basis: 60%"
       :items="users"
       item-value="id"
-      item-title="name"
+      item-title="username"
       hide-details
       return-object
     />
@@ -65,11 +65,11 @@ const userExists = ref(false);
 const updatePlayer = (newValue: string | PlayerField) => {
   if (newValue == null || typeof newValue === 'string') {
     userExists.value = false;
-    props.player.name = newValue;
+    props.player.username = newValue;
     props.player.type = playerType.COMPUTER;
   } else {
     userExists.value = true;
-    props.player.name = newValue.name;
+    props.player.username = newValue.username;
     props.player.type = playerType.HUMAN;
   }
 };

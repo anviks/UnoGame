@@ -135,7 +135,7 @@ const rules = {
 };
 
 const getDefaultPlayer = (): PlayerField => ({
-  name: '',
+  username: '',
   type: playerType.COMPUTER,
 });
 
@@ -227,7 +227,7 @@ const createGame = async () => {
     url: '/games',
     method: 'POST',
     data: game.value,
-    errorMessage: 'Error creating game.',
+    errorMessage: 'Error creating game: {error}',
     successMessage: 'Game created!',
   });
 

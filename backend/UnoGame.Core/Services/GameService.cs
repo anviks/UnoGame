@@ -73,7 +73,7 @@ public class GameService(
             result.WithError("Player count must be between 2 and 10.");
         }
 
-        if (createPlayers.DistinctBy(p => p.Name).ToList().Count < createPlayers.Count)
+        if (createPlayers.DistinctBy(p => p.Username).ToList().Count < createPlayers.Count)
         {
             result.WithError("Player names must be unique.");
         }
@@ -84,11 +84,11 @@ public class GameService(
 
         foreach (CreateGamePlayer createPlayer in createPlayers)
         {
-            var player = new Player { Name = createPlayer.Name, Cards = [] };
+            var player = new Player { Name = createPlayer.Username, Cards = [] };
             players.Add(player);
 
             if (createPlayer.Type != PlayerType.Human) continue;
-            User? user = await userRepository.GetUserByName(createPlayer.Name);
+            User? user = await userRepository.GetUserByName(createPlayer.Username);
             if (user != null) player.UserId = user.Id;
         }
 
