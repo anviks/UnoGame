@@ -240,6 +240,8 @@ const users = ref<User[]>([]);
 const authStore = useAuthStore();
 
 onMounted(async () => {
+  await authStore.initialize();
+
   if (!authStore.username) {
     await router.push({ name: 'register', query: { return: route.path } });
   }

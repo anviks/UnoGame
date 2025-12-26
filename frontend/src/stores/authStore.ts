@@ -7,17 +7,29 @@ export const useAuthStore = defineStore('auth', () => {
   const userId = ref<number>();
   const username = ref<string>();
   const fetcher = useApiRequest();
+  let initPromise: Promise<void> | null = null;
 
-  fetcher<User>({
-    method: 'GET',
-    url: '/auth/whoami',
-    showErrorToast: false,
-  }).then(({ data }) => {
-    if (data) {
-      userId.value = data.id;
-      username.value = data.username;
+  const initialize = async (): Promise<void> => {
+    if (initPromise) {
+      return initPromise;
     }
-  });
 
-  return { userId, username };
+    initPromise = fetcher<User>({
+      method: 'GET',
+      url: '/auth/whoami',
+      showErrorToast: false,
+    }).then(({ data }) => {
+      if (data) {
+        userId.value = data.id;
+        username.value = data.username;
+      }
+    });
+
+    return initPromise;
+  };
+
+  // Initialize immediately when store is created
+  initialize();
+
+  return { userId, username, initialize };
 });
