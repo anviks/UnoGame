@@ -1,7 +1,5 @@
 <template>
-  <v-container
-    max-width="800px"
-  >
+  <v-container max-width="800px">
     <v-row>
       <v-col cols="12">
         <h1>Create a new game</h1>
@@ -55,52 +53,52 @@
         <div>
           <table class="bordered-table">
             <tbody>
-            <tr>
-              <td></td>
-              <td
-                v-for="i in 13"
+              <tr>
+                <td></td>
+                <td
+                  v-for="i in 13"
+                  :key="i"
+                >
+                  <v-checkbox
+                    :indeterminate="getCheckboxValue(null, i - 1) === null"
+                    :model-value="getCheckboxValue(null, i - 1)"
+                    @update:model-value="setCheckboxValue(null, i - 1, $event!)"
+                    hide-details
+                    style="justify-items: center"
+                  />
+                </td>
+              </tr>
+
+              <tr
+                v-for="(color, i) in getAllColors(true)"
                 :key="i"
               >
-                <v-checkbox
-                  :indeterminate="getCheckboxValue(null, i - 1) === null"
-                  :model-value="getCheckboxValue(null, i - 1)"
-                  @update:model-value="setCheckboxValue(null, i - 1, $event!)"
-                  hide-details
-                  style="justify-items: center"
-                />
-              </td>
-            </tr>
+                <template
+                  v-for="(value, j) in getAllValues(true)"
+                  :key="j"
+                >
+                  <td v-if="j === 0">
+                    <v-checkbox
+                      :indeterminate="getCheckboxValue(i, null) === null"
+                      :model-value="getCheckboxValue(i, null)"
+                      @update:model-value="setCheckboxValue(i, null, $event!)"
+                      hide-details
+                    />
+                  </td>
 
-            <tr
-              v-for="(color, i) in getAllColors(true)"
-              :key="i"
-            >
-              <template
-                v-for="(value, j) in getAllValues(true)"
-                :key="j"
-              >
-                <td v-if="j === 0">
-                  <v-checkbox
-                    :indeterminate="getCheckboxValue(i, null) === null"
-                    :model-value="getCheckboxValue(i, null)"
-                    @update:model-value="setCheckboxValue(i, null, $event!)"
-                    hide-details
-                  />
-                </td>
-
-                <td>
-                  <uno-card
-                    v-if="enabledCards[i] && enabledCards[i][j] != null"
-                    :value="value"
-                    :color="color"
-                    :disabled="!enabledCards[i][j]"
-                    @click="enabledCards[i][j] = !enabledCards[i][j]"
-                    :size="50"
-                    style="vertical-align: middle"
-                  />
-                </td>
-              </template>
-            </tr>
+                  <td>
+                    <uno-card
+                      v-if="enabledCards[i] && enabledCards[i][j] != null"
+                      :value="value"
+                      :color="color"
+                      :disabled="!enabledCards[i][j]"
+                      @click="enabledCards[i][j] = !enabledCards[i][j]"
+                      :size="50"
+                      style="vertical-align: middle"
+                    />
+                  </td>
+                </template>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -115,24 +113,25 @@
   </v-container>
 </template>
 
-<script
-  setup
-  lang="ts"
->
+<script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue';
-import { type Card, type GameForm, type PlayerField, type User } from '@/types.ts';
+import {
+  type Card,
+  type GameForm,
+  type PlayerField,
+  type User,
+} from '@/types.ts';
 import { cardColor, cardValue, playerType } from '@/constants.ts';
-import { getAllColors, getAllValues } from '@/helpers.ts';
+import { getAllColors, getAllValues } from '@/helpers/cards';
 import { UnoCard, GameFormPlayerRow } from '@/components';
 import { useAuthStore } from '@/stores/authStore.ts';
-import { GameApi, UserApi } from '@/api';
+import { useApiRequest } from '@/composables/useApiRequest';
+import type { Game, GameDto } from '@/types.ts';
 import { useToast } from 'vue-toastification';
 import { useRoute, useRouter } from 'vue-router';
 
 const rules = {
-  gameName: [
-    (value: string) => !!value || 'Game name is required',
-  ],
+  gameName: [(value: string) => !!value || 'Game name is required'],
 };
 
 const getDefaultPlayer = (): PlayerField => ({
@@ -144,17 +143,19 @@ const form = ref();
 const toast = useToast();
 const router = useRouter();
 const route = useRoute();
+const fetcher = useApiRequest();
 
 const game = ref<GameForm>({
   gameName: '',
-  players: [
-    getDefaultPlayer(),
-    getDefaultPlayer(),
-  ],
+  players: [getDefaultPlayer(), getDefaultPlayer()],
   includedCards: undefined,
 });
 
-const enabledCards = ref<boolean[][]>(Array(4).fill(null).map(() => Array(13).fill(true)));
+const enabledCards = ref<boolean[][]>(
+  Array(4)
+    .fill(null)
+    .map(() => Array(13).fill(true))
+);
 
 const getCheckboxValue = (row: number | null, column: number | null) => {
   if (row != null) {
@@ -176,7 +177,11 @@ const getCheckboxValue = (row: number | null, column: number | null) => {
   }
 };
 
-const setCheckboxValue = (row: number | null, column: number | null, value: boolean) => {
+const setCheckboxValue = (
+  row: number | null,
+  column: number | null,
+  value: boolean
+) => {
   if (row != null) {
     for (let j = 0; j < 13; j++) {
       enabledCards.value[row][j] = value;
@@ -218,29 +223,40 @@ const createGame = async () => {
 
   game.value.includedCards = includedCards;
 
-  const result = await GameApi.createGame(game.value);
+  const { success, data } = await fetcher<GameDto>({
+    url: '/games',
+    method: 'POST',
+    data: game.value,
+    errorMessage: 'Error creating game.',
+    successMessage: 'Game created!',
+  });
 
-  toast.success('Game created!');
+  if (!success) return;
 
-  await router.push({ name: 'home', state: { highlightId: result.id } });
+  await router.push({ name: 'home', state: { highlightId: data.id } });
 };
 
 const users = ref<User[]>([]);
 const authStore = useAuthStore();
 
 onMounted(async () => {
-  users.value = await UserApi.getAllUsers();
-
   if (!authStore.username) {
-    await router.push({ name: 'register', query: { return: route.path } })
+    await router.push({ name: 'register', query: { return: route.path } });
   }
+
+  const { success, data } = await fetcher<User[]>({
+    url: '/users',
+    method: 'GET',
+    errorMessage: 'Error fetching users.',
+  });
+
+  if (!success) return;
+
+  users.value = data;
 });
 </script>
 
-<style
-  lang="scss"
-  scoped
->
+<style lang="scss" scoped>
 .remove-player-button {
   opacity: 0.5;
 

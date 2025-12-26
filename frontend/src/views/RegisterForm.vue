@@ -68,21 +68,19 @@
   </v-container>
 </template>
 
-<script
-  setup
-  lang="ts"
->
+<script setup lang="ts">
 import { useAuthStore } from '@/stores/authStore.ts';
 import { computed, reactive, ref, watch } from 'vue';
 import { debounce } from 'lodash-es';
-import { AuthApi } from '@/api';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
+import { useApiRequest } from '@/composables/useApiRequest';
 
 const toast = useToast();
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
+const fetcher = useApiRequest();
 
 const formValues = reactive({
   username: '',
@@ -104,7 +102,14 @@ const checkUsername = debounce(async (name: string) => {
   }
 
   checking.value = true;
-  isAvailable.value = await AuthApi.isUsernameAvailable(name);
+
+  const { data } = await fetcher<boolean>({
+    url: '/auth/is-username-available',
+    params: { username: name },
+    errorMessage: 'Error fetching user info.',
+  });
+
+  isAvailable.value = data;
   checking.value = false;
 }, 500);
 
@@ -112,10 +117,20 @@ const register = async () => {
   const validationResult = await form.value?.validate();
   if (!validationResult.valid) return;
 
-  await AuthApi.register(formValues.username, formValues.password);
-  authStore.username = formValues.username;
+  const { success } = await fetcher<boolean>({
+    url: '/auth/register',
+    method: 'POST',
+    data: {
+      username: formValues.username,
+      password: formValues.password,
+    },
+    errorMessage: 'Error while registering.',
+    successMessage: 'Registration successful.',
+  });
 
-  toast.success('Registration successful.');
+  if (!success) return;
+
+  authStore.username = formValues.username;
   await router.push({ name: 'home' });
 };
 
@@ -124,7 +139,7 @@ watch(
   (newVal) => {
     isAvailable.value = null;
     checkUsername(newVal);
-  },
+  }
 );
 </script>
 

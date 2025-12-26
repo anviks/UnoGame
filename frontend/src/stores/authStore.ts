@@ -1,19 +1,19 @@
-import { ref } from 'vue';
+import { useApiRequest } from '@/composables/useApiRequest';
+import type { User } from '@/types';
 import { defineStore } from 'pinia';
-import { AuthApi } from '@/api';
+import { ref } from 'vue';
 
 export const useAuthStore = defineStore('auth', () => {
   const userId = ref<number>();
   const username = ref<string>();
+  const fetcher = useApiRequest();
 
-  AuthApi.whoAmI().then((user) => {
-    if (user) {
-      userId.value = user.id;
-      username.value = user.name;
+  fetcher<User>({ method: 'GET', url: '/auth/whoami' }).then(({ data }) => {
+    if (data) {
+      userId.value = data.id;
+      username.value = data.name;
     }
   });
 
   return { userId, username };
 });
-
-

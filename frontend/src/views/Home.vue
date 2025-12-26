@@ -47,12 +47,14 @@
 >
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import type { Game } from '@/types.ts';
-import { GameApi } from '@/api';
+import type { Game, GameDto } from '@/types.ts';
+import { useApiRequest } from '@/composables/useApiRequest';
+import { gameDtoToGame } from '@/helpers/mappers';
 import { useAuthStore } from '@/stores/authStore.ts';
 
 const authStore = useAuthStore();
 const router = useRouter();
+const apiRequest = useApiRequest();
 const items = ref<Game[]>([]);
 const page = ref(1);
 const itemsPerPage = 10;
@@ -82,7 +84,15 @@ const getRowClass = (game: Game) => {
 };
 
 onMounted(async () => {
-  items.value = await GameApi.getAllGames();
+  const { success, data } = await apiRequest<GameDto[]>({
+    url: '/games',
+    method: 'GET',
+    errorMessage: 'Error fetching games.',
+  });
+
+  if (success) {
+    items.value = data.map(gameDtoToGame);
+  }
 
   const { highlightId, ...others } = window.history.state;
   if (highlightId) {

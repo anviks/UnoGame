@@ -14,6 +14,11 @@ export interface Game {
   playerNames: string[];
 }
 
+export type GameDto = Omit<Game, 'createdAt' | 'updatedAt'> & {
+  createdAt: string;
+  updatedAt: string;
+};
+
 export interface GameState {
   currentColor: number;
   currentValue: number | null;
