@@ -11,7 +11,7 @@ export const useAuthStore = defineStore('auth', () => {
   fetcher<User>({ method: 'GET', url: '/auth/whoami' }).then(({ data }) => {
     if (data) {
       userId.value = data.id;
-      username.value = data.name;
+      username.value = data.username;
     }
   });
 

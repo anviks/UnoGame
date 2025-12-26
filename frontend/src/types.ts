@@ -59,8 +59,6 @@ export interface GameForm {
 
 export interface User {
   id: number;
-  name: string;
-  email?: string;
+  username: string;
   createdAt?: Moment;
-  token?: string;
 }
