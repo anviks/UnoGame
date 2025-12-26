@@ -8,7 +8,11 @@ export const useAuthStore = defineStore('auth', () => {
   const username = ref<string>();
   const fetcher = useApiRequest();
 
-  fetcher<User>({ method: 'GET', url: '/auth/whoami' }).then(({ data }) => {
+  fetcher<User>({
+    method: 'GET',
+    url: '/auth/whoami',
+    showErrorToast: false,
+  }).then(({ data }) => {
     if (data) {
       userId.value = data.id;
       username.value = data.username;
