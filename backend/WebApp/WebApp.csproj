@@ -144,9 +144,6 @@
 
     <ItemGroup>
       <None Remove="Templates\MagicLinkEmail.html" />
-      <Content Include="Templates\MagicLinkEmail.html">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
     </ItemGroup>
 
 </Project>

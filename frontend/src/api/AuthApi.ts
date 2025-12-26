@@ -5,10 +5,10 @@ export default class AuthApi {
     return ApiClient.post('/auth/request-magic-link', { email });
   }
 
-  static async register(username: string, token: string) {
+  static async register(username: string, password: string) {
     return ApiClient.post('/auth/register', {
       username,
-      token,
+      password,
     }, {
       errorMessage: 'Error while registering.',
     });

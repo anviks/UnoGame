@@ -9,24 +9,26 @@ namespace UnoGame.Core.Services;
 
 public class UserService(IMapper mapper, IHttpContextAccessor httpContextAccessor, IUserRepository userRepository)
 {
-    public async Task CreateUser(User user)
+    public async Task<User> CreateUser(string username, string password)
     {
-        await userRepository.CreateUser(user);
+        var user = new User
+        {
+            Username = username,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(password)
+        };
+        return await userRepository.CreateUser(user);
+    }
+
+    public async Task<bool> VerifyLogin(string username, string password)
+    {
+        User? user = await userRepository.GetUserByName(username);
+
+        return user != null && BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
     }
 
     public async Task<User?> GetUserById(int id)
     {
         return await userRepository.GetUserById(id);
-    }
-
-    public async Task<User?> GetUserByTokenAsync(Guid token)
-    {
-        return await userRepository.GetUserByToken(token);
-    }
-
-    public async Task<User?> GetUserByEmail(string email)
-    {
-        return await userRepository.GetUserByEmail(email);
     }
 
     public async Task<User?> GetUserByName(string name)

@@ -7,5 +7,4 @@ public class UnoDbContext(DbContextOptions<UnoDbContext> options) : DbContext(op
 {
     public DbSet<Game> Games { get; set; } = default!;
     public DbSet<User> Users { get; set; } = default!;
-    public DbSet<MagicToken> MagicTokens { get; set; } = default!;
 }

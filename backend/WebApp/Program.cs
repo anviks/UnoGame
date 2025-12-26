@@ -3,11 +3,10 @@ using DAL.Context;
 using DAL.Repositories;
 using UnoGame.Core.Config;
 using UnoGame.Core.Services;
-using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using UnoGame.Core.Interfaces;
 using UnoGame.Core.Mapping;
-using WebApp.Handlers;
 using WebApp.Hubs;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -45,7 +44,6 @@ builder.Services.AddScoped<UserService, UserService>();
 builder.Services.AddSingleton<IGameStore, InMemoryGameStore>();
 
 builder.Services.Configure<UserLimitsConfig>(builder.Configuration.GetSection("UserLimits"));
-builder.Services.Configure<EmailConfig>(builder.Configuration.GetSection("Email"));
 
 builder.Services.AddSession(options =>
 {
@@ -73,8 +71,13 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddSignalR();
 
-builder.Services.AddAuthentication("UnoToken")
-    .AddScheme<AuthenticationSchemeOptions, UnoTokenAuthenticationHandler>("UnoToken", null);
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/login";
+        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+        options.Cookie.HttpOnly = true;
+    });
 
 builder.Services.AddAuthorization();
 

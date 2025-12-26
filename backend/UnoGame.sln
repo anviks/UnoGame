@@ -1,7 +1,5 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp", "ConsoleApp\ConsoleApp.csproj", "{ECFD980A-A305-4E29-A7C1-B405C07FFB36}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C2C496F3-9E66-436D-A15B-2347ED961FBA}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
@@ -19,8 +17,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAL", "DAL\DAL.csproj", "{76910D4A-AA1E-47C4-A3CC-F807B13DC2C0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers", "Helpers\Helpers.csproj", "{45F234BE-DF6F-40A8-8B4C-C5F72CA7CEAF}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp0", "WebApp0\WebApp0.csproj", "{8F4FA70B-5944-420D-988C-47F7E0E6F4B8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnoGame.Core", "UnoGame.Core\UnoGame.Core.csproj", "{9B0378D2-3E76-4F8E-9F48-763924B68B71}"
 EndProject

@@ -65,7 +65,7 @@ public class GameHub(
         Connections[Context.ConnectionId] = (gameId, player);
 
         await Groups.AddToGroupAsync(Context.ConnectionId, gameIdString);
-        await Clients.Group(gameIdString).SendAsync("PlayerJoined", user.Name);
+        await Clients.Group(gameIdString).SendAsync("PlayerJoined", user.Username);
 
         await base.OnConnectedAsync();
     }

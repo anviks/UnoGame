@@ -1,29 +1,23 @@
 <template>
-  <v-container
-    max-width="50%"
-  >
+  <v-container max-width="50%">
     <v-form
       ref="form"
       @submit.prevent
     >
       <v-card :title="!token ? 'Register' : 'Please choose a name to continue'">
-        <v-card-text>
-          <v-text-field
-            v-model="email"
-            label="Email"
-            autofocus
-            :rules="[(value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || 'Invalid email']"
-            :disabled="!!token"
-          ></v-text-field>
-
-          <template v-if="token">
+        <v-card-text class="mt-3">
+          <div class="flex flex-col gap-2">
             <v-text-field
-              v-model="username"
+              v-model="formValues.username"
               label="Username"
               :error="isAvailable === false"
-              :rules="[(value) => value.length > 2 || 'Username must have at least 3 characters', () => isAvailable !== false || 'Username is already taken']"
-              outlined
-              dense
+              :rules="[
+                (value) =>
+                  value.length > 2 ||
+                  'Username must have at least 3 characters',
+                () => isAvailable !== false || 'Username is already taken',
+              ]"
+              variant="outlined"
               autofocus
             >
               <template #append-inner>
@@ -49,31 +43,24 @@
               </template>
             </v-text-field>
 
-<!--            <small-->
-<!--              :style="isAvailable === null ? 'visibility: hidden' : ''"-->
-<!--              :class="{-->
-<!--              'text-green': isAvailable,-->
-<!--              'text-red': !isAvailable,-->
-<!--            }"-->
-<!--            >-->
-<!--              {{ isAvailable ? '✔ Available' : '✘ Taken' }}-->
-<!--            </small>-->
-          </template>
+            <v-text-field
+              v-model="formValues.password"
+              label="Password"
+              variant="outlined"
+              type="password"
+            />
+
+            <v-text-field
+              v-model="formValues.passwordConfirmation"
+              label="Confirm password"
+              variant="outlined"
+              type="password"
+              @keydown.enter="register"
+            />
+          </div>
 
           <v-card-actions class="d-flex justify-end">
-            <v-btn
-              v-if="token"
-              @click="register"
-            >
-              Register
-            </v-btn>
-            <v-btn
-              v-else
-              :loading="sendingMagicLink"
-              @click="sendMagicLink"
-            >
-              Send registration link
-            </v-btn>
+            <v-btn @click="register">Register</v-btn>
           </v-card-actions>
         </v-card-text>
       </v-card>
@@ -86,22 +73,25 @@
   lang="ts"
 >
 import { useAuthStore } from '@/stores/authStore.ts';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { debounce } from 'lodash-es';
 import { AuthApi } from '@/api';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
-import { removeQueryParameter } from '@/helpers.ts';
 
 const toast = useToast();
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
-const email = ref('');
-const username = ref('');
+
+const formValues = reactive({
+  username: '',
+  password: '',
+  passwordConfirmation: '',
+});
+
 const isAvailable = ref<boolean | null>(null);
 const checking = ref(false);
-const magicToken = ref();
 const form = ref();
 
 const token = computed(() => route.query.token?.toString());
@@ -114,55 +104,28 @@ const checkUsername = debounce(async (name: string) => {
   }
 
   checking.value = true;
-
   isAvailable.value = await AuthApi.isUsernameAvailable(name);
-
   checking.value = false;
 }, 500);
-
-const sendingMagicLink = ref(false);
-
-const sendMagicLink = async () => {
-  const validationResult = await form.value?.validate();
-  if (!validationResult.valid) return;
-
-  sendingMagicLink.value = true;
-  await AuthApi.sendMagicLink(email.value);
-  sendingMagicLink.value = false;
-  toast.success('Registration link sent.');
-};
 
 const register = async () => {
   const validationResult = await form.value?.validate();
   if (!validationResult.valid) return;
 
-  await AuthApi.register(username.value, magicToken.value.token);
-  authStore.username = username.value;
+  await AuthApi.register(formValues.username, formValues.password);
+  authStore.username = formValues.username;
 
   toast.success('Registration successful.');
   await router.push({ name: 'home' });
 };
 
-watch(username, (newVal) => {
-  isAvailable.value = null;
-  checkUsername(newVal);
-});
-
-onMounted(async () => {
-  if (token.value != null) {
-    try {
-      magicToken.value = await AuthApi.getMagicToken(token.value);
-      email.value = magicToken.value.email;
-    } catch (e) {
-      // const query = Object.assign({}, route.query);
-      // delete query.token;
-      // await router.replace({ query });
-      await removeQueryParameter(route, router, 'token');
-    }
-  }
-});
+watch(
+  () => formValues.username,
+  (newVal) => {
+    isAvailable.value = null;
+    checkUsername(newVal);
+  },
+);
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

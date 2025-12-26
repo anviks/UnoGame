@@ -7,10 +7,11 @@ namespace DAL.Repositories;
 
 public class UserRepository(UnoDbContext db) : IUserRepository
 {
-    public async Task CreateUser(User user)
+    public async Task<User> CreateUser(User user)
     {
-        await db.Users.AddAsync(user);
+        var result = await db.Users.AddAsync(user);
         await db.SaveChangesAsync();
+        return result.Entity;
     }
 
     public async Task<User?> GetUserById(int id)
@@ -18,19 +19,9 @@ public class UserRepository(UnoDbContext db) : IUserRepository
         return await db.Users.FirstOrDefaultAsync(u => u.Id == id);
     }
 
-    public async Task<User?> GetUserByToken(Guid token)
-    {
-        return await db.Users.FirstOrDefaultAsync(u => u.Token == token);
-    }
-
-    public async Task<User?> GetUserByEmail(string email)
-    {
-        return await db.Users.FirstOrDefaultAsync(u => u.Email == email);
-    }
-
     public async Task<User?> GetUserByName(string name)
     {
-        return await db.Users.FirstOrDefaultAsync(u => u.Name == name);
+        return await db.Users.FirstOrDefaultAsync(u => u.Username == name);
     }
 
     public async Task<List<User>> GetAllUsers()

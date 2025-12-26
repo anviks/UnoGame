@@ -1,4 +1,7 @@
+using System.Security.Claims;
 using DAL.Context;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,84 +15,62 @@ namespace WebApp.ApiControllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(UnoDbContext db, UserService userService, IOptions<EmailConfig> emailOptions, IOptions<UserLimitsConfig> limitOptions, IWebHostEnvironment env)
+public class AuthController(UnoDbContext db, UserService userService, IOptions<UserLimitsConfig> limitOptions, IWebHostEnvironment env)
     : ControllerBase
 {
     private readonly UserLimitsConfig _limitsConfig = limitOptions.Value;
-    private readonly EmailService _emailService = new(emailOptions.Value, Path.Combine(env.ContentRootPath, "Templates", "MagicLinkEmail.html"));
-
-    [HttpPost("request-magic-link")]
-    public async Task<IActionResult> RequestMagicLink([FromBody] MagicLinkRequest dto)
-    {
-        if (await userService.CountUsersRegisteredToday() >= _limitsConfig.MaxUsersPerDay)
-            return StatusCode(503, "User registration limit reached for today.");
-
-        if (await userService.GetUserByEmail(dto.Email) != null)
-            return BadRequest("Email already registered.");
-
-        // TODO: Invalidate other tokens for the same email
-
-        var token = new MagicToken { Email = dto.Email };
-        db.MagicTokens.Add(token);
-        await db.SaveChangesAsync();
-
-        var origin = Request.Headers.Origin.First();
-        var link = $"{origin}/register?token={token.Token}";
-        await _emailService.SendAsync(dto.Email, "Sign up for UNO Online", link);
-
-        return Ok(new { message = "Magic link sent!" });
-    }
-
-    [HttpGet("magic-token/{id:guid}")]
-    public async Task<IActionResult> GetMagicToken(Guid id)
-    {
-        MagicToken? magicToken = await db.MagicTokens.FindAsync(id);
-        if (magicToken == null) return NotFound("Magic token not found");
-        if (magicToken.Expiry < DateTime.UtcNow) return BadRequest("Magic token expired");
-        if (magicToken.Used) return BadRequest("Magic token already used");
-        return Ok(magicToken);
-    }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+    public async Task<IActionResult> Register([FromBody] AuthRequest request)
     {
-        MagicToken? magic = await db.MagicTokens.FirstOrDefaultAsync(t => t.Token == request.Token && !t.Used);
-        if (magic == null || magic.Expiry < DateTime.UtcNow)
-            return Unauthorized();
-
         if (await userService.GetUserByName(request.Username) != null)
             return BadRequest("Username already taken");
 
-        if (await userService.GetUserByEmail(magic.Email) != null)
-            return BadRequest("Email already registered");
-
         if (await userService.CountUsersRegisteredToday() >= _limitsConfig.MaxUsersPerDay)
             return StatusCode(503, "User registration limit reached for today.");
 
-        magic.Used = true;
+        User user = await userService.CreateUser(request.Username, request.Password);
 
-        var user = new User
+        var claims = new List<Claim>
         {
-            Email = magic.Email,
-            Name = request.Username,
+            new(ClaimTypes.Name, user.Username),
+            new("UserId", user.Id.ToString())
         };
-        db.Users.Add(user);
 
-        await db.SaveChangesAsync();
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
 
-        Response.Cookies.Append("uno_token", user.Token.ToString(), new CookieOptions
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            principal
+        );
+
+        return Ok();
+    }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] AuthRequest request)
+    {
+        if (!await userService.VerifyLogin(request.Username, request.Password))
+            return Unauthorized("Invalid username or password");
+
+        User? user = await userService.GetUserByName(request.Username);
+
+        var claims = new List<Claim>
         {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.None,
-            Expires = DateTime.UtcNow.AddYears(1),
-        });
+            new(ClaimTypes.Name, user!.Username),
+            new("UserId", user.Id.ToString())
+        };
 
-        return Ok(new
-        {
-            token = user.Token,
-            name = user.Name
-        });
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
+
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            principal
+        );
+
+        return Ok();
     }
 
     [HttpGet("is-username-available")]
@@ -112,8 +93,7 @@ public class AuthController(UnoDbContext db, UserService userService, IOptions<E
         return Ok(new
         {
             user.Id,
-            user.Name,
-            user.Email
+            user.Username,
         });
     }
 }
