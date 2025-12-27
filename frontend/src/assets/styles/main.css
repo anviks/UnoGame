@@ -1,1 +1,11 @@
 @import "tailwindcss";
+
+.cursor-moving-left,
+.cursor-moving-left * {
+    cursor: url(../icons/faaa_angle_left.png) 16 16, auto !important;
+}
+
+.cursor-moving-right,
+.cursor-moving-right * {
+    cursor: url(../icons/faaa_angle_right.png) 16 16, auto !important;
+}

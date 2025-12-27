@@ -289,50 +289,57 @@ const lastCardRef = computed(
 
 const handScrollRef = ref<HTMLElement | null>(null);
 
-let isDragging = false;
-let startX = 0;
-let scrollLeft = 0;
+let autoScrollInterval: number | null = null;
+const EDGE_ZONE_WIDTH = 120; // Width of the edge zone in pixels
+const SCROLL_SPEED = 10; // Pixels per frame
 
 watch(handScrollRef, (value) => {
   if (value == null) return;
 
   const el = handScrollRef.value;
 
-  el?.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    startX = e.pageX - el.offsetLeft;
-    scrollLeft = el.scrollLeft;
-  });
+  const stopAutoScroll = () => {
+    if (autoScrollInterval !== null) {
+      clearInterval(autoScrollInterval);
+      autoScrollInterval = null;
+    }
+    if (el) {
+      el.classList.remove('cursor-moving-left');
+      el.classList.remove('cursor-moving-right');
+    }
+  };
 
-  el?.addEventListener('mouseleave', () => {
-    isDragging = false;
-  });
-
-  el?.addEventListener('mouseup', () => {
-    isDragging = false;
-  });
+  const startAutoScroll = (direction: 'left' | 'right') => {
+    if (!el) return;
+    stopAutoScroll();
+    el.classList.add(`cursor-moving-${direction}`);
+    
+    autoScrollInterval = window.setInterval(() => {
+      if (!el) return;
+      if (direction === 'left') {
+        el.scrollLeft -= SCROLL_SPEED;
+      } else {
+        el.scrollLeft += SCROLL_SPEED;
+      }
+    }, 16); // ~60fps
+  };
 
   el?.addEventListener('mousemove', (e) => {
-    if (!isDragging) return;
-    e.preventDefault();
-    const x = e.pageX - el.offsetLeft;
-    const walk = (x - startX) * 1.5; // Scroll speed
-    el.scrollLeft = scrollLeft - walk;
-  });
+    // Check if cursor is in edge zones
+    const rect = el.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const isInLeftZone = mouseX < EDGE_ZONE_WIDTH;
+    const isInRightZone = mouseX > rect.width - EDGE_ZONE_WIDTH;
+    const canScrollLeft = el.scrollLeft > 0;
+    const canScrollRight = el.scrollLeft < el.scrollWidth - el.clientWidth;
 
-  // Touch support
-  let touchStartX = 0;
-  let touchScrollLeft = 0;
-
-  el?.addEventListener('touchstart', (e) => {
-    touchStartX = e.touches[0].pageX;
-    touchScrollLeft = el.scrollLeft;
-  });
-
-  el?.addEventListener('touchmove', (e) => {
-    const x = e.touches[0].pageX;
-    const walk = (x - touchStartX) * 1.5;
-    el.scrollLeft = touchScrollLeft - walk;
+    if (isInLeftZone && canScrollLeft) {
+      startAutoScroll('left');
+    } else if (isInRightZone && canScrollRight) {
+      startAutoScroll('right');
+    } else {
+      stopAutoScroll();
+    }
   });
 });
 
@@ -389,28 +396,22 @@ onUnmounted(() => {
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  max-width: 100vw;
-  overflow-x: auto;
+  overflow-x: hidden;
   overflow-y: visible;
   padding: 0 60px;
-  -webkit-overflow-scrolling: touch;
-  cursor: grab;
-}
-
-.uno-hand-wrapper:active {
-  cursor: grabbing;
+  // -webkit-overflow-scrolling: touch;
 }
 
 .uno-card-hand {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  padding: 1rem 0;
-  height: 160px;
-  overflow: visible;
+  padding: 2.5rem 0 1rem 0; /* Extra top padding for hover translateY(-20px) */
+  min-height: 160px;
+  overflow: visible !important;
 }
 
 .uno-card-hand > * {
-  margin-left: -40px;
+  margin-left: -20px;
   z-index: 1;
   transition: transform 0.2s ease, z-index 0.2s ease;
 
