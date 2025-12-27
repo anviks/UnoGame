@@ -59,8 +59,6 @@ export async function apiRequest<T>(
     const error = err as AxiosError<ApiError>;
 
     if (showErrorToast) {
-      console.log(error.response?.data);
-      
       const baseMessage = error.response?.data?.message ?? error.message;
 
       toast.error(

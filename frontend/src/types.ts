@@ -11,7 +11,7 @@ export interface Game {
   name: string;
   createdAt: Moment;
   updatedAt: Moment;
-  playerNames: string[];
+  state: GameState;
 }
 
 export type GameDto = Omit<Game, 'createdAt' | 'updatedAt'> & {

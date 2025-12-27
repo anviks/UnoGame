@@ -18,18 +18,14 @@ public class GameService(
     IUserRepository userRepository
 )
 {
-    public async Task<List<GameDto>> GetAllGameDtos()
+    public async Task<List<Game>> GetAllGames()
     {
-        var allGames = await gameRepository.GetAllGames();
-        return mapper.Map<List<GameDto>>(allGames);
+        return await gameRepository.GetAllGames();
     }
 
-    public async Task<GameStateDto?> GetGameStateDto(int id, int requestingUserId)
+    public async Task<Game?> GetGameDto(int id)
     {
-        GameState? state = await GetGameState(id);
-        return state == null
-            ? null
-            : mapper.Map<GameStateDto>(state, opts => opts.Items["requestingUserId"] = requestingUserId);
+        return await gameRepository.GetGame(id);
     }
 
     public async Task<GameState?> GetGameState(int id)
@@ -57,9 +53,10 @@ public class GameService(
         return state;
     }
 
-    public async Task<Result<GameState>> CreateGame(string gameName, List<CreateGamePlayer> createPlayers, List<Card> includedCards)
+    public async Task<Result<Game>> CreateGame(string gameName, List<CreateGamePlayer> createPlayers,
+        List<Card> includedCards)
     {
-        var result = new Result<GameState>();
+        var result = new Result<Game>();
 
         Game? existingGame = await gameRepository.GetGameByName(gameName);
 
@@ -144,9 +141,9 @@ public class GameService(
         };
 
         game.CreatedAt = game.UpdatedAt = DateTime.UtcNow;
-        await gameRepository.CreateGame(game);
+        Game createdGame = await gameRepository.CreateGame(game);
 
-        return Result.Ok(state);
+        return Result.Ok(createdGame);
     }
 
     /**
@@ -171,6 +168,7 @@ public class GameService(
                 {
                     state.EndTurn();
                 }
+
                 break;
             case CardValue.Skip:
                 state.EndTurn();
@@ -196,9 +194,12 @@ public class GameService(
 
         if (state.WinnerIndex != null) return Result.Fail(GameErrorCodes.GameAlreadyEnded);
         if (state.CurrentPlayer != player) return Result.Fail(GameErrorCodes.NotYourTurn);
-        if (state.PendingPenalty?.PlayerName == player.Name) return Result.Fail(GameErrorCodes.NotAllowedToPlayDuringPenalty);
-        if (player.PendingDrawnCard != null && card != player.PendingDrawnCard) return Result.Fail(GameErrorCodes.InvalidCardAfterDraw);
-        if (player.PendingDrawnCard == null && !state.CanPlayerPlayCard(player, card)) return Result.Fail(GameErrorCodes.InvalidCard);
+        if (state.PendingPenalty?.PlayerName == player.Name)
+            return Result.Fail(GameErrorCodes.NotAllowedToPlayDuringPenalty);
+        if (player.PendingDrawnCard != null && card != player.PendingDrawnCard)
+            return Result.Fail(GameErrorCodes.InvalidCardAfterDraw);
+        if (player.PendingDrawnCard == null && !state.CanPlayerPlayCard(player, card))
+            return Result.Fail(GameErrorCodes.InvalidCard);
 
         PlayCurrentPlayerCard(state, card);
 
@@ -250,7 +251,7 @@ public class GameService(
 
         await gameRepository.UpdateGame(gameId, SerializeState(state));
 
-        return Result.Ok(new List<Card> {card});
+        return Result.Ok(new List<Card> { card });
     }
 
     public async Task<Result> TryEndTurn(int gameId, Player player)

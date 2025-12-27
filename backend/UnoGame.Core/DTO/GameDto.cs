@@ -6,5 +6,5 @@ public class GameDto
     public string Name { get; set; } = default!;
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
-    public List<string> PlayerNames { get; set; } = default!;
+    public GameStateDto State { get; set; } = default!;
 }

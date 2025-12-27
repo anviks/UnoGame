@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UnoGame.Core.DTO;
@@ -8,24 +9,25 @@ namespace WebApp.ApiControllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class GamesController(GameService gameService, UserService userService) : ControllerBase
+public class GamesController(GameService gameService, UserService userService, IMapper mapper) : ControllerBase
 {
     // GET: api/<GameController>
     [HttpGet]
     public async Task<List<GameDto>> Get()
     {
-        return await gameService.GetAllGameDtos();
+        var allGames = await gameService.GetAllGames();
+        return mapper.Map<List<GameDto>>(allGames);
     }
 
     // GET api/<GameController>/5
     [HttpGet("{id:int}")]
     [Authorize]
-    public async Task<ActionResult<GameStateDto?>> Get(int id)
+    public async Task<ActionResult<GameDto?>> Get(int id)
     {
         User? user = await userService.GetCurrentUser();
-        GameStateDto? state = await gameService.GetGameStateDto(id, user!.Id);
-        if (state == null) return NotFound();
-        return state;
+        Game? game = await gameService.GetGameDto(id);
+        if (game == null) return NotFound();
+        return mapper.Map<GameDto>(game, opts => opts.Items["requestingUserId"] = user?.Id);
     }
 
     // POST api/<GameController>
@@ -40,7 +42,7 @@ public class GamesController(GameService gameService, UserService userService) :
             return BadRequest(result.Errors.First());
         }
 
-        return Created();
+        return CreatedAtAction(nameof(Get), new { id = result.Value.Id }, mapper.Map<GameDto>(result.Value));
     }
 
     // DELETE api/<GameController>/5
