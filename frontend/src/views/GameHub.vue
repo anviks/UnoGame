@@ -93,7 +93,7 @@ import { useApiRequest } from '@/composables/useApiRequest';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { useAuthStore } from '@/stores/authStore.ts';
 import { CardChoice, DiscardPile, DrawPile, UnoCard } from '@/components';
-import type { Card, GameState, Player } from '@/types.ts';
+import type { Card, GameDto, GameState, Player } from '@/types.ts';
 import { useToast } from 'vue-toastification';
 import {
   errorMessages,
@@ -338,12 +338,12 @@ watch(handScrollRef, (value) => {
 
 onMounted(async () => {
   await connectToGame();
-  const { success, data } = await apiRequest<GameState>({
+  const { success, data } = await apiRequest<GameDto>({
     url: `/games/${props.gameId}`,
     method: 'GET',
   });
   if (success) {
-    state.value = data;
+    state.value = data.state;
   }
 });
 

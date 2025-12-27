@@ -11,15 +11,14 @@ public class GamePostMappingAction(GameService gameService, IMapper mapper) : IM
     public void Process(Game source, GameDto destination, ResolutionContext context)
     {
         GameState state = gameService.GetGameStateByGame(source);
-        
+
         // Pass the requestingUserId from parent context to nested mapping
-        var requestingUserId = context.Items.TryGetValue("requestingUserId", out var userId) ? userId : null;
+        int? requestingUserId = null;
+        if (context.TryGetItems(out var items)) requestingUserId = items.GetValueOrDefault("requestingUserId", null) as int?;
+
         destination.State = mapper.Map<GameStateDto>(state, opts =>
         {
-            if (requestingUserId != null)
-            {
-                opts.Items["requestingUserId"] = requestingUserId;
-            }
+            if (requestingUserId != null) opts.Items["requestingUserId"] = requestingUserId;
         });
     }
 }

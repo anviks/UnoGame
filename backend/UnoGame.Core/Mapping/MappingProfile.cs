@@ -19,7 +19,7 @@ public class MappingProfile : Profile
                 opt => opt.MapFrom((src, _, _, context) =>
                 {
                     if (!context.TryGetItems(out var items)) return null;
-                    var requestingUserId = items["requestingUserId"] as int? ?? 0;
+                    var requestingUserId = items.GetValueOrDefault("requestingUserId", null) as int?;
                     var isSelf = src.UserId == requestingUserId;
                     return isSelf ? src.Cards : null;
                 })
