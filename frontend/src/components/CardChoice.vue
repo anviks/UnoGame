@@ -22,23 +22,23 @@
         shadowed
       />
       <div
-        class="uno-color-choice card-choice"
+        class="uno-color-choice card-choice grid grid-cols-2 grid-rows-2"
         ref="colorChoices"
       >
         <span
-          class="quarter top-left uno-red"
+          class="quarter rounded-tl-[17px] bg-(--uno-red)"
           @click="$emit('card-chosen', cardColor.RED)"
         />
         <span
-          class="quarter top-right uno-blue"
+          class="quarter rounded-tr-[17px] bg-(--uno-blue)"
           @click="$emit('card-chosen', cardColor.BLUE)"
         />
         <span
-          class="quarter bottom-left uno-yellow"
+          class="quarter rounded-bl-[17px] bg-(--uno-yellow)"
           @click="$emit('card-chosen', cardColor.YELLOW)"
         />
         <span
-          class="quarter bottom-right uno-green"
+          class="quarter rounded-br-[17px] bg-(--uno-green)"
           @click="$emit('card-chosen', cardColor.GREEN)"
         />
       </div>
@@ -168,12 +168,6 @@ onMounted(() => {
   }
 }
 
-.uno-color-choice {
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  display: grid;
-}
-
 .quarter {
   width: 100%;
   height: 100%;
@@ -187,38 +181,6 @@ onMounted(() => {
     box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.3);
     z-index: 100;
   }
-}
-
-.top-left {
-  border-top-left-radius: 17px;
-}
-
-.top-right {
-  border-top-right-radius: 17px;
-}
-
-.bottom-left {
-  border-bottom-left-radius: 17px;
-}
-
-.bottom-right {
-  border-bottom-right-radius: 17px;
-}
-
-.uno-red {
-  background-color: var(--uno-red);
-}
-
-.uno-yellow {
-  background-color: var(--uno-yellow);
-}
-
-.uno-green {
-  background-color: var(--uno-green);
-}
-
-.uno-blue {
-  background-color: var(--uno-blue);
 }
 
 @keyframes shake {
