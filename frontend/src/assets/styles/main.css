@@ -1,11 +1,24 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+
+:root {
+  --uno-red: #ff5555;
+  --uno-yellow: #ffaa00;
+  --uno-green: #55aa55;
+  --uno-blue: #5555ff;
+}
+
+@font-face {
+  font-family: 'Bungee';
+  src: url('@/assets/fonts/Bungee-Regular.ttf') format('truetype');
+  font-display: swap;
+}
 
 .cursor-moving-left,
 .cursor-moving-left * {
-    cursor: url(../icons/faaa_angle_left.png) 16 16, auto !important;
+  cursor: url(../icons/faaa_angle_left.png) 16 16, auto !important;
 }
 
 .cursor-moving-right,
 .cursor-moving-right * {
-    cursor: url(../icons/faaa_angle_right.png) 16 16, auto !important;
+  cursor: url(../icons/faaa_angle_right.png) 16 16, auto !important;
 }

@@ -32,17 +32,4 @@ import { useAuthStore } from '@/stores/authStore.ts';
 const authStore = useAuthStore();
 </script>
 
-<style>
-:root {
-  --uno-red: #ff5555;
-  --uno-yellow: #ffaa00;
-  --uno-green: #55aa55;
-  --uno-blue: #5555ff;
-}
-
-@font-face {
-  font-family: 'Bungee';
-  src: url('@/assets/fonts/Bungee-Regular.ttf') format('truetype');
-  font-display: swap;
-}
-</style>
+<style></style>
