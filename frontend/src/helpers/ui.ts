@@ -1,14 +1,37 @@
+import * as _ from 'lodash-es';
 import { nextTick, type Ref } from 'vue';
 
 interface AnimateCardOptions {
-  fromRect: DOMRect;
+  fromElement: HTMLSnapshot;
   toElement: HTMLElement;
   styleRef: Ref<Record<string, string>>;
   duration?: number;
 }
 
+interface HTMLSnapshot {
+  boundingClientRect: DOMRect;
+  offsetWidth: number;
+  offsetHeight: number;
+  scaleX: number;
+  scaleY: number;
+}
+
+export function getElementSnapshot(el: HTMLElement): HTMLSnapshot {
+  const rect = el.getBoundingClientRect();
+  const scaleX = rect.width / el.offsetWidth || 1;
+  const scaleY = rect.height / el.offsetHeight || 1;
+
+  return {
+    boundingClientRect: rect,
+    offsetWidth: el.offsetWidth,
+    offsetHeight: el.offsetHeight,
+    scaleX,
+    scaleY,
+  };
+}
+
 export async function animateCardMove({
-  fromRect,
+  fromElement,
   toElement,
   styleRef,
   duration = 600,
@@ -16,8 +39,11 @@ export async function animateCardMove({
   return new Promise(async (resolve, reject) => {
     toElement.style.visibility = 'hidden';
     await nextTick();
-
+    
+    const fromRect = fromElement.boundingClientRect;
     const toRect = toElement.getBoundingClientRect();
+
+    const { scaleX, scaleY } = fromElement;
 
     const fromCenterX = fromRect.left + fromRect.width / 2;
     const fromCenterY = fromRect.top + fromRect.height / 2;
@@ -34,7 +60,11 @@ export async function animateCardMove({
       position: 'absolute',
       left: `${fromRect.left}px`,
       top: `${fromRect.top}px`,
-      transform: `translate(${dx}px, ${dy}px) rotate(${rotation})`,
+      width: `${fromRect.width}px`,
+      height: `${fromRect.height}px`,
+      right: `${fromRect.right}px`,
+      bottom: `${fromRect.bottom}px`,
+      transform: `translate(${dx}px, ${dy}px) scale(${1 / scaleX}, ${1 / scaleY}) rotate(${rotation})`,
       transition: `transform ${duration}ms ease`,
       zIndex: '999',
     };

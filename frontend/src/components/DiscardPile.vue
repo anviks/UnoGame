@@ -1,5 +1,5 @@
 <template>
-  <div style="position: relative; height: 150px">
+  <div class="relative h-[150px]">
     <uno-card
       v-for="(card, i) in cards"
       :key="card.id"
@@ -9,7 +9,7 @@
       :horizontal-jitter="30"
       :vertical-jitter="30"
       :chosen-color="i === 0 ? currentColor : null"
-      class="position-absolute"
+      class="absolute"
       shadowed
       :style="{zIndex: cards.length - i}"
       :ref="(el) => { if (i === 0) topCardRef = el }"

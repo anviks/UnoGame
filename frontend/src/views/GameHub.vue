@@ -37,7 +37,11 @@
       class="uno-hand-wrapper"
       ref="handScrollRef"
     >
-      <div class="uno-card-hand">
+      <transition-group
+        name="hand-change"
+        tag="div"
+        class="uno-card-hand"
+      >
         <card-choice
           v-for="(card, index) in thisPlayer?.cards"
           :key="card.id"
@@ -46,7 +50,7 @@
           :ref="(el) => (cardRefs[index] = el)"
           @card-chosen="(chosenColor) => playCard(index, card, chosenColor)"
         />
-      </div>
+      </transition-group>
     </div>
 
     <transition
@@ -100,8 +104,8 @@ import {
   type GameErrorCode,
   GameErrorCodes,
 } from '@/constants.ts';
-import { animateCardMove } from '@/helpers/ui';
-import _ from 'lodash-es';
+import { animateCardMove, getElementSnapshot } from '@/helpers/ui';
+import * as _ from 'lodash-es';
 
 const props = defineProps({
   gameId: {
@@ -188,7 +192,7 @@ const animateDrawnCards = async (cards: Card[], sequential = false) => {
     cthFlyCardStyles.value.push(styleRef);
 
     const animation = animateCardMove({
-      fromRect: drawPileRef.value?.topCardRef.$el.getBoundingClientRect(),
+      fromElement: getElementSnapshot(drawPileRef.value?.topCardRef.$el),
       toElement: lastCardRef.value.$el,
       styleRef: styleRef,
     }).then(() => {
@@ -229,8 +233,7 @@ const connectToGame = async () => {
         const playedCardIndex = thisPlayer.value.cards!.findIndex((c) =>
           _.isEqual(c, card)
         );
-        const fromRect =
-          cardRefs.value[playedCardIndex].$el.getBoundingClientRect();
+        const fromElement = getElementSnapshot(cardRefs.value[playedCardIndex].$el);
         thisPlayer.value!.cards!.splice(playedCardIndex, 1);
         await nextTick();
 
@@ -241,7 +244,7 @@ const connectToGame = async () => {
         ctdFlyCardStyles.value.push(styleRef);
 
         await animateCardMove({
-          fromRect: fromRect,
+          fromElement,
           toElement: discardPileRef.value!.topCardRef!.$el,
           styleRef: styleRef,
         });
@@ -313,7 +316,7 @@ watch(handScrollRef, (value) => {
     if (!el) return;
     stopAutoScroll();
     el.classList.add(`cursor-moving-${direction}`);
-    
+
     autoScrollInterval = window.setInterval(() => {
       if (!el) return;
       if (direction === 'left') {
@@ -360,36 +363,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="scss">
-//.uno-card-hand {
-//  display: flex;
-//  flex-direction: row;
-//  align-items: center;
-//  flex-wrap: wrap;
-//}
-
-//.uno-card-hand {
-//  display: flex;
-//  justify-content: center;
-//  padding: 1rem;
-//  overflow: visible;
-//  position: relative;
-//}
-//
-//.uno-card-hand > * {
-//  transition: transform 0.2s ease, z-index 0.2s ease;
-//  margin-left: -40px; // adjust for overlap density
-//  z-index: 1;
-//
-//  &:first-child {
-//    margin-left: 0;
-//  }
-//
-//  &:hover {
-//    transform: translateY(-20px) scale(1.1);
-//    z-index: 100;
-//  }
-//}
-
 .uno-hand-wrapper {
   position: absolute;
   bottom: 100px;
