@@ -31,6 +31,7 @@ const axiosInstance = axios.create({
  * @param toast
  */
 export async function apiRequest<T>(
+  url: string,
   config: ApiRequestOptions,
   toast: ReturnType<typeof useToast>
 ): Promise<ApiResponse<T>> {
@@ -42,7 +43,7 @@ export async function apiRequest<T>(
   } = config;
 
   try {
-    const data = await axiosInstance<T>(axiosConfig);
+    const data = await axiosInstance<T>({ ...axiosConfig, url });
 
     if (successMessage) {
       toast.success(successMessage, {

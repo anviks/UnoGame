@@ -14,9 +14,8 @@ export const useAuthStore = defineStore('auth', () => {
       return initPromise;
     }
 
-    initPromise = fetcher<User>({
+    initPromise = fetcher<User>('/auth/whoami', {
       method: 'GET',
-      url: '/auth/whoami',
       showErrorToast: false,
     }).then(({ data }) => {
       if (data) {

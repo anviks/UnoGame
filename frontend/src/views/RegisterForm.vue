@@ -69,14 +69,12 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from '@/stores/authStore.ts';
-import { computed, reactive, ref, watch } from 'vue';
-import { debounce } from 'lodash-es';
-import { useRoute, useRouter } from 'vue-router';
-import { useToast } from 'vue-toastification';
 import { useApiRequest } from '@/composables/useApiRequest';
+import { useAuthStore } from '@/stores/authStore.ts';
+import { debounce } from 'lodash-es';
+import { computed, reactive, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
-const toast = useToast();
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
@@ -103,8 +101,7 @@ const checkUsername = debounce(async (name: string) => {
 
   checking.value = true;
 
-  const { data } = await fetcher<boolean>({
-    url: '/auth/is-username-available',
+  const { data } = await fetcher<boolean>('/auth/is-username-available', {
     params: { username: name },
     errorMessage: 'Error fetching user info.',
   });
@@ -117,8 +114,7 @@ const register = async () => {
   const validationResult = await form.value?.validate();
   if (!validationResult.valid) return;
 
-  const { success } = await fetcher<boolean>({
-    url: '/auth/register',
+  const { success } = await fetcher<boolean>('/auth/register', {
     method: 'POST',
     data: {
       username: formValues.username,

@@ -46,10 +46,7 @@
   </div>
 </template>
 
-<script
-  setup
-  lang="ts"
->
+<script setup lang="ts">
 import { cardColor } from '@/constants.ts';
 import { UnoCard } from '@/components';
 import { onMounted, ref, useTemplateRef } from 'vue';
@@ -70,7 +67,7 @@ const props = defineProps({
 });
 
 const emits = defineEmits<{
-  (e: 'card-chosen', color?: number): void
+  (e: 'card-chosen', color?: number): void;
 }>();
 
 const wildCard = useTemplateRef('wildCard');
@@ -109,7 +106,7 @@ const triggerShake = () => {
   clearTimeout(shakeTimeoutId);
   setTimeout(() => {
     shouldShake.value = true;
-    shakeTimeoutId = setTimeout(() => shouldShake.value = false, 500);
+    shakeTimeoutId = setTimeout(() => (shouldShake.value = false), 500);
   }, 5);
 };
 

@@ -114,20 +114,19 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue';
-import {
-  type Card,
-  type GameForm,
-  type PlayerField,
-  type User,
-} from '@/types.ts';
+import { GameFormPlayerRow, UnoCard } from '@/components';
+import { useApiRequest } from '@/composables/useApiRequest';
 import { cardColor, cardValue, playerType } from '@/constants.ts';
 import { getAllColors, getAllValues } from '@/helpers/cards';
-import { UnoCard, GameFormPlayerRow } from '@/components';
 import { useAuthStore } from '@/stores/authStore.ts';
-import { useApiRequest } from '@/composables/useApiRequest';
-import type { Game, GameDto } from '@/types.ts';
-import { useToast } from 'vue-toastification';
+import type { GameDto } from '@/types.ts';
+import type {
+  Card,
+  GameForm,
+  PlayerField,
+  User,
+} from '@/types.ts';
+import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 const rules = {
@@ -140,7 +139,6 @@ const getDefaultPlayer = (): PlayerField => ({
 });
 
 const form = ref();
-const toast = useToast();
 const router = useRouter();
 const route = useRoute();
 const fetcher = useApiRequest();
@@ -223,8 +221,7 @@ const createGame = async () => {
 
   game.value.includedCards = includedCards;
 
-  const { success, data } = await fetcher<GameDto>({
-    url: '/games',
+  const { success, data } = await fetcher<GameDto>('/games', {
     method: 'POST',
     data: game.value,
     errorMessage: 'Error creating game: {error}',
@@ -246,8 +243,7 @@ onMounted(async () => {
     await router.push({ name: 'register', query: { return: route.path } });
   }
 
-  const { success, data } = await fetcher<User[]>({
-    url: '/users',
+  const { success, data } = await fetcher<User[]>('/users', {
     method: 'GET',
     errorMessage: 'Error fetching users.',
   });

@@ -82,6 +82,18 @@
 </template>
 
 <script setup lang="ts">
+import { CardChoice, DiscardPile, DrawPile, UnoCard } from '@/components';
+import { useApiRequest } from '@/composables/useApiRequest';
+import {
+  errorMessages,
+  type GameErrorCode,
+  GameErrorCodes,
+} from '@/constants.ts';
+import { animateCardMove, getElementSnapshot } from '@/helpers/ui';
+import { useAuthStore } from '@/stores/authStore.ts';
+import type { Card, GameDto, GameState, Player } from '@/types.ts';
+import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
+import * as _ from 'lodash-es';
 import {
   type ComponentPublicInstance,
   computed,
@@ -93,19 +105,7 @@ import {
   useTemplateRef,
   watch,
 } from 'vue';
-import { useApiRequest } from '@/composables/useApiRequest';
-import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
-import { useAuthStore } from '@/stores/authStore.ts';
-import { CardChoice, DiscardPile, DrawPile, UnoCard } from '@/components';
-import type { Card, GameDto, GameState, Player } from '@/types.ts';
 import { useToast } from 'vue-toastification';
-import {
-  errorMessages,
-  type GameErrorCode,
-  GameErrorCodes,
-} from '@/constants.ts';
-import { animateCardMove, getElementSnapshot } from '@/helpers/ui';
-import * as _ from 'lodash-es';
 
 const props = defineProps({
   gameId: {
@@ -233,7 +233,9 @@ const connectToGame = async () => {
         const playedCardIndex = thisPlayer.value.cards!.findIndex((c) =>
           _.isEqual(c, card)
         );
-        const fromElement = getElementSnapshot(cardRefs.value[playedCardIndex].$el);
+        const fromElement = getElementSnapshot(
+          cardRefs.value[playedCardIndex].$el
+        );
         thisPlayer.value!.cards!.splice(playedCardIndex, 1);
         await nextTick();
 
@@ -348,10 +350,12 @@ watch(handScrollRef, (value) => {
 
 onMounted(async () => {
   await connectToGame();
-  const { success, data } = await apiRequest<GameDto>({
-    url: `/games/${props.gameId}`,
-    method: 'GET',
-  });
+  const { success, data } = await apiRequest<GameDto>(
+    `/games/${props.gameId}`,
+    {
+      method: 'GET',
+    }
+  );
   if (success) {
     state.value = data.state;
   }

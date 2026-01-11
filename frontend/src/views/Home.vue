@@ -29,8 +29,12 @@
           </td>
           <td>
             <v-btn
-              v-if="item.state.players.some(player => player.userId === authStore.userId)"
-              :to="{name: 'game', params: {gameId: item.id}}"
+              v-if="
+                item.state.players.some(
+                  (player) => player.userId === authStore.userId
+                )
+              "
+              :to="{ name: 'game', params: { gameId: item.id } }"
             >
               Join Game
             </v-btn>
@@ -41,16 +45,13 @@
   </v-container>
 </template>
 
-<script
-  setup
-  lang="ts"
->
-import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import type { Game, GameDto } from '@/types.ts';
+<script setup lang="ts">
 import { useApiRequest } from '@/composables/useApiRequest';
 import { gameDtoToGame } from '@/helpers/mappers';
 import { useAuthStore } from '@/stores/authStore.ts';
+import type { Game, GameDto } from '@/types.ts';
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -84,8 +85,7 @@ const getRowClass = (game: Game) => {
 };
 
 onMounted(async () => {
-  const { success, data } = await apiRequest<GameDto[]>({
-    url: '/games',
+  const { success, data } = await apiRequest<GameDto[]>('/games', {
     method: 'GET',
     errorMessage: 'Error fetching games.',
   });
@@ -100,7 +100,6 @@ onMounted(async () => {
     window.history.replaceState(others, '', window.location.href);
   }
 });
-
 </script>
 
 <style scoped lang="scss">
