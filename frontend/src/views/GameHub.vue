@@ -17,22 +17,7 @@
       <span class="card-count">{{ state.drawPileSize }}</span>
     </div>
     <v-btn @click="endTurn">End turn</v-btn>
-    <!--    <transition-group-->
-    <!--      name="hand-change"-->
-    <!--      tag="div"-->
-    <!--      style="position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%)"-->
-    <!--      class="uno-card-hand d-flex ga-2"-->
-    <!--    >-->
-    <!--      <card-choice-->
-    <!--        v-for="(card, index) in thisPlayer?.cards"-->
-    <!--        :color="card.color"-->
-    <!--        :value="card.value"-->
-    <!--        :key="card.id"-->
-    <!--        :ref="el => cardRefs[index] = el"-->
-    <!--        @card-chosen="(chosenColor) => playCard(index, card, chosenColor)"-->
-    <!--      ></card-choice>-->
-    <!--    </transition-group>-->
-
+  
     <div
       class="uno-hand-wrapper"
       ref="handScrollRef"
