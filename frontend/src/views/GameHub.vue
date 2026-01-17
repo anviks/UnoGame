@@ -389,13 +389,6 @@ onUnmounted(() => {
 
 .uno-card-hand > * {
   margin-left: -20px;
-  z-index: 1;
-  transition: transform 0.2s ease, z-index 0.2s ease;
-
-  &:hover {
-    transform: translateY(-20px) scale(1.1);
-    z-index: 10;
-  }
 
   &:first-child {
     margin-left: 0;

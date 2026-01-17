@@ -1,5 +1,8 @@
 <template>
-  <div :class="{ 'shake': shouldShake }" style="line-height: 0">
+  <div
+    :class="{ shake: shouldShake }"
+    class="leading-0 card-choice-wrapper"
+  >
     <uno-card
       v-if="color !== cardColor.WILD"
       :color="color"
@@ -76,8 +79,9 @@ let hoverTimeoutId: number;
 
 const setColorChoiceVisibility = (visibility: string) => {
   if (colorChoices.value == null) return;
-  Array.from(colorChoices.value.children)
-    .forEach(child => (child as HTMLSpanElement).style.visibility = visibility);
+  Array.from(colorChoices.value.children).forEach(
+    (child) => ((child as HTMLSpanElement).style.visibility = visibility)
+  );
 };
 
 const setWildCardVisibility = (visibility: string) => {
@@ -117,11 +121,18 @@ onMounted(() => {
 });
 </script>
 
-<style
-  scoped
-  lang="scss"
->
-.uno-card-shadow, .card-choice {
+<style scoped lang="scss">
+.card-choice-wrapper {
+  z-index: 1;
+  transition: transform 0.3s ease, z-index 0.3s ease;
+
+  &:hover {
+    z-index: 10;
+  }
+}
+
+.uno-card-shadow,
+.card-choice {
   height: 150px;
   width: 100px;
   border-radius: 17px;
@@ -133,7 +144,7 @@ onMounted(() => {
 
   &:hover {
     --card-scale: 1.1;
-    transform: scale(var(--card-scale)) translateZ(10px);
+    transform: scale(var(--card-scale)) translateY(-20px);
     box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.3);
     cursor: pointer;
   }
