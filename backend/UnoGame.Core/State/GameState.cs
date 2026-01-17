@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using UnoGame.Core.DTO;
+using UnoGame.Core.Helpers;
 using UnoGame.Core.State.Enums;
 
 namespace UnoGame.Core.State;
@@ -55,12 +57,22 @@ public class GameState
         }
     }
 
-    public Card? DrawCardForPlayer(Player player)
+    public bool TryDrawCardForPlayer(Player player, out DrawnCard drawnCard)
     {
         Card? card = DrawCard();
-        if (card != null) player.Cards.Add(card);
 
-        return card;
+        if (card != null)
+        {
+            drawnCard = new DrawnCard
+            {
+                Card = card,
+                Index = player.Cards.InsertSorted(card)
+            };
+            return true;
+        }
+
+        drawnCard = null!;
+        return false;
     }
 
     private void ResetDrawPile()
@@ -83,17 +95,16 @@ public class GameState
         return pileCard;
     }
 
-    public List<Card> DrawCardsForPlayer(Player player, int count)
+    public List<DrawnCard> DrawCardsForPlayer(Player player, int count)
     {
-        List<Card> cards = [];
+        List<DrawnCard> drawnCards = [];
 
         for (var i = 0; i < count; i++)
         {
-            Card? card = DrawCardForPlayer(player);
-            if (card != null) cards.Add(card);
+            if (TryDrawCardForPlayer(player, out DrawnCard drawnCard)) drawnCards.Add(drawnCard);
         }
 
-        return cards;
+        return drawnCards;
     }
 
     public void DealCards()
@@ -102,7 +113,7 @@ public class GameState
         {
             foreach (var player in Players)
             {
-                DrawCardForPlayer(player);
+                TryDrawCardForPlayer(player, out _);
             }
         }
     }

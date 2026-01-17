@@ -225,7 +225,7 @@ public class GameService(
         return Result.Ok();
     }
 
-    public async Task<Result<List<Card>>> TryDrawCard(int gameId, Player player)
+    public async Task<Result<List<DrawnCard>>> TryDrawCard(int gameId, Player player)
     {
         GameState state = await GetGameState(gameId) ??
                           throw new ArgumentException($"Game with ID {gameId} not found.", nameof(gameId));
@@ -242,16 +242,15 @@ public class GameService(
             return cards.Count == 0 ? Result.Fail(GameErrorCodes.NoCardsToDraw) : Result.Ok(cards);
         }
 
-        Card? card = state.DrawCardForPlayer(player);
-        if (card == null) return Result.Fail(GameErrorCodes.NoCardsToDraw);
+        if (!state.TryDrawCardForPlayer(player, out DrawnCard drawnCard)) return Result.Fail(GameErrorCodes.NoCardsToDraw);
 
         // TODO: Don't automatically end turn if card isn't playable, otherwise other players will know if it's playable or not
-        if (state.IsCardPlayable(player, card)) player.PendingDrawnCard = card;
+        if (state.IsCardPlayable(player, drawnCard.Card)) player.PendingDrawnCard = drawnCard.Card;
         else state.EndTurn();
 
         await gameRepository.UpdateGame(gameId, SerializeState(state));
 
-        return Result.Ok(new List<Card> { card });
+        return Result.Ok(new List<DrawnCard> { drawnCard });
     }
 
     public async Task<Result> TryEndTurn(int gameId, Player player)

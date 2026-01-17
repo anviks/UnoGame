@@ -6,6 +6,11 @@ export interface Card {
   value: number;
 }
 
+export interface DrawnCard {
+  index: number;
+  card: Card;
+}
+
 export interface Game {
   id: number;
   name: string;

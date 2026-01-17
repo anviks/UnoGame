@@ -47,7 +47,7 @@
           :key="card.id"
           :color="card.color"
           :value="card.value"
-          :ref="(el) => (cardRefs[index] = el)"
+          :ref="(el) => (cardRefs[index] = el as any)"
           @card-chosen="(chosenColor) => playCard(index, card, chosenColor)"
         />
       </transition-group>
@@ -91,7 +91,7 @@ import {
 } from '@/constants.ts';
 import { animateCardMove, getElementSnapshot } from '@/helpers/ui';
 import { useAuthStore } from '@/stores/authStore.ts';
-import type { Card, GameDto, GameState, Player } from '@/types.ts';
+import type { Card, DrawnCard, GameDto, GameState, Player } from '@/types.ts';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import * as _ from 'lodash-es';
 import {
@@ -117,7 +117,7 @@ const props = defineProps({
 const authStore = useAuthStore();
 const toast = useToast();
 const apiRequest = useApiRequest();
-const cardRefs = ref<ComponentPublicInstance<any | typeof CardChoice>[]>([]);
+const cardRefs = ref<ComponentPublicInstance<typeof CardChoice>[]>([]);
 
 const connected = ref(false);
 const connection = ref<HubConnection>();
@@ -178,14 +178,17 @@ const endTurn = async () => {
   }
 };
 
-const animateDrawnCards = async (cards: Card[], sequential = false) => {
-  for (const card of cards) {
+const animateDrawnCards = async (
+  drawnCards: DrawnCard[],
+  sequential = false
+) => {
+  for (const drawnCard of drawnCards) {
     state.value!.drawPileSize--;
 
-    thisPlayer.value!.cards!.push(card);
+    thisPlayer.value!.cards!.splice(drawnCard.index, 0, drawnCard.card);
     await nextTick();
 
-    let cardRef = ref<Card>(card);
+    let cardRef = ref<Card>(drawnCard.card);
     cthTransitioningCards.value.push(cardRef);
 
     let styleRef = ref();
@@ -193,11 +196,11 @@ const animateDrawnCards = async (cards: Card[], sequential = false) => {
 
     const animation = animateCardMove({
       fromElement: getElementSnapshot(drawPileRef.value?.topCardRef.$el),
-      toElement: lastCardRef.value.$el,
+      toElement: cardRefs.value[drawnCard.index].$el,
       styleRef: styleRef,
     }).then(() => {
       const index = cthTransitioningCards.value.findIndex(
-        (cr) => cr.value.id === card.id
+        (cr) => cr.value.id === drawnCard.card.id
       );
       cthTransitioningCards.value.splice(index, 1);
       cthFlyCardStyles.value.splice(index, 1);
@@ -268,8 +271,8 @@ const connectToGame = async () => {
     }
   );
 
-  connection.value.on('CardDrawnSelf', async (cards: Card[]) => {
-    await animateDrawnCards(cards, true);
+  connection.value.on('CardDrawnSelf', async (drawnCards: DrawnCard[]) => {
+    await animateDrawnCards(drawnCards, true);
   });
 
   connection.value

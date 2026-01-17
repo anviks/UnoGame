@@ -40,6 +40,14 @@ public static class CardHelpers
         DefaultCards = defaultCards.AsReadOnly();
     }
 
+    public static int InsertSorted(this List<Card> cards, Card card)
+    {
+        var index = cards.FindIndex(c => c.Color > card.Color || (c.Color == card.Color && c.Value > card.Value));
+        if (index < 0) index = cards.Count;
+        cards.Insert(index, card);
+        return index;
+    }
+
     public static void SortCards(this List<Card> cards)
     {
         cards.Sort((a, b) =>
