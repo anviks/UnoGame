@@ -36,7 +36,7 @@
 import { type PropType, ref } from 'vue';
 import type { PlayerField, User } from '@/types.ts';
 import { playerType } from '@/constants.ts';
-import { capitalize } from 'lodash-es';
+import _ from 'lodash';
 
 const emits = defineEmits(['delete-player']);
 
@@ -59,7 +59,7 @@ const props = defineProps({
   },
 });
 
-const playerTypeSelection = Object.entries(playerType).map(([title, value]) => ({ title: capitalize(title), value }));
+const playerTypeSelection = Object.entries(playerType).map(([title, value]) => ({ title: _.capitalize(title), value }));
 const userExists = ref(false);
 
 const updatePlayer = (newValue: string | PlayerField) => {

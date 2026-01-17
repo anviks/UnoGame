@@ -71,7 +71,7 @@
 <script setup lang="ts">
 import { useApiRequest } from '@/composables/useApiRequest';
 import { useAuthStore } from '@/stores/authStore.ts';
-import { debounce } from 'lodash-es';
+import _ from 'lodash';
 import { computed, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -92,7 +92,7 @@ const form = ref();
 
 const token = computed(() => route.query.token?.toString());
 
-const checkUsername = debounce(async (name: string) => {
+const checkUsername = _.debounce(async (name: string) => {
   if (!name || name.length < 3) {
     isAvailable.value = null;
     checking.value = false;

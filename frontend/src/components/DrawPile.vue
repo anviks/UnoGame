@@ -24,7 +24,7 @@
 >
 import { CardBack } from '@/components';
 import { computed, ref } from 'vue';
-import _ from 'lodash-es';
+import _ from 'lodash';
 
 const props = defineProps({
   amount: {

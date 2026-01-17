@@ -78,7 +78,7 @@ import { animateCardMove, getElementSnapshot } from '@/helpers/ui';
 import { useAuthStore } from '@/stores/authStore.ts';
 import type { Card, DrawnCard, GameDto, GameState, Player } from '@/types.ts';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
-import * as _ from 'lodash-es';
+import _ from 'lodash';
 import {
   type ComponentPublicInstance,
   computed,
