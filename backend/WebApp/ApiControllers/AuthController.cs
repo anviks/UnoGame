@@ -73,6 +73,13 @@ public class AuthController(UnoDbContext db, UserService userService, IOptions<U
         return Ok();
     }
 
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return Ok();
+    }
+
     [HttpGet("is-username-available")]
     public async Task<IActionResult> IsAvailable([FromQuery] string username)
     {
