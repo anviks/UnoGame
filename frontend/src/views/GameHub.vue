@@ -46,7 +46,7 @@
         class="flying-card"
         :color="transitioningCard.value.color"
         :value="transitioningCard.value.value"
-        :style="flyCardStyles[i].value"
+        :style="flyCardStyles[i]!.value"
         shadowed
       />
     </transition>
@@ -116,7 +116,7 @@ const playCard = async (index: number, card: Card, chosenColor?: number) => {
     const errorCode = response.error as GameErrorCode;
 
     if (errorCode === GameErrorCodes.INVALID_CARD) {
-      cardRefs.value[index].triggerShake();
+      cardRefs.value[index]!.triggerShake();
     } else {
       toast.error(errorMessages[errorCode] ?? errorCode);
     }
@@ -165,7 +165,7 @@ const animateDrawnCards = async (
 
     const animation = animateCardMove({
       fromElement: getElementSnapshot(drawPileRef.value?.topCardRef.$el),
-      toElement: cardRefs.value[drawnCard.index].$el,
+      toElement: cardRefs.value[drawnCard.index]!.$el,
       styleRef: styleRef,
     }).then(() => {
       const index = transitioningCards.value.findIndex(
@@ -206,7 +206,7 @@ const connectToGame = async () => {
           _.isEqual(c, card)
         );
         const fromElement = getElementSnapshot(
-          cardRefs.value[playedCardIndex].$el
+          cardRefs.value[playedCardIndex]!.$el
         );
         thisPlayer.value!.cards!.splice(playedCardIndex, 1);
         await nextTick();

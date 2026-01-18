@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { GameForm, GameHub, Home, RegisterForm } from '@/views';
+import { GameForm, GameHub, Home, LoginForm, RegisterForm } from '@/views';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -19,13 +19,18 @@ const router = createRouter({
       name: 'game',
       component: GameHub,
       props: (route) => ({
-        gameId: parseInt(route.params.gameId.toString()),
+        gameId: parseInt(route.params.gameId?.toString() ?? '0') || undefined,
       }),
     },
     {
       path: '/register',
       name: 'register',
       component: RegisterForm,
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: LoginForm,
     },
   ],
 });
