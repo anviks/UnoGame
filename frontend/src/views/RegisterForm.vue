@@ -131,7 +131,7 @@ const register = async () => {
 
   if (!success) return;
 
-  authStore.username = formValues.username;
+  await authStore.authenticate();
   await router.push({ name: 'home' });
 };
 

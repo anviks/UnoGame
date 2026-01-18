@@ -9,20 +9,24 @@ export const useAuthStore = defineStore('auth', () => {
   const { request } = useApiRequest();
   let initPromise: Promise<void> | null = null;
 
+  const authenticate = async (): Promise<void> => {
+    const { data } = await request<User>('/auth/whoami', {
+      method: 'GET',
+      showErrorToast: false,
+    });
+
+    if (data) {
+      userId.value = data.id;
+      username.value = data.username;
+    }
+  };
+
   const initialize = async (): Promise<void> => {
     if (initPromise) {
       return initPromise;
     }
 
-    initPromise = request<User>('/auth/whoami', {
-      method: 'GET',
-      showErrorToast: false,
-    }).then(({ data }) => {
-      if (data) {
-        userId.value = data.id;
-        username.value = data.username;
-      }
-    });
+    initPromise = authenticate();
 
     return initPromise;
   };
@@ -40,5 +44,5 @@ export const useAuthStore = defineStore('auth', () => {
     username.value = undefined;
   };
 
-  return { userId, username, initialize, logout };
+  return { authenticate, userId, username, initialize, logout };
 });

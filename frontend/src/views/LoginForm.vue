@@ -72,7 +72,7 @@ const login = async () => {
 
   if (!success) return;
 
-  await authStore.initialize();
+  await authStore.authenticate();
   await router.push({ name: 'home' });
 };
 </script>
