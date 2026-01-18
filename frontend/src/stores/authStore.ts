@@ -6,7 +6,7 @@ import { ref } from 'vue';
 export const useAuthStore = defineStore('auth', () => {
   const userId = ref<number>();
   const username = ref<string>();
-  const fetcher = useApiRequest();
+  const { request } = useApiRequest();
   let initPromise: Promise<void> | null = null;
 
   const initialize = async (): Promise<void> => {
@@ -14,7 +14,7 @@ export const useAuthStore = defineStore('auth', () => {
       return initPromise;
     }
 
-    initPromise = fetcher<User>('/auth/whoami', {
+    initPromise = request<User>('/auth/whoami', {
       method: 'GET',
       showErrorToast: false,
     }).then(({ data }) => {
@@ -31,7 +31,7 @@ export const useAuthStore = defineStore('auth', () => {
   initialize();
 
   const logout = async (): Promise<void> => {
-    await fetcher('/auth/logout', {
+    await request('/auth/logout', {
       method: 'POST',
       showErrorToast: false,
     });

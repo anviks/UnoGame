@@ -120,12 +120,7 @@ import { cardColor, cardValue, playerType } from '@/constants.ts';
 import { getAllColors, getAllValues } from '@/helpers/cards';
 import { useAuthStore } from '@/stores/authStore.ts';
 import type { GameDto } from '@/types.ts';
-import type {
-  Card,
-  GameForm,
-  PlayerField,
-  User,
-} from '@/types.ts';
+import type { Card, GameForm, PlayerField, User } from '@/types.ts';
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -141,7 +136,7 @@ const getDefaultPlayer = (): PlayerField => ({
 const form = ref();
 const router = useRouter();
 const route = useRoute();
-const fetcher = useApiRequest();
+const { request } = useApiRequest();
 
 const game = ref<GameForm>({
   gameName: '',
@@ -221,7 +216,7 @@ const createGame = async () => {
 
   game.value.includedCards = includedCards;
 
-  const { success, data } = await fetcher<GameDto>('/games', {
+  const { success, data } = await request<GameDto>('/games', {
     method: 'POST',
     data: game.value,
     errorMessage: 'Error creating game: {error}',
@@ -243,7 +238,7 @@ onMounted(async () => {
     await router.push({ name: 'register', query: { return: route.path } });
   }
 
-  const { success, data } = await fetcher<User[]>('/users', {
+  const { success, data } = await request<User[]>('/users', {
     method: 'GET',
     errorMessage: 'Error fetching users.',
   });

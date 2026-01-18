@@ -10,10 +10,7 @@
             <v-text-field
               v-model="formValues.username"
               label="Username"
-              :rules="[
-                (value) =>
-                  !!value || 'Username is required',
-              ]"
+              :rules="[(value) => !!value || 'Username is required']"
               variant="outlined"
               autofocus
             />
@@ -23,16 +20,18 @@
               label="Password"
               variant="outlined"
               type="password"
-              :rules="[
-                (value) =>
-                  !!value || 'Password is required',
-              ]"
+              :rules="[(value) => !!value || 'Password is required']"
               @keydown.enter="login"
             />
           </div>
 
           <v-card-actions class="d-flex justify-end">
-            <v-btn @click="login">Login</v-btn>
+            <v-btn
+              @click="login"
+              :loading="isLoading"
+            >
+              Login
+            </v-btn>
           </v-card-actions>
         </v-card-text>
       </v-card>
@@ -48,7 +47,7 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const authStore = useAuthStore();
-const fetcher = useApiRequest();
+const { isLoading, request } = useApiRequest();
 
 const formValues = reactive({
   username: '',
@@ -61,7 +60,7 @@ const login = async () => {
   const validationResult = await form.value?.validate();
   if (!validationResult.valid) return;
 
-  const { success } = await fetcher<boolean>('/auth/login', {
+  const { success } = await request<boolean>('/auth/login', {
     method: 'POST',
     data: {
       username: formValues.username,

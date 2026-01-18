@@ -55,7 +55,7 @@ import { useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
 const router = useRouter();
-const apiRequest = useApiRequest();
+const { request } = useApiRequest();
 const items = ref<Game[]>([]);
 const page = ref(1);
 const itemsPerPage = 10;
@@ -85,7 +85,7 @@ const getRowClass = (game: Game) => {
 };
 
 onMounted(async () => {
-  const { success, data } = await apiRequest<GameDto[]>('/games', {
+  const { success, data } = await request<GameDto[]>('/games', {
     method: 'GET',
     errorMessage: 'Error fetching games.',
   });

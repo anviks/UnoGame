@@ -17,7 +17,7 @@
       <span class="card-count">{{ state.drawPileSize }}</span>
     </div>
     <v-btn @click="endTurn">End turn</v-btn>
-  
+
     <div
       class="uno-hand-wrapper"
       ref="handScrollRef"
@@ -88,7 +88,7 @@ const props = defineProps({
 
 const authStore = useAuthStore();
 const toast = useToast();
-const apiRequest = useApiRequest();
+const { request } = useApiRequest();
 const cardRefs = ref<ComponentPublicInstance<typeof CardChoice>[]>([]);
 
 const connected = ref(false);
@@ -322,12 +322,9 @@ watch(handScrollRef, (value) => {
 
 onMounted(async () => {
   await connectToGame();
-  const { success, data } = await apiRequest<GameDto>(
-    `/games/${props.gameId}`,
-    {
-      method: 'GET',
-    }
-  );
+  const { success, data } = await request<GameDto>(`/games/${props.gameId}`, {
+    method: 'GET',
+  });
   if (success) {
     state.value = data.state;
   }
@@ -373,7 +370,10 @@ onUnmounted(() => {
   color: white;
 
   /* @formatter:off */
-  text-shadow: -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000,
+  text-shadow:
+    -1px -1px 2px #000,
+    1px -1px 2px #000,
+    -1px 1px 2px #000,
     1px 1px 2px #000;
   /* @formatter:on */
 

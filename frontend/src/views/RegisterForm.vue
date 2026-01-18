@@ -13,8 +13,8 @@
               :error="isAvailable === false"
               :rules="[
                 (value) =>
-                  value.length > 2 ||
-                  'Username must have at least 3 characters',
+                  value.length > 2
+                  || 'Username must have at least 3 characters',
                 () => isAvailable !== false || 'Username is already taken',
               ]"
               variant="outlined"
@@ -60,7 +60,12 @@
           </div>
 
           <v-card-actions class="d-flex justify-end">
-            <v-btn @click="register">Register</v-btn>
+            <v-btn
+              @click="register"
+              :loading="isLoading"
+            >
+              Register
+            </v-btn>
           </v-card-actions>
         </v-card-text>
       </v-card>
@@ -78,7 +83,7 @@ import { useRoute, useRouter } from 'vue-router';
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
-const fetcher = useApiRequest();
+const { request, isLoading } = useApiRequest();
 
 const formValues = reactive({
   username: '',
@@ -101,7 +106,7 @@ const checkUsername = _.debounce(async (name: string) => {
 
   checking.value = true;
 
-  const { data } = await fetcher<boolean>('/auth/is-username-available', {
+  const { data } = await request<boolean>('/auth/is-username-available', {
     params: { username: name },
     errorMessage: 'Error fetching user info.',
   });
@@ -114,7 +119,7 @@ const register = async () => {
   const validationResult = await form.value?.validate();
   if (!validationResult.valid) return;
 
-  const { success } = await fetcher<boolean>('/auth/register', {
+  const { success } = await request<boolean>('/auth/register', {
     method: 'POST',
     data: {
       username: formValues.username,
