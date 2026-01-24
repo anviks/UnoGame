@@ -88,7 +88,7 @@ const props = defineProps({
 
 const authStore = useAuthStore();
 const toast = useToast();
-const { request } = useApiRequest();
+const { request } = useApiRequest<GameDto>(`/games/${props.gameId}`);
 const cardRefs = ref<ComponentPublicInstance<typeof CardChoice>[]>([]);
 
 const connected = ref(false);
@@ -322,7 +322,7 @@ watch(handScrollRef, (value) => {
 
 onMounted(async () => {
   await connectToGame();
-  const { success, data } = await request<GameDto>(`/games/${props.gameId}`, {
+  const { success, data } = await request({
     method: 'GET',
   });
   if (success) {

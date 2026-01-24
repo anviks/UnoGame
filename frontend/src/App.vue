@@ -46,10 +46,10 @@ import { RouterView } from 'vue-router';
 import { useApiRequest } from './composables/useApiRequest';
 
 const authStore = useAuthStore();
-const { request } = useApiRequest();
+const { request } = useApiRequest('/auth/logout');
 
 const logout = async (): Promise<void> => {
-  await request('/auth/logout', {
+  await request({
     method: 'POST',
     showErrorToast: false,
   });

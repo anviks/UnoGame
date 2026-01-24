@@ -22,7 +22,7 @@
             >
               <template #append-inner>
                 <v-progress-circular
-                  v-if="checking"
+                  v-if="isCheckingUsername"
                   indeterminate
                   size="20"
                   width="2"
@@ -62,7 +62,7 @@
           <v-card-actions class="d-flex justify-end">
             <v-btn
               @click="register"
-              :loading="isLoading"
+              :loading="isRegistering"
             >
               Register
             </v-btn>
@@ -83,7 +83,10 @@ import { useRoute, useRouter } from 'vue-router';
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
-const { request, isLoading } = useApiRequest();
+const { request: checkUsernameRequest, isLoading: isCheckingUsername } =
+  useApiRequest<boolean>('/auth/is-username-available');
+const { request: registerRequest, isLoading: isRegistering } =
+  useApiRequest('/auth/register');
 
 const formValues = reactive({
   username: '',
@@ -92,7 +95,6 @@ const formValues = reactive({
 });
 
 const isAvailable = ref<boolean | null>(null);
-const checking = ref(false);
 const form = ref();
 
 const token = computed(() => route.query.token?.toString());
@@ -100,26 +102,22 @@ const token = computed(() => route.query.token?.toString());
 const checkUsername = _.debounce(async (name: string) => {
   if (!name || name.length < 3) {
     isAvailable.value = null;
-    checking.value = false;
     return;
   }
 
-  checking.value = true;
-
-  const { data } = await request<boolean>('/auth/is-username-available', {
+  const { data } = await checkUsernameRequest({
     params: { username: name },
     errorMessage: 'Error fetching user info.',
   });
 
   isAvailable.value = data;
-  checking.value = false;
 }, 500);
 
 const register = async () => {
   const validationResult = await form.value?.validate();
   if (!validationResult.valid) return;
 
-  const { success } = await request<boolean>('/auth/register', {
+  const { success } = await registerRequest({
     method: 'POST',
     data: {
       username: formValues.username,

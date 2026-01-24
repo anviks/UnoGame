@@ -136,7 +136,8 @@ const getDefaultPlayer = (): PlayerField => ({
 const form = ref();
 const router = useRouter();
 const route = useRoute();
-const { request } = useApiRequest();
+const { request: createGameRequest } = useApiRequest<GameDto>('/games');
+const { request: fetchUsersRequest } = useApiRequest<User[]>('/users');
 
 const game = ref<GameForm>({
   gameName: '',
@@ -216,7 +217,7 @@ const createGame = async () => {
 
   game.value.includedCards = includedCards;
 
-  const { success, data } = await request<GameDto>('/games', {
+  const { success, data } = await createGameRequest({
     method: 'POST',
     data: game.value,
     errorMessage: 'Error creating game: {error}',
@@ -238,7 +239,7 @@ onMounted(async () => {
     await router.push({ name: 'register', query: { return: route.path } });
   }
 
-  const { success, data } = await request<User[]>('/users', {
+  const { success, data } = await fetchUsersRequest({
     method: 'GET',
     errorMessage: 'Error fetching users.',
   });

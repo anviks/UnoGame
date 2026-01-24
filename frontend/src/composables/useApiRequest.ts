@@ -6,12 +6,11 @@ import {
 import { ref } from 'vue';
 import { useToast } from 'vue-toastification';
 
-export const useApiRequest = () => {
+export const useApiRequest = <T>(url: string) => {
   const isLoading = ref(false);
   const toast = useToast();
 
-  const request = async <T>(
-    url: string,
+  const request = async (
     options: ApiRequestOptions
   ): Promise<ApiResponse<T>> => {
     isLoading.value = true;

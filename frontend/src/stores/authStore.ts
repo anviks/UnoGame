@@ -6,11 +6,11 @@ import { ref } from 'vue';
 export const useAuthStore = defineStore('auth', () => {
   const userId = ref<number>();
   const username = ref<string>();
-  const { request } = useApiRequest();
+  const { request } = useApiRequest<User>('/auth/whoami');
   let initPromise: Promise<void> | null = null;
 
   const authenticate = async (): Promise<void> => {
-    const { data } = await request<User>('/auth/whoami', {
+    const { data } = await request({
       method: 'GET',
       showErrorToast: false,
     });

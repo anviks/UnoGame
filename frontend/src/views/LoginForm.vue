@@ -47,7 +47,7 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const authStore = useAuthStore();
-const { isLoading, request } = useApiRequest();
+const { isLoading, request } = useApiRequest<boolean>('/auth/login');
 
 const formValues = reactive({
   username: '',
@@ -60,7 +60,7 @@ const login = async () => {
   const validationResult = await form.value?.validate();
   if (!validationResult.valid) return;
 
-  const { success } = await request<boolean>('/auth/login', {
+  const { success } = await request({
     method: 'POST',
     data: {
       username: formValues.username,
