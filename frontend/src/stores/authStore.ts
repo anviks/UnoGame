@@ -34,15 +34,5 @@ export const useAuthStore = defineStore('auth', () => {
   // Initialize immediately when store is created
   initialize();
 
-  const logout = async (): Promise<void> => {
-    await request('/auth/logout', {
-      method: 'POST',
-      showErrorToast: false,
-    });
-
-    userId.value = undefined;
-    username.value = undefined;
-  };
-
-  return { authenticate, userId, username, initialize, logout };
+  return { authenticate, userId, username, initialize };
 });

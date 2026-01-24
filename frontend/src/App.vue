@@ -8,13 +8,7 @@
         <v-toolbar-title>{{ authStore.username }}</v-toolbar-title>
         <v-btn
           text
-          to="/"
-        >
-          Home
-        </v-btn>
-        <v-btn
-          text
-          @click="handleLogout"
+          @click="logout"
         >
           Logout
         </v-btn>
@@ -49,11 +43,18 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/authStore.ts';
 import { RouterView } from 'vue-router';
+import { useApiRequest } from './composables/useApiRequest';
 
 const authStore = useAuthStore();
+const { request } = useApiRequest();
 
-const handleLogout = async () => {
-  await authStore.logout();
+const logout = async (): Promise<void> => {
+  await request('/auth/logout', {
+    method: 'POST',
+    showErrorToast: false,
+  });
+
+  await authStore.authenticate();
 };
 </script>
 
