@@ -18,15 +18,14 @@
 >
 import cardBack from '@/assets/images/uno-card-back.png';
 
-const props = defineProps({
-  size: {
-    type: Number,
-    default: 100,
-  },
-  disabled: {
-    type: Boolean,
-    default: false,
-  },
+interface Props {
+  size?: number;
+  disabled?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  size: 100,
+  disabled: false,
 });
 </script>
 

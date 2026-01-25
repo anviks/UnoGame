@@ -17,43 +17,26 @@
 import { computed } from 'vue';
 import { cardColor, cardValue } from '@/constants.ts';
 
-const props = defineProps({
-  color: {
-    type: Number,
-    required: true,
-  },
-  value: {
-    type: Number,
-    required: true,
-  },
-  size: {
-    type: Number,
-    default: 100,
-  },
-  disabled: {
-    type: Boolean,
-    default: false,
-  },
-  shadowed: {
-    type: Boolean,
-    default: false,
-  },
-  rotationJitter: {
-    type: Number,
-    default: 0,
-  },
-  horizontalJitter: {
-    type: Number,
-    default: 0,
-  },
-  verticalJitter: {
-    type: Number,
-    default: 0,
-  },
-  chosenColor: {
-    type: [Number, null],
-    default: null,
-  },
+interface Props {
+  color: number;
+  value: number;
+  size?: number;
+  disabled?: boolean;
+  shadowed?: boolean;
+  rotationJitter?: number;
+  horizontalJitter?: number;
+  verticalJitter?: number;
+  chosenColor?: number | null;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  size: 100,
+  disabled: false,
+  shadowed: false,
+  rotationJitter: 0,
+  horizontalJitter: 0,
+  verticalJitter: 0,
+  chosenColor: null,
 });
 
 const randomJitter = (range: number) => {

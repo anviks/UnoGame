@@ -33,30 +33,23 @@
   setup
   lang="ts"
 >
-import { type PropType, ref } from 'vue';
+import { ref } from 'vue';
 import type { PlayerField, User } from '@/types.ts';
 import { playerType } from '@/constants.ts';
 import _ from 'lodash';
 
 const emits = defineEmits(['delete-player']);
 
-const props = defineProps({
-  player: {
-    type: Object as PropType<PlayerField>,
-    required: true,
-  },
-  index: {
-    type: Number,
-    required: true,
-  },
-  canDelete: {
-    type: Boolean,
-    default: false,
-  },
-  users: {
-    type: Array as PropType<User[]>,
-    default: [],
-  },
+interface Props {
+  player: PlayerField;
+  index: number;
+  canDelete?: boolean;
+  users?: User[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  canDelete: false,
+  users: () => [],
 });
 
 const playerTypeSelection = Object.entries(playerType).map(([title, value]) => ({ title: _.capitalize(title), value }));

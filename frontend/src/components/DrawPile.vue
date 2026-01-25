@@ -26,12 +26,11 @@ import { CardBack } from '@/components';
 import { computed, ref } from 'vue';
 import _ from 'lodash';
 
-const props = defineProps({
-  amount: {
-    type: Number,
-    required: true,
-  },
-});
+interface Props {
+  amount: number;
+}
+
+const props = defineProps<Props>();
 
 const topCardRef = ref();
 defineExpose({ topCardRef });

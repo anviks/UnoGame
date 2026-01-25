@@ -84,12 +84,11 @@ import {
 } from 'vue';
 import { useToast } from 'vue-toastification';
 
-const props = defineProps({
-  gameId: {
-    type: Number,
-    required: true,
-  },
-});
+interface Props {
+  gameId: number;
+}
+
+const props = defineProps<Props>();
 
 const authStore = useAuthStore();
 const toast = useToast();

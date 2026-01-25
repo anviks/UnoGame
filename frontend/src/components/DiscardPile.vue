@@ -26,16 +26,12 @@ import { type ComponentPublicInstance, type PropType, ref } from 'vue';
 import type { Card } from '@/types.ts';
 import { UnoCard } from '@/components';
 
-const props = defineProps({
-  cards: {
-    type: Array as PropType<Card[]>,
-    required: true,
-  },
-  currentColor: {
-    type: [Number, null],
-    default: null,
-  },
-});
+interface Props {
+  cards: Card[];
+  currentColor?: number | null;
+}
+
+const props = withDefaults(defineProps<Props>(), { currentColor: null });
 
 const cardRefs = ref<ComponentPublicInstance[]>([]);
 defineExpose({ cardRefs });

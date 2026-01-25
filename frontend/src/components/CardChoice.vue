@@ -54,19 +54,14 @@ import { cardColor } from '@/constants.ts';
 import { UnoCard } from '@/components';
 import { onMounted, ref, useTemplateRef } from 'vue';
 
-const props = defineProps({
-  color: {
-    type: Number,
-    required: true,
-  },
-  value: {
-    type: Number,
-    required: true,
-  },
-  size: {
-    type: Number,
-    default: 100,
-  },
+interface Props {
+  color: number;
+  value: number;
+  size?: number;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  size: 100,
 });
 
 const emits = defineEmits<{
