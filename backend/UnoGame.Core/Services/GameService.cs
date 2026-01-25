@@ -144,9 +144,8 @@ public class GameService(
      * This method doesn't perform any validation (whether the player has or can play the specified card),
      * that's the responsibility of the caller.
      */
-    private void PlayCurrentPlayerCard(GameState state, Card card)
+    private void PlayCard(GameState state, Player player, Card card)
     {
-        Player player = state.CurrentPlayer;
         player.Cards.Remove(card);
         state.DiscardPile.Insert(0, card);
 
@@ -190,7 +189,7 @@ public class GameService(
         if (player.PendingDrawnCard == null && !state.CanPlayerPlayCard(player, card))
             return Result.Fail(GameErrorCodes.InvalidCard);
 
-        PlayCurrentPlayerCard(state, card);
+        PlayCard(state, player, card);
 
         if (card.Color == CardColor.Wild)
         {
