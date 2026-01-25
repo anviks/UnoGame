@@ -1,5 +1,5 @@
 <template>
-  <div class="relative h-[150px]">
+  <div class="relative h-37.5">
     <uno-card
       v-for="(card, i) in cards"
       :key="card.id"

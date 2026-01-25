@@ -1,18 +1,20 @@
 <template>
   <v-container v-if="state">
-    <discard-pile
-      ref="discardPileRef"
-      :cards="state.discardPile"
-      :current-color="state.currentColor"
-    />
-
-    <div class="flex gap-3 select-none">
+    <div class="flex gap-3 select-none absolute top-2/5 left-1/3 -translate-1/2">
       <draw-pile
         ref="drawPileRef"
         :amount="state.drawPileSize"
         @click="drawCard"
       />
       <span class="card-count">{{ state.drawPileSize }}</span>
+    </div>
+
+    <div class="absolute top-2/5 left-2/3 -translate-1/2">
+      <discard-pile
+        ref="discardPileRef"
+        :cards="state.discardPile"
+        :current-color="state.currentColor"
+      />
     </div>
 
     <v-btn @click="endTurn">End turn</v-btn>
