@@ -219,7 +219,7 @@ const connectToGame = async () => {
 
         await animateCardMove({
           fromElement,
-          toElement: discardPileRef.value!.topCardRef!.$el,
+          toElement: discardPileRef.value!.cardRefs![0]!.$el,
           styleRef: styleRef,
         });
 

@@ -11,17 +11,18 @@
       :chosen-color="i === 0 ? currentColor : null"
       class="absolute"
       shadowed
-      :style="{zIndex: cards.length - i}"
-      :ref="(el) => { if (i === 0) topCardRef = el }"
+      :style="{ zIndex: cards.length - i }"
+      :ref="
+        (el) => {
+          cardRefs[i] = el as ComponentPublicInstance;
+        }
+      "
     ></uno-card>
   </div>
 </template>
 
-<script
-  setup
-  lang="ts"
->
-import { type PropType, ref } from 'vue';
+<script setup lang="ts">
+import { type ComponentPublicInstance, type PropType, ref } from 'vue';
 import type { Card } from '@/types.ts';
 import { UnoCard } from '@/components';
 
@@ -36,10 +37,8 @@ const props = defineProps({
   },
 });
 
-const topCardRef = ref();
-defineExpose({ topCardRef });
+const cardRefs = ref<ComponentPublicInstance[]>([]);
+defineExpose({ cardRefs });
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
