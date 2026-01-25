@@ -5,10 +5,8 @@
       :cards="state.discardPile"
       :current-color="state.currentColor"
     />
-    <div
-      class="d-flex ga-3"
-      style="user-select: none"
-    >
+
+    <div class="flex gap-3 select-none">
       <draw-pile
         ref="drawPileRef"
         :amount="state.drawPileSize"
@@ -16,16 +14,16 @@
       />
       <span class="card-count">{{ state.drawPileSize }}</span>
     </div>
-    <v-btn @click="endTurn">End turn</v-btn>
 
+    <v-btn @click="endTurn">End turn</v-btn>
     <div
-      class="uno-hand-wrapper"
+      class="absolute bottom-25 left-1/2 -translate-x-1/2 w-full overflow-x-hidden overflow-y-visible px-15 py-0"
       ref="handScrollRef"
     >
       <transition-group
         name="hand-change"
         tag="div"
-        class="uno-card-hand"
+        class="inline-flex items-center pt-10 pb-4 min-h-40 overflow-visible!"
       >
         <card-choice
           v-for="(card, index) in thisPlayer?.cards"
@@ -33,6 +31,7 @@
           :color="card.color"
           :value="card.value"
           :ref="(el) => (cardRefs[index] = el as any)"
+          class="-ml-5! first:ml-0!"
           @card-chosen="(chosenColor) => playCard(index, card, chosenColor)"
         />
       </transition-group>
@@ -43,7 +42,6 @@
       :key="transitioningCard.value.id"
     >
       <uno-card
-        class="flying-card"
         :color="transitioningCard.value.color"
         :value="transitioningCard.value.value"
         :style="flyCardStyles[i]!.value"
@@ -56,11 +54,7 @@
 <script setup lang="ts">
 import { CardChoice, DiscardPile, DrawPile, UnoCard } from '@/components';
 import { useApiRequest } from '@/composables/useApiRequest';
-import {
-  errorMessages,
-  type GameErrorCode,
-  GameErrorCodes,
-} from '@/constants.ts';
+import { errorMessages, GameErrorCodes } from '@/constants.ts';
 import { animateCardMove, getElementSnapshot } from '@/helpers/ui';
 import { useAuthStore } from '@/stores/authStore.ts';
 import type {
@@ -358,34 +352,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="scss">
-.uno-hand-wrapper {
-  position: absolute;
-  bottom: 100px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  overflow-x: hidden;
-  overflow-y: visible;
-  padding: 0 60px;
-  // -webkit-overflow-scrolling: touch;
-}
-
-.uno-card-hand {
-  display: inline-flex;
-  align-items: center;
-  padding: 2.5rem 0 1rem 0; /* Extra top padding for hover translateY(-20px) */
-  min-height: 160px;
-  overflow: visible !important;
-}
-
-.uno-card-hand > * {
-  margin-left: -20px;
-
-  &:first-child {
-    margin-left: 0;
-  }
-}
-
 .card-count {
   font-family: 'Bungee', sans-serif;
   font-size: 36px;
