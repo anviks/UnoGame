@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using UnoGame.Core.DTO;
+using UnoGame.Core.DTO.Drawing;
 using UnoGame.Core.Helpers;
 using UnoGame.Core.State.Enums;
 
@@ -56,9 +56,45 @@ public class GameState
         }
     }
 
+    private void ResetDrawPile()
+    {
+        Card topCard = DiscardPile[0];
+        DiscardPile.RemoveAt(0);
+        DrawPile.AddRange(DiscardPile);
+        DiscardPile = [topCard];
+        ShuffleDrawPile();
+    }
+
+    public Card? DrawCard()
+    {
+        return DrawCard(out _);
+    }
+
+    public Card? DrawCard(out bool reshuffled)
+    {
+        reshuffled = false;
+        if (DrawPile.Count <= 1)
+        {
+            ResetDrawPile();
+            reshuffled = true;
+        }
+
+        if (DrawPile.Count == 0) return null;
+
+        Card pileCard = DrawPile[0];
+        DrawPile.RemoveAt(0);
+
+        return pileCard;
+    }
+
     public bool TryDrawCardForPlayer(Player player, out DrawnCard drawnCard)
     {
-        Card? card = DrawCard();
+        return TryDrawCardForPlayer(player, out drawnCard, out _);
+    }
+
+    public bool TryDrawCardForPlayer(Player player, out DrawnCard drawnCard, out bool reshuffled)
+    {
+        Card? card = DrawCard(out reshuffled);
 
         if (card != null)
         {
@@ -74,33 +110,23 @@ public class GameState
         return false;
     }
 
-    private void ResetDrawPile()
-    {
-        Card topCard = DiscardPile[0];
-        DiscardPile.RemoveAt(0);
-        DrawPile.AddRange(DiscardPile);
-        DiscardPile = [topCard];
-        ShuffleDrawPile();
-    }
-
-    public Card? DrawCard()
-    {
-        if (DrawPile.Count <= 1) ResetDrawPile();
-        if (DrawPile.Count == 0) return null;
-
-        Card pileCard = DrawPile[0];
-        DrawPile.RemoveAt(0);
-
-        return pileCard;
-    }
-
     public List<DrawnCard> DrawCardsForPlayer(Player player, int count)
     {
+        return DrawCardsForPlayer(player, count, out _);
+    }
+
+    public List<DrawnCard> DrawCardsForPlayer(Player player, int count, out int? reshuffleIndex)
+    {
         List<DrawnCard> drawnCards = [];
+        reshuffleIndex = null;
 
         for (var i = 0; i < count; i++)
         {
-            if (TryDrawCardForPlayer(player, out DrawnCard drawnCard)) drawnCards.Add(drawnCard);
+            // If drawing failed, there's no reason to try further
+            if (!TryDrawCardForPlayer(player, out DrawnCard drawnCard, out var reshuffled)) break;
+
+            if (reshuffled) reshuffleIndex = i;
+            drawnCards.Add(drawnCard);
         }
 
         return drawnCards;

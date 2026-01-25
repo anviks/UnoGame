@@ -1,5 +1,6 @@
 using AutoMapper;
 using UnoGame.Core.DTO;
+using UnoGame.Core.DTO.Drawing;
 using UnoGame.Core.Entities;
 using UnoGame.Core.State;
 
@@ -35,5 +36,7 @@ public class MappingProfile : Profile
             .AfterMap<GamePostMappingAction>();
 
         CreateMap<User, UserDto>();
+
+        CreateMap<DrawResult, PublicDrawResult>();
     }
 }

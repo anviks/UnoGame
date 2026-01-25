@@ -1,4 +1,11 @@
 import { type Moment } from 'moment';
+import type { GameErrorCode } from './constants';
+
+export type HubResponse =
+  | {
+      accepted: true;
+    }
+  | { accepted: false; error: GameErrorCode };
 
 export interface Card {
   id?: number;
@@ -9,6 +16,17 @@ export interface Card {
 export interface DrawnCard {
   index: number;
   card: Card;
+}
+
+export interface PublicDrawResult {
+  requested: number;
+  drawn: number;
+  completed: boolean;
+  reshuffleIndex: number | null;
+}
+
+export interface DrawResult extends PublicDrawResult {
+  drawnCards: DrawnCard[];
 }
 
 export interface Game {

@@ -1,6 +1,6 @@
 using UnoGame.Core.State;
 
-namespace UnoGame.Core.DTO;
+namespace UnoGame.Core.DTO.Drawing;
 
 public class DrawnCard
 {

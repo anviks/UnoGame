@@ -63,7 +63,16 @@ import {
 } from '@/constants.ts';
 import { animateCardMove, getElementSnapshot } from '@/helpers/ui';
 import { useAuthStore } from '@/stores/authStore.ts';
-import type { Card, DrawnCard, GameDto, GameState, Player } from '@/types.ts';
+import type {
+  Card,
+  DrawnCard,
+  DrawResult,
+  GameDto,
+  GameState,
+  HubResponse,
+  Player,
+  PublicDrawResult,
+} from '@/types.ts';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import _ from 'lodash';
 import {
@@ -100,20 +109,15 @@ const sendMessage = (user: string, message: string) => {
     .catch((err) => console.error(err));
 };
 
-interface PlayCardResponse {
-  success: boolean;
-  error?: string;
-}
-
 const playCard = async (index: number, card: Card, chosenColor?: number) => {
-  const response: PlayCardResponse = await connection.value!.invoke(
+  const response = await connection.value!.invoke<HubResponse>(
     'PlayCard',
     card,
     chosenColor
   );
 
-  if (!response.success) {
-    const errorCode = response.error as GameErrorCode;
+  if (!response.accepted) {
+    const errorCode = response.error;
 
     if (errorCode === GameErrorCodes.INVALID_CARD) {
       cardRefs.value[index]!.triggerShake();
@@ -130,19 +134,19 @@ const transitioningCards = ref<Ref<Card>[]>([]);
 const flyCardStyles = ref<Ref<Record<string, string>>[]>([]);
 
 const drawCard = async () => {
-  const response = await connection.value!.invoke('DrawCard');
+  const response = await connection.value!.invoke<HubResponse>('DrawCard');
 
-  if (!response.success) {
-    const errorCode = response.error as GameErrorCode;
+  if (!response.accepted) {
+    const errorCode = response.error;
     toast.error(errorMessages[errorCode] ?? errorCode);
   }
 };
 
 const endTurn = async () => {
-  const response = await connection.value!.invoke('EndTurn');
+  const response = await connection.value!.invoke<HubResponse>('EndTurn');
 
-  if (!response.success) {
-    const errorCode = response.error as GameErrorCode;
+  if (!response.accepted) {
+    const errorCode = response.error;
     toast.error(errorMessages[errorCode] ?? errorCode);
   }
 };
@@ -234,14 +238,32 @@ const connectToGame = async () => {
 
   connection.value.on(
     'CardDrawnOpponent',
-    async (player: Player, cardCount: number) => {
-      state.value!.drawPileSize -= cardCount;
-      // TODO: Add possibility to check if draw pile has reset due to the drawing
+    async (player: Player, drawResult: PublicDrawResult) => {
+      state.value!.drawPileSize -= drawResult.drawn;
+
+      if (drawResult.reshuffleIndex !== null) {
+        state.value!.drawPileSize += state.value!.discardPile.length - 1;
+        state.value!.discardPile.splice(1);
+      }
     }
   );
 
-  connection.value.on('CardDrawnSelf', async (drawnCards: DrawnCard[]) => {
-    await animateDrawnCards(drawnCards, true);
+  connection.value.on('CardDrawnSelf', async (drawResult: DrawResult) => {
+    if (drawResult.reshuffleIndex == null) {
+      await animateDrawnCards(drawResult.drawnCards, false);
+    } else {
+      const firstBatch = drawResult.drawnCards.slice(
+        0,
+        drawResult.reshuffleIndex
+      );
+      const secondBatch = drawResult.drawnCards.slice(
+        drawResult.reshuffleIndex
+      );
+      await animateDrawnCards(firstBatch, false);
+      state.value!.drawPileSize += state.value!.discardPile.length - 1;
+      state.value!.discardPile.splice(1);
+      await animateDrawnCards(secondBatch, false);
+    }
   });
 
   connection.value

@@ -1,7 +1,9 @@
 using System.Collections.Concurrent;
+using AutoMapper;
 using FluentResults;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using UnoGame.Core.DTO.Drawing;
 using UnoGame.Core.Entities;
 using UnoGame.Core.Services;
 using UnoGame.Core.State;
@@ -12,7 +14,8 @@ namespace WebApp.Hubs;
 [Authorize]
 public class GameHub(
     UserService userService,
-    GameService gameService
+    GameService gameService,
+    IMapper mapper
 ) : Hub
 {
     private static readonly ConcurrentDictionary<string, (int GameId, Player Player)> Connections = new();
@@ -83,7 +86,7 @@ public class GameHub(
         (var gameId, Player player) = Connections[Context.ConnectionId];
         Result playResult = await gameService.TryPlayCard(gameId, player, card, chosenColor);
 
-        if (!playResult.IsSuccess) return new { Success = false, Error = playResult.Errors.First().Message };
+        if (!playResult.IsSuccess) return new { Accepted = false, Error = playResult.Errors.First().Message };
 
         await Clients.Group(gameId.ToString())
             .SendAsync(
@@ -92,7 +95,7 @@ public class GameHub(
                 card,
                 chosenColor
             );
-        return new { Success = true };
+        return new { Accepted = true };
     }
 
     public async Task<object> DrawCard()
@@ -100,13 +103,13 @@ public class GameHub(
         (var gameId, Player player) = Connections[Context.ConnectionId];
         var drawResult = await gameService.TryDrawCard(gameId, player);
 
-        if (drawResult.IsFailed) return new { Success = false, Error = drawResult.Errors.First().Message };
+        if (drawResult.IsFailed) return new { Accepted = false, Error = drawResult.Errors.First().Message };
 
         await Clients.OthersInGroup(gameId.ToString())
             .SendAsync(
                 "CardDrawnOpponent",
                 player,
-                drawResult.Value.Count
+                mapper.Map<DrawResult, PublicDrawResult>(drawResult.Value)
             );
 
         await Clients.Caller
@@ -115,7 +118,7 @@ public class GameHub(
                 drawResult.Value
             );
 
-        return new { Success = true };
+        return new { Accepted = true };
     }
 
     public async Task<object> EndTurn()
@@ -123,13 +126,13 @@ public class GameHub(
         (var gameId, Player player) = Connections[Context.ConnectionId];
         Result endTurnResult = await gameService.TryEndTurn(gameId, player);
 
-        if (!endTurnResult.IsSuccess) return new { Success = false, Error = endTurnResult.Errors.First().Message };
+        if (endTurnResult.IsFailed) return new { Accepted = false, Error = endTurnResult.Errors.First().Message };
 
         await Clients.Group(gameId.ToString())
             .SendAsync(
                 "TurnEnded",
                 player
             );
-        return new { Success = true };
+        return new { Accepted = true };
     }
 }
