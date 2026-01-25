@@ -13,29 +13,20 @@ public static class CardHelpers
         var cardId = 0;
 
         for (var i = 0; i < (int)CardColor.Wild; i++)
+        for (var j = 0; j < (int)CardValue.Wild; j++)
         {
-            for (var j = 0; j < (int)CardValue.Wild; j++)
-            {
-                var color = (CardColor)i;
-                var value = (CardValue)j;
+            var color = (CardColor)i;
+            var value = (CardValue)j;
 
-                defaultCards.Add(new Card { Id = ++cardId, Color = color, Value = value });
-                if (j > 0)
-                {
-                    defaultCards.Add(new Card { Id = ++cardId, Color = color, Value = value });
-                }
-            }
+            defaultCards.Add(new Card { Id = ++cardId, Color = color, Value = value });
+            if (j > 0) defaultCards.Add(new Card { Id = ++cardId, Color = color, Value = value });
         }
 
         for (var i = 0; i < 4; i++)
-        {
             defaultCards.Add(new Card { Id = ++cardId, Color = CardColor.Wild, Value = CardValue.Wild });
-        }
 
         for (var i = 0; i < 4; i++)
-        {
             defaultCards.Add(new Card { Id = ++cardId, Color = CardColor.Wild, Value = CardValue.WildDrawFour });
-        }
 
         DefaultCards = defaultCards.AsReadOnly();
     }

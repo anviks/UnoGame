@@ -7,6 +7,9 @@ namespace UnoGame.Core.State;
 
 public class GameState
 {
+    [NotMapped] public const int InitialHandSize = 7;
+    [NotMapped] private static readonly Random Rng = new();
+
     public CardColor? CurrentColor { get; set; }
     public CardValue? CurrentValue { get; set; }
     public int CurrentPlayerIndex { get; set; }
@@ -17,10 +20,6 @@ public class GameState
     public List<Player> Players { get; set; } = default!;
     public List<Card> DrawPile { get; set; } = [];
     public List<Card> DiscardPile { get; set; } = [];
-
-    // Other properties
-    [NotMapped] public const int InitialHandSize = 7;
-    [NotMapped] private static readonly Random Rng = new();
 
     private int NextPlayerIndex => (CurrentPlayerIndex + (IsReversed ? -1 : 1) + Players.Count) % Players.Count;
 
@@ -109,13 +108,9 @@ public class GameState
 
     public void DealCards()
     {
-        for (int i = 0; i < InitialHandSize; i++)
-        {
-            foreach (var player in Players)
-            {
+        for (var i = 0; i < InitialHandSize; i++)
+            foreach (Player player in Players)
                 TryDrawCardForPlayer(player, out _);
-            }
-        }
     }
 
     public bool CanPlayerPlayCard(Player player, Card card)
@@ -126,17 +121,13 @@ public class GameState
     public bool IsCardPlayable(Player player, Card card)
     {
         if (CurrentColor == null)
-        {
             return card.Value != CardValue.WildDrawFour || player.Cards.All(c => c.Color == CardColor.Wild);
-        }
 
         if (card.Value == CardValue.WildDrawFour)
-        {
             // Wild draw four can only be played if the player has no other cards of the current color
             return player
                 .Cards
                 .All(c => c.Color != CurrentColor);
-        }
 
         return card.Color == CurrentColor
                || card.Value == CurrentValue
@@ -145,7 +136,7 @@ public class GameState
 
     public static CardColor GetColorFromBot(Player player)
     {
-        var chosenColor = player.Cards.Select(pc => pc.Color)
+        CardColor chosenColor = player.Cards.Select(pc => pc.Color)
             .GroupBy(color => color)
             .MaxBy(group => group.Count())
             ?.Key ?? CardColor.Red;
@@ -155,7 +146,7 @@ public class GameState
 
     public Card? GetCardFromBot(Player player, out bool drewCard)
     {
-        var cardToPlay = player.Cards.FirstOrDefault(card => CanPlayerPlayCard(player, card));
+        Card? cardToPlay = player.Cards.FirstOrDefault(card => CanPlayerPlayCard(player, card));
 
         if (cardToPlay is null)
         {

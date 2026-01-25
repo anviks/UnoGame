@@ -60,20 +60,12 @@ public class GameService(
 
         Game? existingGame = await gameRepository.GetGameByName(gameName);
 
-        if (existingGame != null)
-        {
-            result.WithError("Game with this name already exists.");
-        }
+        if (existingGame != null) result.WithError("Game with this name already exists.");
 
-        if (createPlayers.Count is < 2 or > 10)
-        {
-            result.WithError("Player count must be between 2 and 10.");
-        }
+        if (createPlayers.Count is < 2 or > 10) result.WithError("Player count must be between 2 and 10.");
 
         if (createPlayers.DistinctBy(p => p.Username).ToList().Count < createPlayers.Count)
-        {
             result.WithError("Player names must be unique.");
-        }
 
         if (result.IsFailed) return result;
 
@@ -96,7 +88,7 @@ public class GameService(
         var state = new GameState
         {
             Players = players,
-            DrawPile = drawPile,
+            DrawPile = drawPile
         };
 
         state.ShuffleDrawPile();
@@ -137,7 +129,7 @@ public class GameService(
         var game = new Game
         {
             Name = gameName,
-            SerializedState = SerializeState(state),
+            SerializedState = SerializeState(state)
         };
 
         game.CreatedAt = game.UpdatedAt = DateTime.UtcNow;
@@ -161,13 +153,9 @@ public class GameService(
         {
             case CardValue.Reverse:
                 if (state.Players.Count > 2)
-                {
                     state.IsReversed = !state.IsReversed;
-                }
                 else
-                {
                     state.EndTurn();
-                }
 
                 break;
             case CardValue.Skip:

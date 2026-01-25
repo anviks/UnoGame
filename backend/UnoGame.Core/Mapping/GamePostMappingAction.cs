@@ -14,7 +14,8 @@ public class GamePostMappingAction(GameService gameService, IMapper mapper) : IM
 
         // Pass the requestingUserId from parent context to nested mapping
         int? requestingUserId = null;
-        if (context.TryGetItems(out var items)) requestingUserId = items.GetValueOrDefault("requestingUserId", null) as int?;
+        if (context.TryGetItems(out var items))
+            requestingUserId = items.GetValueOrDefault("requestingUserId", null) as int?;
 
         destination.State = mapper.Map<GameStateDto>(state, opts =>
         {

@@ -5,7 +5,7 @@ namespace WebApp.ApiControllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UsersController(UserService userService): ControllerBase
+public class UsersController(UserService userService) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetAllUsers()

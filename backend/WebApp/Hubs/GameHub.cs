@@ -27,7 +27,7 @@ public class GameHub(
             return;
         }
 
-        var httpContext = Context.GetHttpContext()!;
+        HttpContext httpContext = Context.GetHttpContext()!;
         var gameIdString = httpContext.Request.Query["gameId"].ToString();
 
         if (string.IsNullOrEmpty(gameIdString))
@@ -72,7 +72,7 @@ public class GameHub(
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        Connections.TryRemove(Context.ConnectionId, out var connection);
+        Connections.TryRemove(Context.ConnectionId, out (int GameId, Player Player) connection);
         await Clients.Group(connection.GameId.ToString())
             .SendAsync("PlayerLeft", connection.Player.Name, Context.ConnectionId);
         await base.OnDisconnectedAsync(exception);

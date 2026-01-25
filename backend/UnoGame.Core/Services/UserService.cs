@@ -52,10 +52,7 @@ public class UserService(IMapper mapper, IHttpContextAccessor httpContextAccesso
         ClaimsPrincipal? user = httpContextAccessor.HttpContext?.User;
         var id = user?.FindFirst("UserId")?.Value;
 
-        if (int.TryParse(id, out var userId))
-        {
-            return await userRepository.GetUserById(userId);
-        }
+        if (int.TryParse(id, out var userId)) return await userRepository.GetUserById(userId);
 
         return null;
     }

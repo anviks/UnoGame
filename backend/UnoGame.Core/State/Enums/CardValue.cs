@@ -1,6 +1,5 @@
 namespace UnoGame.Core.State.Enums;
 
-
 public enum CardValue
 {
     Zero,

@@ -1,12 +1,12 @@
 using System.Text.Json.Serialization;
 using DAL.Context;
 using DAL.Repositories;
-using UnoGame.Core.Config;
-using UnoGame.Core.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using UnoGame.Core.Config;
 using UnoGame.Core.Interfaces;
 using UnoGame.Core.Mapping;
+using UnoGame.Core.Services;
 using WebApp.Hubs;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -28,10 +28,7 @@ builder.Services.AddDbContext<UnoDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddRazorPages();
 builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-    });
+    .AddJsonOptions(options => { options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles; });
 
 builder.Services.AddHttpContextAccessor();
 
@@ -83,7 +80,7 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddAutoMapper(_ => { }, typeof(MappingProfile).Assembly);
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 app.UseSession();
 

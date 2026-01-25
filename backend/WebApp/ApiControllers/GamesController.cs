@@ -37,10 +37,7 @@ public class GamesController(GameService gameService, UserService userService, I
     {
         var result = await gameService.CreateGame(gameRequest.GameName, gameRequest.Players, gameRequest.IncludedCards);
 
-        if (result.IsFailed)
-        {
-            return BadRequest(result.Errors.First());
-        }
+        if (result.IsFailed) return BadRequest(result.Errors.First());
 
         return CreatedAtAction(nameof(Get), new { id = result.Value.Id }, mapper.Map<GameDto>(result.Value));
     }

@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using UnoGame.Core.Config;
 using UnoGame.Core.Entities;
@@ -15,7 +14,11 @@ namespace WebApp.ApiControllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(UnoDbContext db, UserService userService, IOptions<UserLimitsConfig> limitOptions, IWebHostEnvironment env)
+public class AuthController(
+    UnoDbContext db,
+    UserService userService,
+    IOptions<UserLimitsConfig> limitOptions,
+    IWebHostEnvironment env)
     : ControllerBase
 {
     private readonly UserLimitsConfig _limitsConfig = limitOptions.Value;
@@ -100,7 +103,7 @@ public class AuthController(UnoDbContext db, UserService userService, IOptions<U
         return Ok(new
         {
             user.Id,
-            user.Username,
+            user.Username
         });
     }
 }
