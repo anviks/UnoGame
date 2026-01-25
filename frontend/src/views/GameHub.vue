@@ -56,8 +56,9 @@
 <script setup lang="ts">
 import { CardChoice, DiscardPile, DrawPile, UnoCard } from '@/components';
 import { useApiRequest } from '@/composables/useApiRequest';
+import { useCardTransitions } from '@/composables/useCardTransitions';
 import { errorMessages, GameErrorCodes } from '@/constants.ts';
-import { animateCardMove, getElementSnapshot } from '@/helpers/ui';
+import { getElementSnapshot } from '@/helpers/ui';
 import { useAuthStore } from '@/stores/authStore.ts';
 import type {
   Card,
@@ -77,7 +78,6 @@ import {
   nextTick,
   onMounted,
   onUnmounted,
-  type Ref,
   ref,
   useTemplateRef,
   watch,
@@ -125,8 +125,7 @@ const playCard = async (index: number, card: Card, chosenColor?: number) => {
 const drawPileRef = useTemplateRef('drawPileRef');
 const discardPileRef = useTemplateRef('discardPileRef');
 
-const transitioningCards = ref<Ref<Card>[]>([]);
-const flyCardStyles = ref<Ref<Record<string, string>>[]>([]);
+const { transitioningCards, flyCardStyles, animate } = useCardTransitions();
 
 const drawCard = async () => {
   const response = await connection.value!.invoke<HubResponse>('DrawCard');
@@ -156,23 +155,11 @@ const animateDrawnCards = async (
     thisPlayer.value!.cards!.splice(drawnCard.index, 0, drawnCard.card);
     await nextTick();
 
-    let cardRef = ref<Card>(drawnCard.card);
-    transitioningCards.value.push(cardRef);
-
-    let styleRef = ref();
-    flyCardStyles.value.push(styleRef);
-
-    const animation = animateCardMove({
-      fromElement: getElementSnapshot(drawPileRef.value?.topCardRef.$el),
-      toElement: cardRefs.value[drawnCard.index]!.$el,
-      styleRef: styleRef,
-    }).then(() => {
-      const index = transitioningCards.value.findIndex(
-        (cr) => cr.value.id === drawnCard.card.id
-      );
-      transitioningCards.value.splice(index, 1);
-      flyCardStyles.value.splice(index, 1);
-    });
+    const animation = animate(
+      drawnCard.card,
+      getElementSnapshot(drawPileRef.value?.topCardRef.$el),
+      cardRefs.value[drawnCard.index]!.$el
+    );
 
     if (sequential) {
       await animation;
@@ -210,23 +197,7 @@ const connectToGame = async () => {
         thisPlayer.value!.cards!.splice(playedCardIndex, 1);
         await nextTick();
 
-        let cardRef = ref<Card>(card);
-        transitioningCards.value.push(cardRef);
-
-        let styleRef = ref();
-        flyCardStyles.value.push(styleRef);
-
-        await animateCardMove({
-          fromElement,
-          toElement: discardPileRef.value!.cardRefs![0]!.$el,
-          styleRef: styleRef,
-        });
-
-        const index = transitioningCards.value.findIndex(
-          (cr) => cr.value.id === card.id
-        );
-        transitioningCards.value.splice(index, 1);
-        flyCardStyles.value.splice(index, 1);
+        await animate(card, fromElement, discardPileRef.value!.cardRefs![0]!.$el);
       }
     }
   );

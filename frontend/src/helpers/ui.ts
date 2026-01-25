@@ -8,7 +8,7 @@ interface AnimateCardOptions {
   duration?: number;
 }
 
-interface HTMLSnapshot {
+export interface HTMLSnapshot {
   boundingClientRect: DOMRect;
   offsetWidth: number;
   offsetHeight: number;
