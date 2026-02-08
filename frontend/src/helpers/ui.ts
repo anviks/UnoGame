@@ -73,60 +73,60 @@ export async function animateCardMove({
   styleRef,
   duration = 600,
 }: AnimateCardOptions): Promise<void> {
-  return new Promise(async (resolve, reject) => {
-    toElement.style.visibility = 'hidden';
-    await nextTick();
+  toElement.style.visibility = 'hidden';
+  await nextTick();
 
-    const fromRect = fromElement.boundingClientRect;
-    const toRect = toElement.getBoundingClientRect();
+  const fromRect = fromElement.boundingClientRect;
+  const toRect = toElement.getBoundingClientRect();
 
-    const { scaleX, scaleY, rotate: fromRotation } = fromElement;
+  const { scaleX, scaleY, rotate: fromRotation } = fromElement;
 
-    let { width, height } = fromRect;
-    ({ width, height } = getTrueDimensions(
-      width,
-      height,
-      parseInt(fromRotation)
-    ));
+  let { width, height } = fromRect;
+  ({ width, height } = getTrueDimensions(
+    width,
+    height,
+    parseInt(fromRotation)
+  ));
 
-    const fromCenterX = fromRect.left + fromRect.width / 2;
-    const fromCenterY = fromRect.top + fromRect.height / 2;
+  const fromCenterX = fromRect.left + fromRect.width / 2;
+  const fromCenterY = fromRect.top + fromRect.height / 2;
 
-    const toCenterX = toRect.left + toRect.width / 2;
-    const toCenterY = toRect.top + toRect.height / 2;
+  const toCenterX = toRect.left + toRect.width / 2;
+  const toCenterY = toRect.top + toRect.height / 2;
 
-    const dx = toCenterX - fromCenterX;
-    const dy = toCenterY - fromCenterY;
+  const dx = toCenterX - fromCenterX;
+  const dy = toCenterY - fromCenterY;
 
-    const toRotation = toElement.style.rotate || '0deg';
+  const toRotation = toElement.style.rotate || '0deg';
 
-    const baseStyles = {
-      position: 'absolute',
-      left: `${fromCenterX - width / 2}px`,
-      top: `${fromCenterY - height / 2}px`,
-      width: `${width}px`,
-      height: `${height}px`,
-      zIndex: '999',
-    };
+  const baseStyles = {
+    position: 'absolute',
+    left: `${fromCenterX - width / 2}px`,
+    top: `${fromCenterY - height / 2}px`,
+    width: `${width}px`,
+    height: `${height}px`,
+    zIndex: '999',
+  };
 
-    // Phase 1: render at the starting position with correct rotation (no transition)
-    styleRef.value = {
-      ...baseStyles,
-      transform: `translate(0px, 0px) rotate(${fromRotation}) scale(1, 1)`,
-    };
+  // Phase 1: render at the starting position with correct rotation (no transition)
+  styleRef.value = {
+    ...baseStyles,
+    transform: `translate(0px, 0px) rotate(${fromRotation}) scale(1, 1)`,
+  };
 
-    await nextTick();
-    void document.body.offsetHeight; // force reflow
+  await nextTick();
+  void document.body.offsetHeight; // force reflow
 
-    // Phase 2: transition to end position — matching function list ensures
-    // component-wise interpolation (translate stays in screen space)
-    styleRef.value = {
-      ...baseStyles,
-      transform: `translate(${dx}px, ${dy}px) rotate(${toRotation}) scale(${1 / scaleX}, ${1 / scaleY})`,
-      transition: `transform ${duration}ms ease`,
-    };
+  // Phase 2: transition to end position — matching function list ensures
+  // component-wise interpolation (translate stays in screen space)
+  styleRef.value = {
+    ...baseStyles,
+    transform: `translate(${dx}px, ${dy}px) rotate(${toRotation}) scale(${1 / scaleX}, ${1 / scaleY})`,
+    transition: `transform ${duration}ms ease`,
+  };
 
-    setTimeout(async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
       toElement.style.removeProperty('visibility');
       styleRef.value = {};
       resolve();
