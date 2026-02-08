@@ -1,10 +1,9 @@
-import { nextTick, type Ref } from 'vue';
+import { nextTick } from 'vue';
 
 interface AnimateCardOptions {
   fromEl: HTMLSnapshot;
   toEl: HTMLElement;
   animatedEl: HTMLElement;
-  styleRef: Ref<Record<string, string>>;
   duration?: number;
 }
 
@@ -71,7 +70,6 @@ export async function animateCardMove({
   fromEl,
   toEl,
   animatedEl,
-  styleRef,
   duration = 600,
 }: AnimateCardOptions): Promise<void> {
   toEl.style.visibility = 'hidden';
@@ -99,14 +97,14 @@ export async function animateCardMove({
 
   const toRotation = toEl.style.rotate || '0deg';
 
-  styleRef.value = {
+  Object.assign(animatedEl.style, {
     position: 'absolute',
     left: `${fromCenterX - width / 2}px`,
     top: `${fromCenterY - height / 2}px`,
     width: `${width}px`,
     height: `${height}px`,
     zIndex: '999',
-  };
+  });
 
   await nextTick();
 
@@ -123,5 +121,4 @@ export async function animateCardMove({
   await animation.finished;
 
   toEl.style.removeProperty('visibility');
-  styleRef.value = {};
 }
