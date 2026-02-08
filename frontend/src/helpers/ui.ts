@@ -126,14 +126,7 @@ export async function animateCardMove({
       transition: `transform ${duration}ms ease`,
     };
 
-    /*
-     Setting visibility to hidden and waiting for the next tick before cleaning up seems to be
-     one of the few ways to get rid of the transitioning card exactly when the transition ends.
-     Without it, the transitioning card sticks around for an additional second or two.
-    */
     setTimeout(async () => {
-      styleRef.value.visibility = 'hidden';
-      await nextTick();
       toElement.style.removeProperty('visibility');
       styleRef.value = {};
       resolve();
