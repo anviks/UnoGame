@@ -59,6 +59,7 @@ import { useApiRequest } from '@/composables/useApiRequest';
 import { useCardTransitions } from '@/composables/useCardTransitions';
 import { errorMessages, GameErrorCodes } from '@/constants.ts';
 import { getElementSnapshot } from '@/helpers/ui';
+import { sleep } from '@/helpers/general';
 import { useAuthStore } from '@/stores/authStore.ts';
 import type {
   Card,
@@ -164,7 +165,7 @@ const animateDrawnCards = async (
     if (sequential) {
       await animation;
     } else {
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await sleep(100);
     }
   }
 };
@@ -226,8 +227,17 @@ const connectToGame = async () => {
         drawResult.reshuffleIndex
       );
       await animateDrawnCards(firstBatch, false);
-      state.value!.drawPileSize += state.value!.discardPile.length - 1;
-      state.value!.discardPile.splice(1);
+
+      const discardPileSize = state.value!.discardPile.length;
+      
+      for (let i = 1; i < discardPileSize; i++) {
+        const card = state.value!.discardPile[1]!;
+        const cardEl = discardPileRef.value!.cardRefs[i]!;
+        animate(card, getElementSnapshot(cardEl.$el), drawPileRef.value!.fakeCard.$el, 1000).then(() => state.value!.drawPileSize++);
+        state.value!.discardPile.splice(1, 1);
+        await sleep(100);
+      }
+
       await animateDrawnCards(secondBatch, false);
     }
   });

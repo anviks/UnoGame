@@ -15,6 +15,14 @@
       }"
       :ref="(el) => { if (i === amountOfCards) topCardRef = el }"
     />
+    <card-back
+      :style="{
+        'position': 'absolute',
+        'left': 0,
+        'visibility': 'hidden'
+      }"
+      ref="fakeCard"
+    />
   </div>
 </template>
 
@@ -33,7 +41,8 @@ interface Props {
 const props = defineProps<Props>();
 
 const topCardRef = ref();
-defineExpose({ topCardRef });
+const fakeCard = ref();
+defineExpose({ topCardRef, fakeCard });
 
 const amountOfCards = computed(() => _.clamp(props.amount, 0, 15));
 </script>
