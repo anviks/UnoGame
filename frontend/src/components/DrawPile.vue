@@ -1,5 +1,6 @@
 <template>
-  <div
+  <transition-group
+    tag="div"
     :style="{
       'position': 'relative',
       'width': 100 + amountOfCards * 5 + 'px',
@@ -9,6 +10,7 @@
   >
     <card-back
       v-for="i in amountOfCards"
+      :key="i"
       :style="{
         'position': 'absolute',
         'left': i * 5 + 'px',
@@ -16,6 +18,7 @@
       :ref="(el) => { if (i === amountOfCards) topCardRef = el }"
     />
     <card-back
+      :key="-1"
       :style="{
         'position': 'absolute',
         'left': 0,
@@ -23,7 +26,7 @@
       }"
       ref="fakeCard"
     />
-  </div>
+  </transition-group>
 </template>
 
 <script
