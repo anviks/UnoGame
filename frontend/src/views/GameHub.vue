@@ -1,6 +1,8 @@
 <template>
   <v-container v-if="state">
-    <div class="flex gap-3 select-none absolute top-2/5 left-1/3 -translate-1/2">
+    <div
+      class="flex gap-3 select-none absolute top-2/5 left-1/3 -translate-1/2"
+    >
       <draw-pile
         ref="drawPileRef"
         :amount="state.drawPileSize"
@@ -39,17 +41,14 @@
       </transition-group>
     </div>
 
-    <transition
+    <uno-card
       v-for="(transitioningCard, i) in transitioningCards"
       :key="transitioningCard.value.id"
-    >
-      <uno-card
-        :color="transitioningCard.value.color"
-        :value="transitioningCard.value.value"
-        :style="flyCardStyles[i]!.value"
-        shadowed
-      />
-    </transition>
+      :color="transitioningCard.value.color"
+      :value="transitioningCard.value.value"
+      :style="flyCardStyles[i]!.value"
+      shadowed
+    />
   </v-container>
 </template>
 
@@ -198,7 +197,11 @@ const connectToGame = async () => {
         thisPlayer.value!.cards!.splice(playedCardIndex, 1);
         await nextTick();
 
-        await animate(card, fromElement, discardPileRef.value!.cardRefs![0]!.$el);
+        await animate(
+          card,
+          fromElement,
+          discardPileRef.value!.cardRefs![0]!.$el
+        );
       }
     }
   );
@@ -229,11 +232,16 @@ const connectToGame = async () => {
       await animateDrawnCards(firstBatch, false);
 
       const discardPileSize = state.value!.discardPile.length;
-      
+
       for (let i = 1; i < discardPileSize; i++) {
         const card = state.value!.discardPile[1]!;
         const cardEl = discardPileRef.value!.cardRefs[i]!;
-        animate(card, getElementSnapshot(cardEl.$el), drawPileRef.value!.fakeCard.$el, 1000).then(() => state.value!.drawPileSize++);
+        animate(
+          card,
+          getElementSnapshot(cardEl.$el),
+          drawPileRef.value!.fakeCard.$el,
+          1000
+        ).then(() => state.value!.drawPileSize++);
         state.value!.discardPile.splice(1, 1);
         await sleep(100);
       }
