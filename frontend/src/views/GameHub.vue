@@ -44,6 +44,7 @@
     <uno-card
       v-for="(transitioningCard, i) in transitioningCards"
       :key="transitioningCard.value.id"
+      :ref="(el: any) => setFlyCardRef(transitioningCard.value.id!, el)"
       :color="transitioningCard.value.color"
       :value="transitioningCard.value.value"
       :style="flyCardStyles[i]!.value"
@@ -125,7 +126,7 @@ const playCard = async (index: number, card: Card, chosenColor?: number) => {
 const drawPileRef = useTemplateRef('drawPileRef');
 const discardPileRef = useTemplateRef('discardPileRef');
 
-const { transitioningCards, flyCardStyles, animate } = useCardTransitions();
+const { transitioningCards, flyCardStyles, setFlyCardRef, animate } = useCardTransitions();
 
 const drawCard = async () => {
   const response = await connection.value!.invoke<HubResponse>('DrawCard');

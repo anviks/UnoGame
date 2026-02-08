@@ -1,9 +1,9 @@
-import _ from 'lodash';
 import { nextTick, type Ref } from 'vue';
 
 interface AnimateCardOptions {
-  fromElement: HTMLSnapshot;
-  toElement: HTMLElement;
+  fromEl: HTMLSnapshot;
+  toEl: HTMLElement;
+  animatedEl: HTMLElement;
   styleRef: Ref<Record<string, string>>;
   duration?: number;
 }
@@ -68,18 +68,18 @@ export function getElementSnapshot(el: HTMLElement): HTMLSnapshot {
 }
 
 export async function animateCardMove({
-  fromElement,
-  toElement,
+  fromEl,
+  toEl,
+  animatedEl,
   styleRef,
   duration = 600,
 }: AnimateCardOptions): Promise<void> {
-  toElement.style.visibility = 'hidden';
-  await nextTick();
+  toEl.style.visibility = 'hidden';
 
-  const fromRect = fromElement.boundingClientRect;
-  const toRect = toElement.getBoundingClientRect();
+  const fromRect = fromEl.boundingClientRect;
+  const toRect = toEl.getBoundingClientRect();
 
-  const { scaleX, scaleY, rotate: fromRotation } = fromElement;
+  const { scaleX, scaleY, rotate: fromRotation } = fromEl;
 
   let { width, height } = fromRect;
   ({ width, height } = getTrueDimensions(
@@ -97,9 +97,9 @@ export async function animateCardMove({
   const dx = toCenterX - fromCenterX;
   const dy = toCenterY - fromCenterY;
 
-  const toRotation = toElement.style.rotate || '0deg';
+  const toRotation = toEl.style.rotate || '0deg';
 
-  const baseStyles = {
+  styleRef.value = {
     position: 'absolute',
     left: `${fromCenterX - width / 2}px`,
     top: `${fromCenterY - height / 2}px`,
@@ -108,28 +108,20 @@ export async function animateCardMove({
     zIndex: '999',
   };
 
-  // Phase 1: render at the starting position with correct rotation (no transition)
-  styleRef.value = {
-    ...baseStyles,
-    transform: `translate(0px, 0px) rotate(${fromRotation}) scale(1, 1)`,
-  };
-
   await nextTick();
-  void document.body.offsetHeight; // force reflow
 
-  // Phase 2: transition to end position — matching function list ensures
-  // component-wise interpolation (translate stays in screen space)
-  styleRef.value = {
-    ...baseStyles,
-    transform: `translate(${dx}px, ${dy}px) rotate(${toRotation}) scale(${1 / scaleX}, ${1 / scaleY})`,
-    transition: `transform ${duration}ms ease`,
-  };
+  const animation = animatedEl.animate(
+    [
+      { transform: `translate(0px, 0px) rotate(${fromRotation}) scale(1, 1)` },
+      {
+        transform: `translate(${dx}px, ${dy}px) rotate(${toRotation}) scale(${1 / scaleX}, ${1 / scaleY})`,
+      },
+    ],
+    { duration, easing: 'ease', fill: 'forwards' }
+  );
 
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      toElement.style.removeProperty('visibility');
-      styleRef.value = {};
-      resolve();
-    }, duration);
-  });
+  await animation.finished;
+
+  toEl.style.removeProperty('visibility');
+  styleRef.value = {};
 }

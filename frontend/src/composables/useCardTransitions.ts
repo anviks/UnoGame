@@ -1,10 +1,19 @@
 import { animateCardMove, type HTMLSnapshot } from '@/helpers/ui';
 import type { Card } from '@/types';
-import { ref, type Ref } from 'vue';
+import { nextTick, ref, type Ref } from 'vue';
 
 export function useCardTransitions() {
   const transitioningCards = ref<Ref<Card>[]>([]);
   const flyCardStyles = ref<Ref<Record<string, string>>[]>([]);
+  const flyCardElMap = new Map<number, HTMLElement>();
+
+  function setFlyCardRef(cardId: number, el: any) {
+    if (el) {
+      flyCardElMap.set(cardId, el.$el ?? el);
+    } else {
+      flyCardElMap.delete(cardId);
+    }
+  }
 
   async function animate(
     card: Card,
@@ -18,10 +27,15 @@ export function useCardTransitions() {
     const styleRef = ref<Record<string, string>>({});
     flyCardStyles.value.push(styleRef);
 
+    await nextTick();
+
+    const animatedEl = flyCardElMap.get(card.id!)!;
+
     await animateCardMove({
-      fromElement: from,
-      toElement: to,
+      fromEl: from,
+      toEl: to,
       styleRef,
+      animatedEl,
       duration,
     });
 
@@ -30,7 +44,8 @@ export function useCardTransitions() {
     );
     transitioningCards.value.splice(index, 1);
     flyCardStyles.value.splice(index, 1);
+    flyCardElMap.delete(card.id!);
   }
 
-  return { transitioningCards, flyCardStyles, animate };
+  return { transitioningCards, flyCardStyles, setFlyCardRef, animate };
 }
