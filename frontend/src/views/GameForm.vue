@@ -120,7 +120,7 @@ import { cardColor, cardValue, playerType } from '@/constants.ts';
 import { getAllColors, getAllValues } from '@/helpers/cards';
 import { useAuthStore } from '@/stores/authStore.ts';
 import type { GameDto } from '@/types.ts';
-import type { Card, GameForm, PlayerField, User } from '@/types.ts';
+import type { CardPayload, GameForm, PlayerField, User } from '@/types.ts';
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -153,9 +153,9 @@ const enabledCards = ref<boolean[][]>(
 
 const getCheckboxValue = (row: number | null, column: number | null) => {
   if (row != null) {
-    if (enabledCards.value[row].every((col) => col === true)) {
+    if (enabledCards.value[row]?.every((col) => col === true)) {
       return true;
-    } else if (enabledCards.value[row].every((col) => col === false)) {
+    } else if (enabledCards.value[row]?.every((col) => col === false)) {
       return false;
     } else {
       return null;
@@ -178,11 +178,11 @@ const setCheckboxValue = (
 ) => {
   if (row != null) {
     for (let j = 0; j < 13; j++) {
-      enabledCards.value[row][j] = value;
+      enabledCards.value[row]![j] = value;
     }
   } else {
     for (let i = 0; i < 4; i++) {
-      enabledCards.value[i][column!] = value;
+      enabledCards.value[i]![column!] = value;
     }
   }
 };
@@ -191,13 +191,13 @@ const createGame = async () => {
   const validationResult = await form.value?.validate();
   if (!validationResult.valid) return;
 
-  const includedCards: Card[] = [];
+  const includedCards: CardPayload[] = [];
   for (let i = 0; i < enabledCards.value.length; i++) {
-    for (let j = 0; j < enabledCards.value[i].length; j++) {
-      if (enabledCards.value[i][j]) {
+    for (let j = 0; j < enabledCards.value[i]!.length; j++) {
+      if (enabledCards.value[i]![j]) {
         includedCards.push({
-          color: getAllColors()[i],
-          value: getAllValues()[j],
+          color: getAllColors()[i]!,
+          value: getAllValues()[j]!,
         });
       }
     }

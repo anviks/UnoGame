@@ -8,10 +8,12 @@ export type HubResponse =
   | { accepted: false; error: GameErrorCode };
 
 export interface Card {
-  id?: number;
+  id: number;
   color: number;
   value: number;
 }
+
+export type CardPayload = Omit<Card, 'id'>;
 
 export interface DrawnCard {
   index: number;
@@ -77,7 +79,7 @@ export interface PlayerField {
 export interface GameForm {
   gameName: string;
   players: PlayerField[];
-  includedCards: Card[];
+  includedCards?: CardPayload[];
 }
 
 export interface User {
