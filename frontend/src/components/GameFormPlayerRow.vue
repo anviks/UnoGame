@@ -1,44 +1,41 @@
 <template>
-  <div class="d-flex ga-4 align-center pb-3">
-    <v-combobox
-      :modelValue="player"
-      @update:modelValue="updatePlayer"
-      :label="'Player ' + (index + 1)"
-      style="flex-basis: 60%"
-      :items="users"
-      item-value="id"
-      item-title="username"
-      hide-details
-      return-object
-    />
-    <v-select
-      v-model="player.type"
-      :items="playerTypeSelection"
-      label="Player type"
-      style="flex-basis: 40%"
-      hide-details
-      :disabled="!userExists"
-    />
-    <v-icon
-      v-if="canDelete"
-      class="remove-player-button"
-      @click="$emit('delete-player')"
-    >
-      mdi-window-close
-    </v-icon>
+  <div class="flex gap-4 items-center pb-3">
+      <v-combobox
+        :modelValue="player"
+        @update:modelValue="updatePlayer"
+        :label="'Player ' + (index + 1)"
+        :items="users"
+        item-value="id"
+        class="flex-6!"
+        item-title="username"
+        hide-details
+        return-object
+      />
+      <v-select
+        v-model="player.type"
+        :items="playerTypeSelection"
+        label="Player type"
+        hide-details
+        class="flex-4!"
+        :disabled="!userExists"
+      />
+      <v-icon
+        v-if="canDelete"
+        class="opacity-50 hover:opacity-100! flex-0.5!"
+        @click="$emit('delete-player')"
+      >
+        mdi-window-close
+      </v-icon>
   </div>
 </template>
 
-<script
-  setup
-  lang="ts"
->
+<script setup lang="ts">
 import { ref } from 'vue';
 import type { PlayerField, User } from '@/types.ts';
 import { playerType } from '@/constants.ts';
 import _ from 'lodash';
 
-const emits = defineEmits(['delete-player']);
+const emits = defineEmits<{ 'delete-player': [] }>();
 
 interface Props {
   player: PlayerField;
@@ -52,7 +49,9 @@ const props = withDefaults(defineProps<Props>(), {
   users: () => [],
 });
 
-const playerTypeSelection = Object.entries(playerType).map(([title, value]) => ({ title: _.capitalize(title), value }));
+const playerTypeSelection = Object.entries(playerType).map(
+  ([title, value]) => ({ title: _.capitalize(title), value })
+);
 const userExists = ref(false);
 
 const updatePlayer = (newValue: string | PlayerField) => {
@@ -68,6 +67,4 @@ const updatePlayer = (newValue: string | PlayerField) => {
 };
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
