@@ -34,17 +34,14 @@
               @delete-player="game.players.splice(index, 1)"
             />
           </template>
-        </v-col>
-      </v-row>
 
-      <v-row>
-        <v-col cols="12">
-          <v-btn
+          <div
+            class="flex items-center justify-center border-2 border-dashed border-gray-300! hover:border-gray-400! *:text-gray-400! hover:*:text-gray-600! h-12 rounded-md cursor-pointer"
+            :class="{'hidden': game.players.length >= 10}"
             @click="game.players.push(getDefaultPlayer())"
-            :disabled="game.players.length >= 10"
           >
-            Add player
-          </v-btn>
+            <v-icon :size="36"> mdi-plus </v-icon>
+          </div>
         </v-col>
       </v-row>
 
