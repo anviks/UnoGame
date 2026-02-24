@@ -22,10 +22,7 @@
 
       <v-row>
         <v-col cols="12">
-          <template
-            v-for="(player, index) in game.players"
-            :key="index"
-          >
+          <template v-for="(player, index) in game.players" :key="player._key">
             <game-form-player-row
               :player="player"
               :index="index"
@@ -37,7 +34,7 @@
 
           <div
             class="flex items-center justify-center border-2 border-dashed border-gray-300! hover:border-gray-400! *:text-gray-400! hover:*:text-gray-600! h-12 rounded-md cursor-pointer"
-            :class="{'hidden': game.players.length >= 10}"
+            :class="{ hidden: game.players.length >= 10 }"
             @click="game.players.push(getDefaultPlayer())"
           >
             <v-icon :size="36"> mdi-plus </v-icon>
@@ -154,9 +151,11 @@ const rules = {
   gameName: [(value: string) => !!value || 'Game name is required'],
 };
 
+let playerKeyCounter = 0;
 const getDefaultPlayer = (): PlayerField => ({
   username: '',
   type: playerType.COMPUTER,
+  _key: playerKeyCounter++,
 });
 
 const form = ref();
@@ -253,7 +252,10 @@ const createGame = async () => {
 
   const { success, data } = await createGameRequest({
     method: 'POST',
-    data: game.value,
+    data: {
+      ...game.value,
+      players: game.value.players.map(({ _key, ...rest }) => rest),
+    },
     errorMessage: 'Error creating game: {error}',
     successMessage: 'Game created!',
   });

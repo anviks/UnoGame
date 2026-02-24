@@ -74,6 +74,7 @@ export interface Player {
 export interface PlayerField {
   username: string;
   type: number;
+  _key?: number;
 }
 
 export interface GameForm {
