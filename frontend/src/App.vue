@@ -1,7 +1,10 @@
 <template>
   <v-app>
     <v-app-bar>
-      <v-toolbar-title>UNO</v-toolbar-title>
+      <v-toolbar-title>
+        <router-link :to="{ name: 'home' }"> UNO </router-link>
+      </v-toolbar-title>
+
       <v-spacer></v-spacer>
 
       <template v-if="authStore.username">
