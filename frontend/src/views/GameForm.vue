@@ -15,6 +15,7 @@
           <v-text-field
             v-model="game.gameName"
             label="Game name"
+            variant="underlined"
             :rules="rules.gameName"
           />
         </v-col>
@@ -22,7 +23,10 @@
 
       <v-row>
         <v-col cols="12">
-          <template v-for="(player, index) in game.players" :key="player._key">
+          <template
+            v-for="(player, index) in game.players"
+            :key="player._key"
+          >
             <game-form-player-row
               :player="player"
               :index="index"
@@ -127,11 +131,13 @@
         </div>
       </div>
 
-      <v-row>
-        <v-col cols="12">
+      <div>
+        <div
+          class="flex justify-end"
+        >
           <v-btn @click="createGame">Create game</v-btn>
-        </v-col>
-      </v-row>
+        </div>
+      </div>
     </v-form>
   </v-container>
 </template>

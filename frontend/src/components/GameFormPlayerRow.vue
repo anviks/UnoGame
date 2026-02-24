@@ -6,6 +6,7 @@
         :label="'Player ' + (index + 1)"
         :items="users"
         item-value="id"
+        variant="outlined"
         class="flex-6!"
         item-title="username"
         hide-details
@@ -15,6 +16,7 @@
         v-model="player.type"
         :items="playerTypeSelection"
         label="Player type"
+        variant="outlined"
         hide-details
         class="flex-4!"
         :disabled="!userExists"
