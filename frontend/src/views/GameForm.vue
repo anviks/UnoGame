@@ -49,58 +49,87 @@
       </v-row>
 
       <div class="mt-8 mb-8">
-        <h2>Cards in the game</h2>
-        <div>
-          <table class="bordered-table">
-            <tbody>
-              <tr>
-                <td></td>
-                <td
-                  v-for="i in 13"
-                  :key="i"
-                >
-                  <v-checkbox
-                    :indeterminate="getCheckboxValue(null, i - 1) === null"
-                    :model-value="getCheckboxValue(null, i - 1)"
-                    @update:model-value="setCheckboxValue(null, i - 1, $event!)"
-                    hide-details
-                    style="justify-items: center"
-                  />
-                </td>
-              </tr>
+        <div class="flex items-center justify-between mb-3">
+          <h2>Cards in the game</h2>
+          <div class="flex gap-2">
+            <v-btn
+              size="small"
+              variant="tonal"
+              @click="setAllCards(true)"
+              >Select all</v-btn
+            >
+            <v-btn
+              size="small"
+              variant="outlined"
+              @click="setAllCards(false)"
+              >Deselect all</v-btn
+            >
+          </div>
+        </div>
 
-              <tr
-                v-for="(color, i) in getAllColors(true)"
-                :key="i"
+        <div class="flex flex-wrap gap-1 mb-5">
+          <v-chip
+            v-for="(_, valueIndex) in getAllValues(true)"
+            :key="valueIndex"
+            size="small"
+            :variant="
+              ({ true: 'flat', false: 'outlined', null: 'tonal' } as const)[
+                String(getColumnState(valueIndex))
+              ]
+            "
+            @click="toggleColumn(valueIndex)"
+            class="cursor-pointer"
+          >
+            {{ valueLabels[valueIndex] }}
+          </v-chip>
+        </div>
+
+        <div class="flex flex-col gap-5">
+          <div
+            v-for="(color, colorIndex) in getAllColors(true)"
+            :key="colorIndex"
+            class="color-section"
+            :class="`color-section--${colorKeys[colorIndex]}`"
+          >
+            <div class="flex items-center mb-2">
+              <span
+                class="text-sm tracking-[0.04em] font-semibold capitalize"
+                >{{ colorKeys[colorIndex] }}</span
               >
-                <template
-                  v-for="(value, j) in getAllValues(true)"
-                  :key="j"
+              <div class="flex items-center gap-0 ml-auto">
+                <v-btn
+                  density="compact"
+                  variant="text"
+                  size="small"
+                  @click="setRowCards(colorIndex, true)"
+                  >All</v-btn
                 >
-                  <td v-if="j === 0">
-                    <v-checkbox
-                      :indeterminate="getCheckboxValue(i, null) === null"
-                      :model-value="getCheckboxValue(i, null)"
-                      @update:model-value="setCheckboxValue(i, null, $event!)"
-                      hide-details
-                    />
-                  </td>
-
-                  <td>
-                    <uno-card
-                      v-if="enabledCards[i] && enabledCards[i][j] != null"
-                      :value="value"
-                      :color="color"
-                      :disabled="!enabledCards[i][j]"
-                      @click="enabledCards[i][j] = !enabledCards[i][j]"
-                      :size="50"
-                      style="vertical-align: middle"
-                    />
-                  </td>
-                </template>
-              </tr>
-            </tbody>
-          </table>
+                <span class="opacity-25 select-none">|</span>
+                <v-btn
+                  density="compact"
+                  variant="text"
+                  size="small"
+                  @click="setRowCards(colorIndex, false)"
+                  >None</v-btn
+                >
+              </div>
+            </div>
+            <div class="flex gap-1">
+              <uno-card
+                v-for="(value, valueIndex) in getAllValues(true)"
+                :key="valueIndex"
+                :value="value"
+                :color="color"
+                :disabled="!enabledCards[colorIndex]?.[valueIndex]"
+                @click="
+                  enabledCards[colorIndex]![valueIndex] =
+                    !enabledCards[colorIndex]![valueIndex]
+                "
+                :size="55"
+                class="cursor-pointer"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -151,39 +180,47 @@ const enabledCards = ref<boolean[][]>(
     .map(() => Array(13).fill(true))
 );
 
-const getCheckboxValue = (row: number | null, column: number | null) => {
-  if (row != null) {
-    if (enabledCards.value[row]?.every((col) => col === true)) {
-      return true;
-    } else if (enabledCards.value[row]?.every((col) => col === false)) {
-      return false;
-    } else {
-      return null;
-    }
-  } else {
-    if (enabledCards.value.every((row) => row[column!] === true)) {
-      return true;
-    } else if (enabledCards.value.every((row) => row[column!] === false)) {
-      return false;
-    } else {
-      return null;
+const colorKeys = ['red', 'yellow', 'green', 'blue'];
+const valueLabels = [
+  '0',
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  '8',
+  '9',
+  'Skip',
+  'Rev',
+  '+2',
+];
+
+const setAllCards = (value: boolean) => {
+  for (let i = 0; i < 4; i++) {
+    for (let j = 0; j < 13; j++) {
+      enabledCards.value[i]![j] = value;
     }
   }
 };
 
-const setCheckboxValue = (
-  row: number | null,
-  column: number | null,
-  value: boolean
-) => {
-  if (row != null) {
-    for (let j = 0; j < 13; j++) {
-      enabledCards.value[row]![j] = value;
-    }
-  } else {
-    for (let i = 0; i < 4; i++) {
-      enabledCards.value[i]![column!] = value;
-    }
+const setRowCards = (row: number, value: boolean) => {
+  for (let j = 0; j < 13; j++) {
+    enabledCards.value[row]![j] = value;
+  }
+};
+
+const getColumnState = (column: number) => {
+  if (enabledCards.value.every((row) => row[column] === true)) return true;
+  if (enabledCards.value.every((row) => row[column] === false)) return false;
+  return null;
+};
+
+const toggleColumn = (column: number) => {
+  const newValue = getColumnState(column) !== true;
+  for (let i = 0; i < 4; i++) {
+    enabledCards.value[i]![column] = newValue;
   }
 };
 
@@ -251,44 +288,21 @@ onMounted(async () => {
 </script>
 
 <style lang="scss" scoped>
-.remove-player-button {
-  opacity: 0.5;
+.color-section {
+  border-left: 4px solid;
+  padding-left: 14px;
 
-  &:hover {
-    opacity: 1;
+  &--red {
+    border-color: #ef5350;
   }
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(13, 1fr);
-  grid-template-rows: repeat(4, 1fr);
-  gap: 10px;
-  padding: 20px;
-}
-
-.cell {
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
-  padding: 20px;
-  text-align: center;
-  border-radius: 4px;
-  font-family: sans-serif;
-}
-
-.bordered-table {
-  border-width: 1px;
-  border-style: solid;
-  border-color: rgb(0, 0, 0, 0.5);
-  border-radius: 5px;
-
-  & td {
-    border-width: 1px;
-    border-style: solid;
-    border-color: rgb(0, 0, 0, 0.3);
-    border-radius: 5px;
-    min-width: 48px;
-    justify-items: center;
+  &--yellow {
+    border-color: #fdd835;
+  }
+  &--green {
+    border-color: #66bb6a;
+  }
+  &--blue {
+    border-color: #42a5f5;
   }
 }
 </style>
