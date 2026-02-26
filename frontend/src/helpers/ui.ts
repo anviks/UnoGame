@@ -1,10 +1,12 @@
-import { nextTick } from 'vue';
+import { CardBack } from '@/components';
+import { h, nextTick, render } from 'vue';
 
-interface AnimateCardOptions {
+export interface AnimateCardOptions {
   fromEl: HTMLSnapshot;
   toEl: HTMLElement;
   animatedEl: HTMLElement;
   duration?: number;
+  flipCard?: 'face-up' | 'face-down';
 }
 
 export interface HTMLSnapshot {
@@ -71,6 +73,7 @@ export async function animateCardMove({
   toEl,
   animatedEl,
   duration = 600,
+  flipCard,
 }: AnimateCardOptions): Promise<void> {
   toEl.style.visibility = 'hidden';
 
@@ -97,28 +100,75 @@ export async function animateCardMove({
 
   const toRotation = toEl.style.rotate || '0deg';
 
-  Object.assign(animatedEl.style, {
+  const startingStyles = {
     position: 'absolute',
     left: `${fromCenterX - width / 2}px`,
     top: `${fromCenterY - height / 2}px`,
     width: `${width}px`,
     height: `${height}px`,
     zIndex: '999',
-  });
+  };
 
-  await nextTick();
+  Object.assign(animatedEl.style, startingStyles);
+
+  let displays: [string, string], container: HTMLDivElement;
+
+  if (flipCard) {
+    container = document.createElement('div');
+    animatedEl.parentElement?.appendChild(container);
+    render(h(CardBack), container);
+
+    if (flipCard === 'face-down') {
+      displays = ['', 'none'];
+    } else {
+      displays = ['none', ''];
+    }
+
+    animatedEl.style.display = displays[0];
+    Object.assign(container.style, {
+      ...startingStyles,
+      display: displays[1],
+    });
+
+    await nextTick();
+
+    setTimeout(() => {
+      animatedEl.style.display = displays[1];
+      container.style.display = displays[0];
+    }, duration / 2);
+  }
 
   const animation = animatedEl.animate(
     [
-      { transform: `translate(0px, 0px) rotate(${fromRotation}) scale(1, 1)` },
       {
-        transform: `translate(${dx}px, ${dy}px) rotate(${toRotation}) scale(${1 / scaleX}, ${1 / scaleY})`,
+        transform: `translate(0px, 0px) rotate(${fromRotation}) ${flipCard === 'face-down' ? 'rotateY(0)' : flipCard === 'face-up' ? 'rotateY(180deg)' : ''} scale(1, 1)`,
+      },
+      {
+        transform: `translate(${dx}px, ${dy}px) rotate(${toRotation}) ${flipCard === 'face-down' ? 'rotateY(180deg)' : flipCard === 'face-up' ? 'rotateY(0)' : ''} scale(${1 / scaleX}, ${1 / scaleY})`,
       },
     ],
-    { duration, easing: 'ease', fill: 'forwards' }
+    { duration, easing: 'linear', fill: 'forwards' }
   );
 
-  await animation.finished;
+  let animation2;
+  if (flipCard) {
+    animation2 = container!.animate(
+      [
+        {
+          transform: `translate(0px, 0px) rotate(${fromRotation}) ${flipCard === 'face-down' ? 'rotateY(180deg)' : flipCard === 'face-up' ? 'rotateY(0)' : ''} scale(1, 1)`,
+        },
+        {
+          transform: `translate(${dx}px, ${dy}px) rotate(${toRotation}) ${flipCard === 'face-down' ? 'rotateY(0)' : flipCard === 'face-up' ? 'rotateY(180deg)' : ''} scale(${1 / scaleX}, ${1 / scaleY})`,
+        },
+      ],
+      { duration, easing: 'linear', fill: 'forwards' }
+    );
+  }
 
+  await animation.finished;
+  if (flipCard) {
+    await animation2!.finished;
+    container!.style.display = 'none';
+  }
   toEl.style.removeProperty('visibility');
 }

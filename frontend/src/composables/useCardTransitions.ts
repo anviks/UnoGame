@@ -1,4 +1,4 @@
-import { animateCardMove, type HTMLSnapshot } from '@/helpers/ui';
+import { animateCardMove, type AnimateCardOptions } from '@/helpers/ui';
 import type { Card } from '@/types';
 import { nextTick, ref, type Ref } from 'vue';
 
@@ -16,9 +16,7 @@ export function useCardTransitions() {
 
   async function animate(
     card: Card,
-    from: HTMLSnapshot,
-    to: HTMLElement,
-    duration?: number
+    animationOptions: Omit<AnimateCardOptions, 'animatedEl'>
   ) {
     const cardRef = ref<Card>(card);
     transitioningCards.value.push(cardRef);
@@ -28,10 +26,8 @@ export function useCardTransitions() {
     const animatedEl = flyCardElMap.get(card.id!)!;
 
     await animateCardMove({
-      fromEl: from,
-      toEl: to,
+      ...animationOptions,
       animatedEl,
-      duration,
     });
 
     const index = transitioningCards.value.findIndex(

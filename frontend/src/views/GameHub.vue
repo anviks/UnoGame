@@ -155,11 +155,11 @@ const animateDrawnCards = async (
     thisPlayer.value!.cards!.splice(drawnCard.index, 0, drawnCard.card);
     await nextTick();
 
-    const animation = animate(
-      drawnCard.card,
-      getElementSnapshot(drawPileRef.value?.topCardRef.$el),
-      cardRefs.value[drawnCard.index]!.$el
-    );
+    const animation = animate(drawnCard.card, {
+      fromEl: getElementSnapshot(drawPileRef.value?.topCardRef.$el),
+      toEl: cardRefs.value[drawnCard.index]!.$el,
+      flipCard: 'face-up',
+    });
 
     if (sequential) {
       await animation;
@@ -197,11 +197,10 @@ const connectToGame = async () => {
         thisPlayer.value!.cards!.splice(playedCardIndex, 1);
         await nextTick();
 
-        await animate(
-          card,
-          fromElement,
-          discardPileRef.value!.cardRefs![0]!.$el
-        );
+        await animate(card, {
+          fromEl: fromElement,
+          toEl: discardPileRef.value!.cardRefs![0]!.$el,
+        });
       }
     }
   );
@@ -231,17 +230,20 @@ const connectToGame = async () => {
       );
       await animateDrawnCards(firstBatch, false);
 
-      const discardPileSize = state.value!.discardPile.length;
+      const toAnimate = state.value!.discardPile.slice(1).map((card, i) => ({
+        card,
+        snapshot: getElementSnapshot(
+          discardPileRef.value!.cardRefs[i + 1]!.$el
+        ),
+      }));
 
-      for (let i = 1; i < discardPileSize; i++) {
-        const card = state.value!.discardPile[1]!;
-        const cardEl = discardPileRef.value!.cardRefs[i]!;
-        animate(
-          card,
-          getElementSnapshot(cardEl.$el),
-          drawPileRef.value!.fakeCard.$el,
-          1000
-        ).then(() => state.value!.drawPileSize++);
+      for (const { card, snapshot } of toAnimate) {
+        animate(card, {
+          fromEl: snapshot,
+          toEl: drawPileRef.value!.fakeCard.$el,
+          duration: 1000,
+          flipCard: 'face-down',
+        }).then(() => state.value!.drawPileSize++);
         state.value!.discardPile.splice(1, 1);
         await sleep(100);
       }
