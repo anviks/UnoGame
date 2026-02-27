@@ -138,7 +138,10 @@ export async function animateCardMove({
     }, duration / 2);
   }
 
-  function getRotateY(flipCard: AnimateCardOptions['flipCard'], isFaceUp: boolean) {
+  function getRotateY(
+    flipCard: AnimateCardOptions['flipCard'],
+    isFaceUp: boolean
+  ) {
     if (flipCard === 'face-up')
       return isFaceUp ? 'rotateY(180deg)' : 'rotateY(0)';
     if (flipCard === 'face-down')
@@ -146,36 +149,47 @@ export async function animateCardMove({
     return '';
   }
 
-  function buildTransform(dx: number, dy: number, rotation: string, rotateY: string, scaleX = 1, scaleY = 1) {
+  function buildTransform(
+    dx: number,
+    dy: number,
+    rotation: string,
+    rotateY: string,
+    scaleX = 1,
+    scaleY = 1
+  ) {
     return `translate(${dx}px, ${dy}px) rotate(${rotation}) ${rotateY} scale(${scaleX}, ${scaleY})`;
   }
 
-  const animation = animatedEl.animate(
-    [
-      // prettier-ignore
-      { transform: buildTransform(0, 0, fromRotation, getRotateY(flipCard, true)) },
-      // prettier-ignore
-      { transform: buildTransform(dx, dy, toRotation, getRotateY(flipCard, false), 1 / scaleX, 1 / scaleY) },
-    ],
-    { duration, easing: 'linear', fill: 'forwards' }
-  );
+  const animations: Promise<Animation>[] = [];
 
-  let animation2;
-  if (flipCard) {
-    animation2 = container!.animate(
+  animations.push(
+    animatedEl.animate(
       [
         // prettier-ignore
-        { transform: buildTransform(0, 0, fromRotation, getRotateY(flipCard, false)) },
+        { transform: buildTransform(0, 0, fromRotation, getRotateY(flipCard, true)) },
         // prettier-ignore
-        { transform: buildTransform(dx, dy, toRotation, getRotateY(flipCard, true), 1 / scaleX, 1 / scaleY) },
+        { transform: buildTransform(dx, dy, toRotation, getRotateY(flipCard, false), 1 / scaleX, 1 / scaleY) },
       ],
       { duration, easing: 'linear', fill: 'forwards' }
+    ).finished
+  );
+
+  if (flipCard) {
+    animations.push(
+      container!.animate(
+        [
+          // prettier-ignore
+          { transform: buildTransform(0, 0, fromRotation, getRotateY(flipCard, false)) },
+          // prettier-ignore
+          { transform: buildTransform(dx, dy, toRotation, getRotateY(flipCard, true), 1 / scaleX, 1 / scaleY) },
+        ],
+        { duration, easing: 'linear', fill: 'forwards' }
+      ).finished
     );
   }
 
-  await animation.finished;
+  await Promise.all(animations);
   if (flipCard) {
-    await animation2!.finished;
     container!.style.display = 'none';
   }
   toEl.style.removeProperty('visibility');
