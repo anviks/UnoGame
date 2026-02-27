@@ -68,6 +68,28 @@ export function getElementSnapshot(el: HTMLElement): HTMLSnapshot {
   };
 }
 
+function getRotateY(
+  flipCard: AnimateCardOptions['flipCard'],
+  isFaceUp: boolean
+) {
+  if (flipCard === 'face-up')
+    return isFaceUp ? 'rotateY(180deg)' : 'rotateY(0)';
+  if (flipCard === 'face-down')
+    return isFaceUp ? 'rotateY(0)' : 'rotateY(180deg)';
+  return '';
+}
+
+function buildTransform(
+  dx: number,
+  dy: number,
+  rotation: string,
+  rotateY: string,
+  scaleX = 1,
+  scaleY = 1
+) {
+  return `translate(${dx}px, ${dy}px) rotate(${rotation}) ${rotateY} scale(${scaleX}, ${scaleY})`;
+}
+
 export async function animateCardMove({
   fromEl,
   toEl,
@@ -136,28 +158,6 @@ export async function animateCardMove({
       animatedEl.style.display = displays[1];
       container.style.display = displays[0];
     }, duration / 2);
-  }
-
-  function getRotateY(
-    flipCard: AnimateCardOptions['flipCard'],
-    isFaceUp: boolean
-  ) {
-    if (flipCard === 'face-up')
-      return isFaceUp ? 'rotateY(180deg)' : 'rotateY(0)';
-    if (flipCard === 'face-down')
-      return isFaceUp ? 'rotateY(0)' : 'rotateY(180deg)';
-    return '';
-  }
-
-  function buildTransform(
-    dx: number,
-    dy: number,
-    rotation: string,
-    rotateY: string,
-    scaleX = 1,
-    scaleY = 1
-  ) {
-    return `translate(${dx}px, ${dy}px) rotate(${rotation}) ${rotateY} scale(${scaleX}, ${scaleY})`;
   }
 
   const animations: Promise<Animation>[] = [];
