@@ -21,7 +21,7 @@
 
     <v-btn @click="endTurn">End turn</v-btn>
     <div
-      class="absolute bottom-25 left-1/2 -translate-x-1/2 w-full overflow-x-hidden overflow-y-visible px-15 py-0"
+      class="absolute bottom-25 left-0 w-full overflow-x-hidden overflow-y-visible px-15 py-0"
       ref="handScrollRef"
     >
       <transition-group
@@ -35,6 +35,7 @@
           :color="card.color"
           :value="card.value"
           :ref="(el) => (cardRefs[index] = el as any)"
+          :style="{ '--card-z-index': index + 1 }"
           class="-ml-5! first:ml-0!"
           @card-chosen="(chosenColor) => playCard(index, card, chosenColor)"
         />
@@ -159,6 +160,7 @@ const animateDrawnCards = async (
       fromEl: getElementSnapshot(drawPileRef.value?.topCardRef.$el),
       toEl: cardRefs.value[drawnCard.index]!.$el,
       flipCard: 'face-up',
+      zIndex: drawnCard.index + 1,
     });
 
     if (sequential) {

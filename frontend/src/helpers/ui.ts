@@ -8,6 +8,7 @@ export interface AnimateCardOptions {
   duration?: number;
   easing?: string;
   flipCard?: 'face-up' | 'face-down';
+  zIndex?: number;
 }
 
 export interface HTMLSnapshot {
@@ -87,6 +88,7 @@ export async function animateCardMove({
   duration = 600,
   easing = 'linear',
   flipCard,
+  zIndex = 999,
 }: AnimateCardOptions): Promise<void> {
   toEl.style.visibility = 'hidden';
 
@@ -119,7 +121,7 @@ export async function animateCardMove({
     top: `${fromCenterY - height / 2}px`,
     width: `${width}px`,
     height: `${height}px`,
-    zIndex: '999',
+    zIndex: String(zIndex),
   };
 
   if (flipCard) {

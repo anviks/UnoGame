@@ -118,11 +118,11 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .card-choice-wrapper {
-  z-index: 1;
-  transition: transform 0.3s ease, z-index 0.3s ease;
+  z-index: var(--card-z-index, 1);
+  transition: transform 0.3s ease;
 
   &:hover {
-    z-index: 10;
+    z-index: 1000;
   }
 }
 
