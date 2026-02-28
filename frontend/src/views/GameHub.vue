@@ -160,6 +160,8 @@ const animateDrawnCards = async (
       fromEl: getElementSnapshot(drawPileRef.value?.topCardRef.$el),
       toEl: cardRefs.value[drawnCard.index]!.$el,
       flipCard: 'face-up',
+      duration: 1000,
+      easing: 'ease',
       zIndex: drawnCard.index + 1,
     });
 
@@ -202,6 +204,8 @@ const connectToGame = async () => {
         await animate(card, {
           fromEl: fromElement,
           toEl: discardPileRef.value!.cardRefs![0]!.$el,
+          duration: 800,
+          easing: 'ease',
         });
       }
     }
@@ -243,7 +247,8 @@ const connectToGame = async () => {
         animate(card, {
           fromEl: snapshot,
           toEl: drawPileRef.value!.fakeCard.$el,
-          duration: 1000,
+          duration: 1200,
+          easing: 'ease-out',
           flipCard: 'face-down',
         }).then(() => state.value!.drawPileSize++);
         state.value!.discardPile.splice(1, 1);
