@@ -2,22 +2,19 @@
   <component
     :is="cardComponent"
     :class="[
-      {'uno-card-shadow': shadowed},
-      {'greyed': disabled},
+      { 'uno-card-shadow': shadowed },
+      { greyed: disabled },
       chosenColor != null ? `chosen-${colorAsString(chosenColor)}` : '',
     ]"
     :style="cardStyle"
   />
 </template>
 
-<script
-  lang="ts"
-  setup
->
-import { computed } from 'vue';
+<script lang="ts" setup>
 import { cardColor, cardValue } from '@/constants.ts';
+import { computed } from 'vue';
 
-interface Props {
+export interface UnoCardProps {
   color: number;
   value: number;
   size?: number;
@@ -29,7 +26,7 @@ interface Props {
   chosenColor?: number | null;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<UnoCardProps>(), {
   size: 100,
   disabled: false,
   shadowed: false,
@@ -63,11 +60,16 @@ const value = computed(() => {
   if (props.value < 10) {
     return props.value;
   } else {
-    return Object.keys(cardValue)[props.value].toLowerCase().replaceAll('_', '-');
+    return Object.keys(cardValue)
+      [props.value].toLowerCase()
+      .replaceAll('_', '-');
   }
 });
 
-const cards = import.meta.glob(`./cards/**/*.vue`, { eager: true, import: 'default' });
+const cards = import.meta.glob(`./cards/**/*.vue`, {
+  eager: true,
+  import: 'default',
+});
 
 const cardComponent = computed(() => {
   let cardPath = `./cards/${color.value}/${value.value}.vue`;
@@ -77,7 +79,6 @@ const cardComponent = computed(() => {
   }
   return matchedSvg;
 });
-
 </script>
 
 <style scoped>
