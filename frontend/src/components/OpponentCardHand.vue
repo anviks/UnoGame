@@ -1,11 +1,11 @@
 <template>
-  <div class="flex relative w-11.25 h-[calc(1.5*45px)]">
+  <div class="flex relative">
     <CardBack
       v-for="i in cardCount"
       :key="i"
       :size="45"
-      class="absolute"
-      :style="{ left: i * (50 / cardCount) + 'px' }"
+      class="not-first:absolute"
+      :style="{ left: (i - 1) * (50 / cardCount) + 'px' }"
     />
   </div>
 </template>
