@@ -19,7 +19,6 @@
       />
     </div>
 
-    <v-btn @click="endTurn">End turn</v-btn>
     <div
       class="absolute bottom-25 left-0 w-full overflow-x-hidden overflow-y-visible px-15 py-0"
       ref="handScrollRef"
@@ -40,6 +39,25 @@
           @card-chosen="(chosenColor) => playCard(index, card, chosenColor)"
         />
       </transition-group>
+    </div>
+
+    <div
+      class="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-4"
+    >
+      <v-btn-group>
+        <v-btn
+          @click="endTurn"
+          color="primary"
+          >End turn</v-btn
+        >
+        <v-btn class="text-white bg-green-600!">Call "UNO!"</v-btn>
+        <v-btn
+          @click="animateReshuffling({ debug: true })"
+          class="text-white bg-red-400!"
+        >
+          <v-icon size="x-large">mdi-bug</v-icon>
+        </v-btn>
+      </v-btn-group>
     </div>
 
     <uno-card
@@ -172,6 +190,34 @@ const animateDrawnCards = async (
   }
 };
 
+const animateReshuffling = async ({ debug }: { debug?: boolean } = {}) => {
+  const toAnimate = state.value!.discardPile.slice(1).map((card, i) => ({
+    card,
+    snapshot: getElementSnapshot(discardPileRef.value!.cardRefs[i + 1]!.$el),
+  }));
+
+  const drawPileSize = state.value!.drawPileSize;
+  const discardPile = _.clone(state.value!.discardPile);
+
+  for (const { card, snapshot } of toAnimate) {
+    animate(card, {
+      fromEl: snapshot,
+      toEl: drawPileRef.value!.fakeCard.$el,
+      duration: 1200,
+      easing: 'ease-out',
+      flipCard: 'face-down',
+    }).then(() => state.value!.drawPileSize++);
+    state.value!.discardPile.splice(1, 1);
+    await sleep(100);
+  }
+
+  if (debug) {
+    await sleep(2000);
+    state.value!.drawPileSize = drawPileSize;
+    state.value!.discardPile = discardPile;
+  }
+};
+
 const connectToGame = async () => {
   connection.value = new HubConnectionBuilder()
     .withUrl(
@@ -234,26 +280,7 @@ const connectToGame = async () => {
         drawResult.reshuffleIndex
       );
       await animateDrawnCards(firstBatch, false);
-
-      const toAnimate = state.value!.discardPile.slice(1).map((card, i) => ({
-        card,
-        snapshot: getElementSnapshot(
-          discardPileRef.value!.cardRefs[i + 1]!.$el
-        ),
-      }));
-
-      for (const { card, snapshot } of toAnimate) {
-        animate(card, {
-          fromEl: snapshot,
-          toEl: drawPileRef.value!.fakeCard.$el,
-          duration: 1200,
-          easing: 'ease-out',
-          flipCard: 'face-down',
-        }).then(() => state.value!.drawPileSize++);
-        state.value!.discardPile.splice(1, 1);
-        await sleep(100);
-      }
-
+      await animateReshuffling();
       await animateDrawnCards(secondBatch, false);
     }
   });
