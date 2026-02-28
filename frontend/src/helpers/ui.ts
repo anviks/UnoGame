@@ -1,11 +1,12 @@
 import { CardBack } from '@/components';
-import { h, nextTick, render } from 'vue';
+import { h, render } from 'vue';
 
 export interface AnimateCardOptions {
   fromEl: HTMLSnapshot;
   toEl: HTMLElement;
   animatedEl: HTMLElement;
   duration?: number;
+  easing?: string;
   flipCard?: 'face-up' | 'face-down';
 }
 
@@ -68,17 +69,6 @@ export function getElementSnapshot(el: HTMLElement): HTMLSnapshot {
   };
 }
 
-function getRotateY(
-  flipCard: AnimateCardOptions['flipCard'],
-  isFaceUp: boolean
-) {
-  if (flipCard === 'face-up')
-    return isFaceUp ? 'rotateY(180deg)' : 'rotateY(0)';
-  if (flipCard === 'face-down')
-    return isFaceUp ? 'rotateY(0)' : 'rotateY(180deg)';
-  return '';
-}
-
 function buildTransform(
   dx: number,
   dy: number,
@@ -95,6 +85,7 @@ export async function animateCardMove({
   toEl,
   animatedEl,
   duration = 600,
+  easing = 'linear',
   flipCard,
 }: AnimateCardOptions): Promise<void> {
   toEl.style.visibility = 'hidden';
@@ -131,66 +122,91 @@ export async function animateCardMove({
     zIndex: '999',
   };
 
-  Object.assign(animatedEl.style, startingStyles);
-
-  let displays: [string, string], container: HTMLDivElement;
-
   if (flipCard) {
-    container = document.createElement('div');
-    animatedEl.parentElement?.appendChild(container);
-    render(h(CardBack), container);
-
-    if (flipCard === 'face-down') {
-      displays = ['', 'none'];
-    } else {
-      displays = ['none', ''];
-    }
-
-    animatedEl.style.display = displays[0];
-    Object.assign(container.style, {
+    // A preserve-3d wrapper travels the full path + flips rotateY(0 → 180deg).
+    // Both faces sit inside it with backface-visibility: hidden, so CSS handles
+    // the face swap automatically at rotateY(90deg) — no setTimeout needed,
+    // and any easing function works correctly.
+    const wrapper = document.createElement('div');
+    wrapper.id = 'wrapper'
+    Object.assign(wrapper.style, {
       ...startingStyles,
-      display: displays[1],
+      transformStyle: 'preserve-3d',
     });
 
-    await nextTick();
+    const faceStyles: Partial<CSSStyleDeclaration> = {
+      position: 'absolute',
+      top: '0',
+      left: '0',
+      width: '100%',
+      height: '100%',
+      backfaceVisibility: 'hidden',
+    };
 
-    setTimeout(() => {
-      animatedEl.style.display = displays[1];
-      container.style.display = displays[0];
-    }, duration / 2);
-  }
+    const cardBackFace = document.createElement('div');
+    render(h(CardBack), cardBackFace);
+    Object.assign(cardBackFace.style, faceStyles);
 
-  const animations: Promise<Animation>[] = [];
+    // Wrap animatedEl in a plain div so Vue reactive re-renders can't touch our
+    // 3D transform offset. The face that needs to START hidden gets the 180deg
+    // offset (backface-visibility: hidden works reliably for elements that are
+    // already back-facing at mount time). That face is also appended LAST so it
+    // paints on top once it becomes front-facing — the other face stays in the
+    // background even if backface-visibility doesn't dynamically hide it.
+    //
+    // face-down: card face visible first → CardBack reveals second (appended last)
+    // face-up:   CardBack visible first  → card face reveals second (appended last)
+    const originalParent = animatedEl.parentElement!;
 
-  animations.push(
-    animatedEl.animate(
+    const animatedElFace = document.createElement('div');
+    Object.assign(animatedElFace.style, faceStyles);
+    Object.assign(animatedEl.style, {
+      position: 'absolute',
+      top: '0',
+      left: '0',
+      width: '100%',
+      height: '100%',
+    });
+    animatedElFace.appendChild(animatedEl);
+
+    originalParent.appendChild(wrapper);
+
+    if (flipCard === 'face-up') {
+      animatedElFace.style.transform = 'rotateY(180deg)'; // starts hidden, reveals last
+      wrapper.appendChild(cardBackFace);    // first (underneath)
+      wrapper.appendChild(animatedElFace);  // last (on top when revealed)
+    } else {
+      cardBackFace.style.transform = 'rotateY(180deg)'; // starts hidden, reveals last
+      wrapper.appendChild(animatedElFace);  // first (underneath)
+      wrapper.appendChild(cardBackFace);    // last (on top when revealed)
+    }
+
+    await wrapper.animate(
       [
+        { transform: buildTransform(0, 0, fromRotation, 'rotateY(0deg)') },
         // prettier-ignore
-        { transform: buildTransform(0, 0, fromRotation, getRotateY(flipCard, true)) },
-        // prettier-ignore
-        { transform: buildTransform(dx, dy, toRotation, getRotateY(flipCard, false), 1 / scaleX, 1 / scaleY) },
+        { transform: buildTransform(dx, dy, toRotation, 'rotateY(180deg)', 1 / scaleX, 1 / scaleY) },
       ],
-      { duration, easing: 'linear', fill: 'forwards' }
-    ).finished
-  );
+      { duration, easing, fill: 'forwards' }
+    ).finished;
 
-  if (flipCard) {
-    animations.push(
-      container!.animate(
-        [
-          // prettier-ignore
-          { transform: buildTransform(0, 0, fromRotation, getRotateY(flipCard, false)) },
-          // prettier-ignore
-          { transform: buildTransform(dx, dy, toRotation, getRotateY(flipCard, true), 1 / scaleX, 1 / scaleY) },
-        ],
-        { duration, easing: 'linear', fill: 'forwards' }
-      ).finished
-    );
+    // Restore animatedEl to its original parent (from inside animatedElFace)
+    // before Vue cleans it up, then tear down the wrapper.
+    animatedEl.style.display = 'none';
+    originalParent.insertBefore(animatedEl, wrapper);
+    wrapper.remove();
+  } else {
+    Object.assign(animatedEl.style, startingStyles);
+
+    await animatedEl.animate(
+      [
+        { transform: buildTransform(0, 0, fromRotation, '') },
+        // prettier-ignore
+        { transform: buildTransform(dx, dy, toRotation, '', 1 / scaleX, 1 / scaleY) },
+      ],
+      { duration, easing, fill: 'forwards' }
+    ).finished;
   }
 
-  await Promise.all(animations);
-  if (flipCard) {
-    container!.style.display = 'none';
-  }
   toEl.style.removeProperty('visibility');
 }
