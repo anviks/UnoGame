@@ -77,7 +77,7 @@ function buildTransform(
   scaleX = 1,
   scaleY = 1
 ) {
-  return `translate(${dx}px, ${dy}px) rotate(${rotation}) ${rotateY} scale(${scaleX}, ${scaleY})`;
+  return `translate(${dx}px, ${dy}px) rotate(${rotation}) perspective(600px) ${rotateY} scale(${scaleX}, ${scaleY})`;
 }
 
 export async function animateCardMove({
@@ -128,7 +128,7 @@ export async function animateCardMove({
     // the face swap automatically at rotateY(90deg) — no setTimeout needed,
     // and any easing function works correctly.
     const wrapper = document.createElement('div');
-    wrapper.id = 'wrapper'
+    wrapper.id = 'wrapper';
     Object.assign(wrapper.style, {
       ...startingStyles,
       transformStyle: 'preserve-3d',
@@ -173,12 +173,12 @@ export async function animateCardMove({
 
     if (flipCard === 'face-up') {
       animatedElFace.style.transform = 'rotateY(180deg)'; // starts hidden, reveals last
-      wrapper.appendChild(cardBackFace);    // first (underneath)
-      wrapper.appendChild(animatedElFace);  // last (on top when revealed)
+      wrapper.appendChild(cardBackFace); // first (underneath)
+      wrapper.appendChild(animatedElFace); // last (on top when revealed)
     } else {
       cardBackFace.style.transform = 'rotateY(180deg)'; // starts hidden, reveals last
-      wrapper.appendChild(animatedElFace);  // first (underneath)
-      wrapper.appendChild(cardBackFace);    // last (on top when revealed)
+      wrapper.appendChild(animatedElFace); // first (underneath)
+      wrapper.appendChild(cardBackFace); // last (on top when revealed)
     }
 
     await wrapper.animate(
