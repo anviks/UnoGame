@@ -1,6 +1,5 @@
 // Plugins
 import Vue from '@vitejs/plugin-vue';
-import VueDevTools from 'vite-plugin-vue-devtools';
 import SvgLoader from 'vite-svg-loader';
 import tailwindcss from '@tailwindcss/vite';
 
@@ -13,7 +12,6 @@ import * as fs from 'node:fs';
 export default defineConfig({
   plugins: [
     Vue(),
-    VueDevTools(),
     SvgLoader(),
     tailwindcss(),
   ],

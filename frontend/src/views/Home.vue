@@ -42,7 +42,7 @@
       <v-card
         v-for="game in items"
         :key="game.id"
-        class="game-card pa-4"
+        class="game-card pa-4 flex! flex-col"
         :class="{ 'game-card--highlighted': highlightedRows.has(game.id) }"
         rounded="lg"
         elevation="1"
@@ -237,5 +237,6 @@ onMounted(async () => {
 
 .game-card-footer {
   border-top: 1px solid rgba(0, 0, 0, 0.07);
+  margin-top: auto;
 }
 </style>

@@ -20,6 +20,19 @@
     </div>
 
     <div
+      v-for="{ player, x, y, rotationDeg } in opponentPositions"
+      :key="player.name"
+      class="absolute"
+      :style="{
+        left: `${x}%`,
+        top: `${y}%`,
+        transform: `translate(-50%, -50%) rotate(${rotationDeg}deg)`,
+      }"
+    >
+      <opponent-card-hand :card-count="player.handSize" />
+    </div>
+
+    <div
       class="absolute bottom-25 left-0 w-full overflow-x-hidden overflow-y-visible px-15 py-0"
       ref="handScrollRef"
     >
@@ -73,6 +86,7 @@
 
 <script setup lang="ts">
 import { CardChoice, DiscardPile, DrawPile, UnoCard } from '@/components';
+import OpponentCardHand from '@/components/OpponentCardHand.vue';
 import { useApiRequest } from '@/composables/useApiRequest';
 import { useCardTransitions } from '@/composables/useCardTransitions';
 import { errorMessages, GameErrorCodes } from '@/constants.ts';
@@ -121,6 +135,43 @@ const sendMessage = (user: string, message: string) => {
     .value!.send('SendMessage', user, message)
     .catch((err) => console.error(err));
 };
+
+const opponentPositions = computed(() => {
+  // Max angle measured from the 12 o'clock position
+  // e.g. -100° (left) → 0° (top) → +100° (right)
+  const ELLIPSE_MAX_ANGLE_LEFT = 100;
+  const ELLIPSE_MAX_ANGLE_RIGHT = 100;
+
+  const ELLIPSE_CENTER_OFFSET_TOP = 50;
+  const ELLIPSE_CENTER_OFFSET_LEFT = 45;
+
+  const ELLIPSE_RADIUS_HORIZONTAL = 46;
+  const ELLIPSE_RADIUS_VERTICAL = 34;
+
+  const opponents =
+    state.value?.players.filter((p) => p.userId !== authStore.userId) ?? [];
+
+  return opponents.map((player, i) => {
+    // fraction: 0 = far left, 0.5 = top center, 1 = far right
+    const fraction = opponents.length === 1 ? 0.5 : i / (opponents.length - 1);
+    
+    const angleDeg =
+      -ELLIPSE_MAX_ANGLE_LEFT
+      + fraction * (ELLIPSE_MAX_ANGLE_LEFT + ELLIPSE_MAX_ANGLE_RIGHT);
+    const angleRad = (angleDeg * Math.PI) / 180;
+
+    const x =
+      ELLIPSE_CENTER_OFFSET_TOP
+      + ELLIPSE_RADIUS_HORIZONTAL * Math.sin(angleRad);
+    const y =
+      ELLIPSE_CENTER_OFFSET_LEFT - ELLIPSE_RADIUS_VERTICAL * Math.cos(angleRad);
+
+    // rotate the hand component to face the center
+    const rotationDeg = angleDeg + 180;
+
+    return { player, x, y, rotationDeg };
+  });
+});
 
 const playCard = async (index: number, card: Card, chosenColor?: number) => {
   const response = await connection.value!.invoke<HubResponse>(
@@ -260,6 +311,10 @@ const connectToGame = async () => {
     'CardDrawnOpponent',
     async (player: Player, drawResult: PublicDrawResult) => {
       state.value!.drawPileSize -= drawResult.drawn;
+      const gamePlayer = state.value!.players.find(
+        (p) => p.name === player.name
+      );
+      gamePlayer!.handSize += drawResult.drawn;
 
       if (drawResult.reshuffleIndex !== null) {
         state.value!.drawPileSize += state.value!.discardPile.length - 1;
