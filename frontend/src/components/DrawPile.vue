@@ -2,19 +2,17 @@
   <transition-group
     tag="div"
     :style="{
-      position: 'relative',
       'padding-right': amountOfCards * 5 + 'px',
-      cursor: 'pointer',
     }"
-    class="flex"
+    class="flex relative cursor-pointer"
   >
     <card-back
       v-for="i in amountOfCards"
       :key="i"
       :style="{
-        position: 'absolute',
         left: (i - 1) * 5 + 'px',
       }"
+      class="absolute"
       :ref="
         (el) => {
           if (i === amountOfCards) topCardRef = el;
@@ -23,10 +21,7 @@
     />
     <card-back
       :key="-1"
-      :style="{
-        left: 0,
-        visibility: 'hidden',
-      }"
+      class="left-0 invisible"
       ref="fakeCard"
     />
   </transition-group>
