@@ -34,7 +34,7 @@
           :key="card.id"
           :color="card.color"
           :value="card.value"
-          :ref="(el) => (cardRefs[index] = el as any)"
+          :ref="(el: any) => (cardRefs[index] = el)"
           :style="{ '--card-z-index': index + 1 }"
           class="-ml-5! first:ml-0!"
           @card-chosen="(chosenColor) => playCard(index, card, chosenColor)"
@@ -58,8 +58,8 @@ import { CardChoice, DiscardPile, DrawPile, UnoCard } from '@/components';
 import { useApiRequest } from '@/composables/useApiRequest';
 import { useCardTransitions } from '@/composables/useCardTransitions';
 import { errorMessages, GameErrorCodes } from '@/constants.ts';
-import { getElementSnapshot } from '@/helpers/ui';
 import { sleep } from '@/helpers/general';
+import { getElementSnapshot } from '@/helpers/ui';
 import { useAuthStore } from '@/stores/authStore.ts';
 import type {
   Card,
@@ -74,7 +74,6 @@ import type {
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import _ from 'lodash';
 import {
-  type ComponentPublicInstance,
   computed,
   nextTick,
   onMounted,
@@ -94,7 +93,7 @@ const props = defineProps<Props>();
 const authStore = useAuthStore();
 const toast = useToast();
 const { request } = useApiRequest<GameDto>(`/games/${props.gameId}`);
-const cardRefs = ref<ComponentPublicInstance<typeof CardChoice>[]>([]);
+const cardRefs = ref<InstanceType<typeof CardChoice>[]>([]);
 
 const connected = ref(false);
 const connection = ref<HubConnection>();
