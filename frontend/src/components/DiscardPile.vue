@@ -9,7 +9,7 @@
       :horizontal-jitter="30"
       :vertical-jitter="30"
       :chosen-color="i === 0 ? currentColor : null"
-      class="not-first:absolute"
+      class="not-last:absolute"
       shadowed
       :style="{ zIndex: cards.length - i }"
       :ref="(el: any) => (cardRefs[i] = el)"
