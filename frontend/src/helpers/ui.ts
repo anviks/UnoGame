@@ -55,6 +55,28 @@ function getTrueDimensions(
   return { width, height };
 }
 
+function getTrueRotation(el: HTMLElement | null): number {
+  let total = 0;
+
+  while (el) {
+    const style = getComputedStyle(el);
+
+    // Check standalone rotate property
+    const rot = parseFloat(style.rotate);
+    if (!isNaN(rot)) total += rot;
+
+    // Check transform matrix for additional rotation
+    if (style.transform && style.transform !== 'none') {
+      const m = new DOMMatrix(style.transform);
+      total += Math.atan2(m.b, m.a) * (180 / Math.PI);
+    }
+
+    el = el.parentElement;
+  }
+
+  return Math.round(total);
+}
+
 export function getElementSnapshot(el: HTMLElement): HTMLSnapshot {
   const rect = el.getBoundingClientRect();
   const scaleX = rect.width / el.offsetWidth || 1;
@@ -66,7 +88,7 @@ export function getElementSnapshot(el: HTMLElement): HTMLSnapshot {
     offsetHeight: el.offsetHeight,
     scaleX,
     scaleY,
-    rotate: el.style.rotate || '0deg',
+    rotate: `${getTrueRotation(el)}deg`,
   };
 }
 
@@ -113,7 +135,7 @@ export async function animateCardMove({
   const dx = toCenterX - fromCenterX;
   const dy = toCenterY - fromCenterY;
 
-  const toRotation = toEl.style.rotate || '0deg';
+  const toRotation = `${getTrueRotation(toEl)}deg`;
 
   const startingStyles = {
     position: 'absolute',
