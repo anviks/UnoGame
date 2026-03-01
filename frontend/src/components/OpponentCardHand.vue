@@ -6,19 +6,17 @@
       :size="45"
       class="not-first:absolute"
       :style="{ left: (i - 1) * (50 / cardCount) + 'px' }"
+      :ref="(el: any) => { if (i === cardCount) topCardRef = el; }"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { watch } from 'vue';
+import { ref } from 'vue';
 import CardBack from './CardBack.vue';
 
-const props = defineProps<{ cardCount: number }>();
+defineProps<{ cardCount: number }>();
 
-watch(() => props.cardCount, (val) => {
-  console.log(val);
-});
+const topCardRef = ref<InstanceType<typeof CardBack>>();
+defineExpose({ topCardRef });
 </script>
-
-<style scoped></style>

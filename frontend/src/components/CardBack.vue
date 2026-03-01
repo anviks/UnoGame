@@ -2,28 +2,25 @@
   <img
     :src="cardBack"
     alt="UNO Card Back"
-    :class="{'uno-card-shadow': true, 'greyed': disabled}"
+    :class="{ 'uno-card-shadow': true, greyed: disabled }"
     :style="{
       width: `${size}px`,
       height: `${size * 1.5}px`,
-      borderRadius: `${size * 0.16}px`
+      borderRadius: `${size * 0.16}px`,
     }"
     draggable="false"
   />
 </template>
 
-<script
-  setup
-  lang="ts"
->
+<script setup lang="ts">
 import cardBack from '@/assets/images/uno-card-back.png';
 
-interface Props {
+export interface CardBackProps {
   size?: number;
   disabled?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<CardBackProps>(), {
   size: 100,
   disabled: false,
 });

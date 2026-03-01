@@ -20,7 +20,7 @@
     </div>
 
     <div
-      v-for="{ player, x, y, rotationDeg } in opponentPositions"
+      v-for="({ player, x, y, rotationDeg }, i) in opponentPositions"
       :key="player.name"
       class="absolute"
       :style="{
@@ -29,7 +29,10 @@
         transform: `translate(-50%, -50%) rotate(${rotationDeg}deg)`,
       }"
     >
-      <opponent-card-hand :card-count="player.handSize" />
+      <opponent-card-hand
+        :card-count="player.handSize"
+        :ref="(el: any) => (opponentHands[i] = el)"
+      />
     </div>
 
     <div
@@ -126,6 +129,7 @@ const authStore = useAuthStore();
 const toast = useToast();
 const { request } = useApiRequest<GameDto>(`/games/${props.gameId}`);
 const cardRefs = ref<InstanceType<typeof CardChoice>[]>([]);
+const opponentHands = ref<InstanceType<typeof OpponentCardHand>[]>([]);
 
 const connected = ref(false);
 const connection = ref<HubConnection>();
@@ -135,6 +139,10 @@ const sendMessage = (user: string, message: string) => {
     .value!.send('SendMessage', user, message)
     .catch((err) => console.error(err));
 };
+
+const opponents = computed(
+  () => state.value?.players.filter((p) => p.userId !== authStore.userId) ?? []
+);
 
 const opponentPositions = computed(() => {
   // Max angle measured from the 12 o'clock position
@@ -148,13 +156,11 @@ const opponentPositions = computed(() => {
   const ELLIPSE_RADIUS_HORIZONTAL = 46;
   const ELLIPSE_RADIUS_VERTICAL = 34;
 
-  const opponents =
-    state.value?.players.filter((p) => p.userId !== authStore.userId) ?? [];
-
-  return opponents.map((player, i) => {
+  return opponents.value.map((player, i) => {
     // fraction: 0 = far left, 0.5 = top center, 1 = far right
-    const fraction = opponents.length === 1 ? 0.5 : i / (opponents.length - 1);
-    
+    const fraction =
+      opponents.value.length === 1 ? 0.5 : i / (opponents.value.length - 1);
+
     const angleDeg =
       -ELLIPSE_MAX_ANGLE_LEFT
       + fraction * (ELLIPSE_MAX_ANGLE_LEFT + ELLIPSE_MAX_ANGLE_RIGHT);
@@ -291,17 +297,32 @@ const connectToGame = async () => {
         const playedCardIndex = thisPlayer.value.cards!.findIndex((c) =>
           _.isEqual(c, card)
         );
-        const fromElement = getElementSnapshot(
-          cardRefs.value[playedCardIndex]!.$el
-        );
+        const fromEl = getElementSnapshot(cardRefs.value[playedCardIndex]!.$el);
         thisPlayer.value!.cards!.splice(playedCardIndex, 1);
         await nextTick();
 
         await animate(card, {
-          fromEl: fromElement,
+          fromEl,
           toEl: discardPileRef.value!.cardRefs![0]!.$el,
           duration: 800,
           easing: 'ease',
+        });
+      } else {
+        const playerIndex = opponents.value.findIndex(
+          (p) => p.name === player.name
+        )!;
+        const fromEl = getElementSnapshot(
+          opponentHands.value[playerIndex]!.topCardRef!.$el
+        );
+        opponents.value[playerIndex]!.handSize--;
+        await nextTick();
+
+        await animate(card, {
+          fromEl,
+          toEl: discardPileRef.value!.cardRefs![0]!.$el,
+          duration: 800,
+          easing: 'ease',
+          flipCard: 'face-up',
         });
       }
     }
