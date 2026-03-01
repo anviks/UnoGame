@@ -126,6 +126,8 @@ export async function animateCardMove({
     parseInt(fromRotation)
   ));
 
+  console.log(width, height);
+
   const fromCenterX = fromRect.left + fromRect.width / 2;
   const fromCenterY = fromRect.top + fromRect.height / 2;
 
@@ -168,7 +170,7 @@ export async function animateCardMove({
     };
 
     const cardBackFace = document.createElement('div');
-    render(h(CardBack), cardBackFace);
+    render(h(CardBack, { size: width }), cardBackFace);
     Object.assign(cardBackFace.style, faceStyles);
 
     // Wrap animatedEl in a plain div so Vue reactive re-renders can't touch our
