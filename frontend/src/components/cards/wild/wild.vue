@@ -4,7 +4,6 @@
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 242 362"
   >
-
     <title>Wild card</title>
     <g id="g9888">
       <rect
@@ -255,42 +254,42 @@
       />
       <path
         id="path3773-0-4-8-8-7-9-5-7-0-8"
-        class="yellow-small"
+        class="yellow small"
         d="M33.94,56A39.82,39.82,0,0,0,31,71,10,10,0,0,0,41,81L56,56Z"
       />
       <path
         id="path3773-0-4-8-8-5-6-5-08-9-79-9"
-        class="green-small"
+        class="green small"
         d="M56,56,41,81A40,40,0,0,0,78.06,56Z"
       />
       <path
         id="path3773-0-4-8-8-1-4-39-9-5-1"
-        class="red-small"
+        class="red small"
         d="M71,31A40,40,0,0,0,33.94,56H56Z"
       />
       <path
         id="path3773-0-4-8-8-5-8-3-3-7-38-7"
-        class="blue-small"
+        class="blue small"
         d="M71,31,56,56H78.06A39.82,39.82,0,0,0,81,41,10,10,0,0,0,71,31Z"
       />
       <path
         id="path3773-0-4-8-8-7-9-5-3-2-3"
-        class="yellow-small"
+        class="yellow small"
         d="M163.94,306A39.82,39.82,0,0,0,161,321a10,10,0,0,0,10,10l15-25Z"
       />
       <path
         id="path3773-0-4-8-8-5-6-5-08-5-3-3"
-        class="green-small"
+        class="green small"
         d="M186,306l-15,25a40,40,0,0,0,37.06-25Z"
       />
       <path
         id="path3773-0-4-8-8-1-4-39-7-2-0"
-        class="red-small"
+        class="red small"
         d="M201,281a40,40,0,0,0-37.06,25H186Z"
       />
       <path
         id="path3773-0-4-8-8-5-8-3-3-6-1-7"
-        class="blue-small"
+        class="blue small"
         d="M201,281l-15,25h22.06A39.82,39.82,0,0,0,211,291,10,10,0,0,0,201,281Z"
       />
       <path
@@ -313,7 +312,8 @@
 </template>
 
 <style scoped>
-.cls-1, .cls-2 {
+.cls-1,
+.cls-2 {
   fill: #fff;
 }
 
@@ -322,19 +322,19 @@
   stroke-width: 2px;
 }
 
-.yellow, .yellow-small {
+.yellow {
   fill: #fa0;
 }
 
-.green, .green-small {
+.green {
   fill: #0a0;
 }
 
-.red, .red-small {
+.red {
   fill: #f55;
 }
 
-.blue, .blue-small {
+.blue {
   fill: #55f;
 }
 
@@ -342,24 +342,40 @@
 .chosen-red .blue,
 .chosen-red .yellow {
   opacity: 0.2;
+
+  &.small {
+    opacity: 0.5;
+  }
 }
 
 .chosen-green .red,
 .chosen-green .blue,
 .chosen-green .yellow {
   opacity: 0.2;
+
+  &.small {
+    opacity: 0.5;
+  }
 }
 
 .chosen-blue .red,
 .chosen-blue .green,
 .chosen-blue .yellow {
   opacity: 0.2;
+
+  &.small {
+    opacity: 0.5;
+  }
 }
 
 .chosen-yellow .red,
 .chosen-yellow .green,
 .chosen-yellow .blue {
   opacity: 0.2;
+
+  &.small {
+    opacity: 0.5;
+  }
 }
 
 .cls-7 {
